@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{.Title}}</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    </head>
+    <style>
+        body {
+            background-color: white;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: black;
+            text-align: center;
+        }
+        p {
+            background-color: white;
+            transition: background-color 1s, color 1s;
+            margin: 0;
+            padding: 1em;
+            font-size: 2em;
+        }
+        code {
+            float: right;
+            text-align: right;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .highlight {
+            background-color: red;
+            color: white;
+        }
+    </style>
+    <body>
+        <h1>{{.Title}}</h1>
+        {{range .WeatherData}}
+        <p>
+            {{.Display}} <code>{{.Value}}</code>
+        </p>
+        {{end}}
+        <script type="text/javascript">
+            var datas = document.getElementsByTagName("p");
+            var num = 0;
+            var max = datas.length;
+            function next() {
+                datas[num].setAttribute("class", "");
+                num = (num+1)%max;
+                datas[num].setAttribute("class", "highlight");
+            }
+            datas[num].setAttribute("class", "highlight");
+            i = window.setInterval(function(){next()}, 3000);
+        </script>
+    </body>
+</html>
