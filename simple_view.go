@@ -8,7 +8,8 @@ import (
 
 type (
 	WeatherValue struct {
-		Display, Value string
+		Display string
+		Value   template.HTML
 	}
 	Page struct {
 		Title       string
@@ -27,11 +28,11 @@ func fillSimpleTemplate(city string, w io.Writer) {
 	p := &Page{
 		fmt.Sprintf("Aktuelle Daten für %s", city),
 		[]WeatherValue{
-			WeatherValue{"Temperatur:", fmt.Sprintf("%.2f °C", d.Main.Temp-272.15)},
-			WeatherValue{"Windstärke:", fmt.Sprintf("%.2f Knoten", d.Wind.Speed)},
-			WeatherValue{"Windrichtung:", fmt.Sprintf("%.2f °", d.Wind.Deg)},
-			WeatherValue{"Luftdruck:", fmt.Sprintf("%.2f hpa", d.Main.Pressure)},
-			WeatherValue{"Humidity:", fmt.Sprintf("%d%%", int(d.Main.Humidity))},
+			WeatherValue{"Temperatur:", template.HTML(fmt.Sprintf("%.2f °C", d.Main.Temp-272.15))},
+			WeatherValue{"Windstärke:", template.HTML(fmt.Sprintf("%.2f Knoten", d.Wind.Speed))},
+			WeatherValue{"Windrichtung:", template.HTML(fmt.Sprintf(`<span style="-ms-transform:rotate(%.2fdeg); -webkit-transform:rotate(%.2fdeg); transform:rotate(%.2fdeg); display:block;position:absolute;right:6em;">&#8613;</span> %.2f°`, d.Wind.Deg, d.Wind.Deg, d.Wind.Deg, d.Wind.Deg))},
+			WeatherValue{"Luftdruck:", template.HTML(fmt.Sprintf("%.2f hpa", d.Main.Pressure))},
+			WeatherValue{"Humidity:", template.HTML(fmt.Sprintf("%d%%", int(d.Main.Humidity)))},
 		},
 	}
 	simpleHTMLtemplate.Execute(w, p)
