@@ -15,12 +15,24 @@ func main() {
 	flag.Parse()
 	err := os.Chdir(*wd)
 	if err != nil {
-		fmt.Println("[FAIL] Could not enter working directory:", *wd)
+		Fail(fmt.Sprint("[FAIL] Could not enter working directory:", *wd))
 		os.Exit(1)
 	}
-	dir, err := os.Getwd()
-	fmt.Println("[ OK ] cwd:", dir, err)
-	fmt.Println("[ .. ] AuViI Server starting")
+	dir, _ := os.Getwd()
+	Ok(fmt.Sprint("cwd:", dir))
+	Continue("AuViI Server starting")
 	webSetup(port)
 	os.Exit(0)
+}
+
+func Fail(msg string) {
+	fmt.Printf("\033[1m\033[31m[FAIL]\033[0m %s\n", msg)
+}
+
+func Ok(msg string) {
+	fmt.Printf("\033[1m\033[32m[ OK ]\033[0m %s\n", msg)
+}
+
+func Continue(msg string) {
+	fmt.Printf("\033[0m\033[32m[ .. ]\033[0m %s\n", msg)
 }

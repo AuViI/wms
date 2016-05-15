@@ -1,21 +1,33 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"github.com/mtib/simplehttp"
+	"html/template"
 	"os"
+	"strings"
 )
 
 var (
 	key = flag.String("key", os.Getenv("OWM"), "OpenWeatherMap Key $OWM")
 )
 
+type (
+	Query struct {
+		City string
+		Key  string
+	}
+)
+
+var (
+	currenturl, _ = template.New("current").Parse("http://api.openweathermap.org/data/2.5/weather?q={{.City | urlquery}}&appid={{.Key}}")
+	forcasturl, _ = template.New("forcast").Parse("http://api.openweathermap.org/data/2.5/forecast?q={{.City | urlquery}}&appid={{.Key}}")
+)
+
 const (
-	tmplurl         = "http://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s"
-	tmplforecasturl = "http://api.openweathermap.org/data/2.5/forecast?q=%s&appid=%s"
-	headline        = "YYYY-MM-DD HH:MM:SS TEMP MIN HUMID WINDGRAD FORCE RAIN CLOUDCOVER\n"
+	headline = "YYYY-MM-DD HH:MM:SS TEMP MIN HUMID WINDGRAD FORCE RAIN CLOUDCOVER\n"
 )
 
 type (
@@ -96,10 +108,17 @@ func (f ForecastData) Valid() bool {
 	return f.Cnt != 0
 }
 
+func fillTemlp(t *template.Template, c string) string {
+	var b bytes.Buffer
+	strings.Replace(c, " ", "_", -1)
+	t.Execute(&b, &Query{strings.Replace(c, " ", "_", -1), *key})
+	return b.String()
+}
+
 func GetCurrent(city string) *Data {
 	var wd *Data
 	wd = &Data{}
-	answ, _ := simplehttp.GetResponseBody(fmt.Sprintf(tmplurl, city, *key))
+	answ, _ := simplehttp.GetResponseBody(fillTemlp(currenturl, city))
 	json.Unmarshal(answ, wd)
 	return wd
 }
@@ -107,7 +126,7 @@ func GetCurrent(city string) *Data {
 // GetForecast from OpenWeatherMap
 func GetForecast(city string) *ForecastData {
 	data := new(ForecastData)
-	jdata, err := simplehttp.GetResponseBody(fmt.Sprintf(tmplforecasturl, city, *key))
+	jdata, err := simplehttp.GetResponseBody(fillTemlp(forcasturl, city))
 	if err != nil {
 		panic(err)
 	}
