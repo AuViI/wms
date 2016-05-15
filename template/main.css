@@ -1,0 +1,217 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+
+div.content {
+    width: 100%;
+    background-image: linear-gradient(140deg, rgb(66, 170, 201), rgb(18, 101, 126));
+    font-family: 'Open Sans', sans-serif;
+}
+
+
+@keyframes fadein {
+    0% {opacity: 0;}
+    75% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@keyframes movein {
+    0% {transform:translateX(-4em)}
+    100% {transform:translateX(0)}
+}
+
+img#logo {
+    width: 2em;
+    height: 2em;
+    opacity: 0.8;
+    transform: translateY(.6em);
+    animation-name: fadein;
+    animation-duration: 3s;
+    animation-fill-mode: forwards;
+}
+
+div.header {
+    position: relative;
+    max-width: 1400px;
+    min-height: 30em;
+    margin: auto auto;
+    padding: 2em 3em;
+}
+
+div.smalldiv {
+    min-height: 18em;
+}
+
+div#main {
+    padding: 2em 4em;
+    font-family: 'Open Sans', sans-serif;;
+}
+
+div#navbar {
+    text-align: center;
+    padding: .65em .9em; /*hpadding = itemhpadding + (itemheight-1em)/2*/
+}
+
+div#navbar * {
+    padding: .5em .9em;
+    font-size: 1.2em;
+    text-decoration: none;
+    color: white;
+    text-transform: uppercase;
+    transition: background-color .2s;
+}
+
+div#navbar *:hover {
+    background-color: rgba(82, 180, 209,0.5);
+}
+
+h1 {
+    font-size: 2.4em;
+    padding-bottom: 1em;
+    text-align: center;
+    vertical-align: middle;
+    color: rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+}
+
+.movein {
+    animation-name: fadein, movein;
+    animation-duration: .2s, 2s;
+    animation-fill-mode: forwards;
+}
+
+img.intext {
+    max-width: 25em;
+    padding: 1em;
+}
+
+img.right {
+    float: right;
+}
+
+img.center {
+    display: block;
+    margin: 0 auto;
+}
+
+.notfocusblur {
+    padding: 1em;
+    transition: filter 1s;
+    filter: blur(5px);
+}
+
+.notfocusblur:hover {
+    filter: blur(0);
+}
+
+#main h2 {
+    font-size: 1.9em;
+    text-align: center;
+    padding: 2em 1em .4em 2em;
+    color:rgb(35, 96, 140);
+}
+
+#main p {
+    font-size: 1.3em;
+    color: rgb(41, 41, 41);
+    font-weight: lighter;
+    padding: 1em;
+}
+
+img.inline {
+    width: 100%;
+    filter: drop-shadow(1px 1px 4px rgb(173, 222, 242));
+}
+
+img.explain {
+    width: 40%;
+    float: left;
+    padding: 2em 4em 2em 2em;
+
+}
+
+p.explain {
+    padding: 3em 5em 3em 5em;
+    font-size: 1.2em;
+    color: white;
+    font-weight: 600;
+}
+
+h2.location {
+    font-size: 1.3em;
+    text-align: right;
+    color: rgb(142, 209, 230);
+}
+
+div#footer {
+    padding: 1.5em;
+    font-size: .9em;
+    background-color: grey;
+    color: rgb(255, 255, 255);
+    font-weight: lighter;
+    column-count: 2;
+    -moz-column-count: 2;
+    -webkit-column-count: 2;
+    -webkit-column-rule-style: solid; /* Chrome, Safari, Opera */
+    -moz-column-rule-style: solid; /* Firefox */
+    column-rule-style: solid;
+    -webkit-column-rule-width: 1px; /* Chrome, Safari, Opera */
+    -moz-column-rule-width: 1px; /* Firefox */
+    column-rule-width: 1px;
+    -webkit-column-rule-color: grey; /* Chrome, Safari, Opera */
+    -moz-column-rule-color: grey; /* Firefox */
+    column-rule-color: grey;
+    font-family: 'Open Sans', sans-serif;
+}
+
+#main a {
+    color: rgb(2, 134, 242);
+    text-decoration: none;
+    font-weight: bolder;
+}
+
+#footer a, #footer a:link, #footer a:visited {
+    color: white;
+    text-decoration: none;;
+    font-weight: bold;
+    /*rgb(62, 75, 189)*/
+}
+
+@media (min-width: 1400px) {
+    div#main{
+        max-width: 1330px;
+        margin: auto auto;
+    }
+}
+@media (max-width:1000px) {
+    .header img {
+        display: none;
+    }
+    p.explain {
+        padding: 1em 5em 1em 5em;
+    }
+    h1{
+        padding-bottom: 0em;
+    }
+    div.header {
+        min-height: 0;
+        padding-bottom: 2em;
+    }
+}
+
+@media (max-width: 900px) {
+    img.explain, img, img.intext, img.inline {
+        max-width: 100%;
+        padding: 1em 0;
+    }
+    p.explain {
+        padding: .5em;
+    }
+    div#main {
+        padding: 0;
+    }
+}
