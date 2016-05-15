@@ -110,7 +110,6 @@ func (f ForecastData) Valid() bool {
 
 func fillTemlp(t *template.Template, c string) string {
 	var b bytes.Buffer
-	strings.Replace(c, " ", "_", -1)
 	t.Execute(&b, &Query{strings.Replace(c, " ", "_", -1), *key})
 	return b.String()
 }
