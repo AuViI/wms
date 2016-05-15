@@ -5,10 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"github.com/mtib/simplehttp"
+	"os"
 )
 
 var (
-	key = flag.String("key", "nil", "OpenWeatherMap Key")
+	key = flag.String("key", os.Getenv("OWM"), "OpenWeatherMap Key $OWM")
 )
 
 const (
