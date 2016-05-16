@@ -132,3 +132,7 @@ func GetForecast(city string) *ForecastData {
 	json.Unmarshal(jdata, data)
 	return data
 }
+
+func ktoc(k interface{}) float64 {
+	return k.(float64) - 272.15
+}

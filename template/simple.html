@@ -6,38 +6,38 @@
         <title>{{.Title}}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     </head>
-    <style>
-        body {
-            background-color: white;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            color: black;
-            text-align: center;
-            font-family: sans-serif;
-        }
-        p {
-            background-color: white;
-            transition: background-color 1s, color 1s;
-            margin: 0;
-            padding: 1em;
-            font-size: 2em;
-            font-family: sans-serif;
-            color: rgb(33, 33, 33);
-        }
-        code {
-            float: right;
-            text-align: right;
-            font-weight: bold;
-            font-family: monospace;
-        }
-        .highlight {
-            background-color: red;
-            color: white;
-        }
-    </style>
     <body>
+        <style>
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+            }
+            h1 {
+                color: black;
+                text-align: center;
+                font-family: sans-serif;
+            }
+            p {
+                background-color: white;
+                transition: background-color 1s, color 1s;
+                margin: 0;
+                padding: 1em;
+                font-size: 2em;
+                font-family: sans-serif;
+                color: rgb(33, 33, 33);
+            }
+            code {
+                float: right;
+                text-align: right;
+                font-weight: bold;
+                font-family: monospace;
+            }
+            .highlight {
+                background-color: red;
+                color: white;
+            }
+        </style>
         <h1>{{.Title}}</h1>
         {{range .WeatherData}}
         <p>

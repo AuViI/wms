@@ -56,6 +56,7 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 
 func webSetup(port *string) {
 	http.HandleFunc("/txt/", txtHandler)
+	http.HandleFunc("/csv/", csvHandler) // csv.go
 	http.HandleFunc("/view/", viewHandler)
 	// http.Handle("/resources/", http.FileServer(http.Dir("./resources/")))
 	http.HandleFunc("/", handler)
