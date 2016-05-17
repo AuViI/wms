@@ -43,6 +43,7 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 	s := r.URL.Path[len("/resources/"):]
 	switch s {
 	case "main.css":
+		w.Header().Set("Content-type", "text/css")
 		styleTemplate.Execute(w, nil)
 	default:
 		r, ok := resources[s]
