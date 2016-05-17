@@ -10,18 +10,33 @@
         body {
             font-family: 'Fira Sans', sans-serif;
         }
+        h1 {
+            padding-left: 2em;
+        }
+        h2 {
+            padding: .2em 1em;
+            margin: 0;
+        }
+        div.select, div.save {
+            padding: .5em 0;
+            margin: 0;
+        }
         #choose {
             max-width: 60em;
             margin: auto;
             border-radius: .4em;
             border: 1px solid rgb(170, 170, 170);
-            padding: .5em;
+            padding: .5em .5em .1em .5em;
+            background-color: rgb(250, 250, 250);
+            /*Eye candy*/
+            /*filter: drop-shadow(2px 2px 2px black);*/
+            box-shadow: 2px 2px 10px -5px rgb(126, 126, 126);
         }
         </style>
         <h1>Liste #{{ .UID }}</h1>
         <div id="choose">
             <h2>Select</h2>
-            <p class="select" id="s1">
+            <div class="select" id="s1">
                 <select name="service">
                     <option value="txt">Text</option>
                     <option value="view">Anzeige</option>
@@ -30,29 +45,45 @@
                 <input type="text" placeholder="Ort (Parameter)">
                 <input type="button" name="okBtn" value="OK">
                 <input type="button" onclick="dels(1)" name="delBtn" value="Entfernen">
-            </p>
-            <p>
-                <input type="button" name="newBtn" value="Neu">
-            </p>
+            </div>
+            <div class="save">
+                <input type="button" onclick="news()" name="newBtn" value="Neu">
+            </div>
             <!-- List already entered selections -->
         </div>
         <script type="text/javascript">
+            var cdiv = document.getElementById("choose")
+            function seti(num) {
+                return document.getElementById("s"+num)
+            }
             function dels(num) {
-                document.removeChild(document.getElementById("s"+num))
+                cdiv.removeChild(seti(num))
             }
             var lon = 1
             function news() {
                 lon += 1
                 text = `<p class="select" id="s`+lon+`">
-                    <select name="service">
+                    <select name="service`+lon+`">
                         <option value="txt">Text</option>
                         <option value="view">Anzeige</option>
                         <option value="csv">CSV</option>
                     </select>
-                    <input type="text" placeholder="Ort (Parameter)">
-                    <input type="button" name="okBtn" value="OK">
-                    <input type="button" onclick="dels(`+lon+`)" name="delBtn" value="Entfernen">
+                    <input type="text" placeholder="Ort (Parameter)" name="`+lon+`">
+                    <input type="button" name="okBtn`+lon+`" value="OK">
+                    <input type="button" onclick="dels(`+lon+`)" name="delBtn`+lon+`" value="Entfernen">
                 </p>`
+                cdiv.innerHTML = cdiv.innerHTML.substring(0, lastp()) + text + cdiv.innerHTML.substring(lastp())
+            }
+            function lastp() {
+                res = 0
+                while (true) {
+                    n = cdiv.innerHTML.indexOf("<p>",res+1)
+                    if (n==-1) {
+                        return res
+                    } else {
+                        res = n
+                    }
+                }
             }
         </script>
     </body>

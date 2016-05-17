@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -61,18 +62,15 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	isEdit, _ := regexp.MatchString("/list/[a-zA-Z0-9]{8}/edit", r.URL.Path)
 	if isList && !isEdit {
 		// check if exists, else redirect to /list/[pattern]/edit
-		Continue("List called")
 		listShowHandler(w, r)
 	}
 	if !isList && !isEdit {
 		// generate uid, redirect to /list/[pattern]/edit
-		Continue("New List")
-		pattern := "abcdefgh" // TODO generate this automatically
-		link := fmt.Sprintf("/list/%s/edit", pattern)
-		http.Redirect(w, r, link, 301)
+		pattern := fmt.Sprintf("%08d", time.Now().Unix()%(100000000))[:8]
+		link := fmt.Sprintf("http://%s/list/%s/edit", r.Host, pattern)
+		http.Redirect(w, r, link, 307)
 	}
 	if isEdit {
-		Continue("List edit")
 		listEditHander(w, r)
 	}
 }
@@ -82,7 +80,6 @@ func webSetup(port *string) {
 	http.HandleFunc("/csv/", csvHandler) // csv.go
 	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/list/", listHandler)
-	// http.Handle("/resources/", http.FileServer(http.Dir("./resources/")))
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)
 	http.ListenAndServe(*port, nil)
