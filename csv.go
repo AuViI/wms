@@ -34,6 +34,7 @@ func csvHandler(w http.ResponseWriter, r *http.Request) {
 	if i := strings.Index(city, "/"); i >= 1 {
 		city = city[:i]
 	}
+	w.Header().Set("Content-type", "text/csv")
 	csvWriter(w, city)
 }
 
