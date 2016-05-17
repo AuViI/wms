@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Display {{ .UID }}</title>
+        <link href='https://fonts.googleapis.com/css?family=Fira+Sans:400,300' rel='stylesheet' type='text/css'>
+    </head>
+    <body>
+        <style>
+        body {
+            font-family: 'Fira Sans', sans-serif;
+        }
+        #choose {
+            max-width: 60em;
+            margin: auto;
+            border-radius: .4em;
+            border: 1px solid rgb(170, 170, 170);
+            padding: .5em;
+        }
+        </style>
+        <h1>{{ .UID }}</h1>
+        <div id="choose">
+            <h2>Select</h2>
+            <p class="select">
+                <select name="service">
+                    <option value="txt">Text</option>
+                    <option value="view">Anzeige</option>
+                    <option value="csv">CSV</option>
+                </select>
+                <input type="text" placeholder="Ort (Parameter)">
+            </p>
+            <!-- List already entered selections -->
+        </div>
+    </body>
+</html>

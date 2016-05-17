@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -55,10 +56,32 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func listHandler(w http.ResponseWriter, r *http.Request) {
+	isList, _ := regexp.MatchString("/list/[a-zA-Z0-9]{8}", r.URL.Path)
+	isEdit, _ := regexp.MatchString("/list/[a-zA-Z0-9]{8}/edit", r.URL.Path)
+	if isList && !isEdit {
+		// check if exists, else redirect to /list/[pattern]/edit
+		Continue("List called")
+		listShowHandler(w, r)
+	}
+	if !isList && !isEdit {
+		// generate uid, redirect to /list/[pattern]/edit
+		Continue("New List")
+		pattern := "abcdefgh" // TODO generate this automatically
+		link := fmt.Sprintf("/list/%s/edit", pattern)
+		http.Redirect(w, r, link, 301)
+	}
+	if isEdit {
+		Continue("List edit")
+		listEditHander(w, r)
+	}
+}
+
 func webSetup(port *string) {
 	http.HandleFunc("/txt/", txtHandler)
 	http.HandleFunc("/csv/", csvHandler) // csv.go
 	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/list/", listHandler)
 	// http.Handle("/resources/", http.FileServer(http.Dir("./resources/")))
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)
