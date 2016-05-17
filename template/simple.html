@@ -37,6 +37,12 @@
                 background-color: red;
                 color: white;
             }
+            @media (max-width: 900px) {
+                p{
+                    padding: .5em;
+                    font-size: 1.5em;
+                }
+            }
         </style>
         <h1>{{.Title}}</h1>
         {{range .WeatherData}}

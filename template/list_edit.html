@@ -18,18 +18,42 @@
             padding: .5em;
         }
         </style>
-        <h1>{{ .UID }}</h1>
+        <h1>Liste #{{ .UID }}</h1>
         <div id="choose">
             <h2>Select</h2>
-            <p class="select">
+            <p class="select" id="s1">
                 <select name="service">
                     <option value="txt">Text</option>
                     <option value="view">Anzeige</option>
                     <option value="csv">CSV</option>
                 </select>
                 <input type="text" placeholder="Ort (Parameter)">
+                <input type="button" name="okBtn" value="OK">
+                <input type="button" onclick="dels(1)" name="delBtn" value="Entfernen">
+            </p>
+            <p>
+                <input type="button" name="newBtn" value="Neu">
             </p>
             <!-- List already entered selections -->
         </div>
+        <script type="text/javascript">
+            function dels(num) {
+                document.removeChild(document.getElementById("s"+num))
+            }
+            var lon = 1
+            function news() {
+                lon += 1
+                text = `<p class="select" id="s`+lon+`">
+                    <select name="service">
+                        <option value="txt">Text</option>
+                        <option value="view">Anzeige</option>
+                        <option value="csv">CSV</option>
+                    </select>
+                    <input type="text" placeholder="Ort (Parameter)">
+                    <input type="button" name="okBtn" value="OK">
+                    <input type="button" onclick="dels(`+lon+`)" name="delBtn" value="Entfernen">
+                </p>`
+            }
+        </script>
     </body>
 </html>
