@@ -39,7 +39,7 @@ function save() {
     console.log("saving")
 }
 function update() {
-    dels = document.getElementsByClassName("_del_on_update")
+    var dels = document.getElementsByClassName("_del_on_update")
     for (var ob in dels) {
         if (dels[ob].parentNode) {
             dels[ob].parentNode.removeChild(dels[ob])
