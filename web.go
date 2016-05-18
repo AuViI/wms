@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
-	"time"
 )
 
 // Handler Helper
@@ -39,7 +38,7 @@ func txtHandler(w http.ResponseWriter, r *http.Request) {
 	if i := strings.Index(cut, "/"); i != -1 {
 		cut = cut[:i]
 	}
-	fmt.Fprintf(w, "%s", PrognoseTxt(cut, 3))
+	fmt.Fprintf(w, "%s", PrognoseTxt(cut, DaysForecastTxt))
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
@@ -84,8 +83,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if !isList && !isEdit {
 		// generate uid, redirect to /list/[pattern]/edit
-		pattern := fmt.Sprintf("%08d", time.Now().Unix()%(100000000))[:8]
-		link := fmt.Sprintf("http://%s/list/%s/edit", r.Host, pattern)
+		link := fmt.Sprintf("http://%s/list/%s/edit", r.Host, getRUID(8))
 		http.Redirect(w, r, link, 307)
 	}
 	if isEdit {
