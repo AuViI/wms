@@ -35,6 +35,7 @@ func csvHandler(w http.ResponseWriter, r *http.Request) {
 		city = city[:i]
 	}
 	w.Header().Set("Content-type", "text/csv")
+	w.Header().Set("Cache-Control", "max-age=0")
 	csvWriter(w, city)
 }
 

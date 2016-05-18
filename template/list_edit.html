@@ -4,6 +4,8 @@
         <meta charset="utf-8">
         <title>Display {{ .UID }}</title>
         <link href='https://fonts.googleapis.com/css?family=Fira+Sans:400,300' rel='stylesheet' type='text/css'>
+        <!-- <link href='https://fonts.googleapis.com/css?family=Fira+Mono:400' rel='stylesheet' type='text/css'> -->
+        <meta http-equiv="expires" content="0">
     </head>
     <body>
         <style>
@@ -16,6 +18,12 @@
         h2 {
             padding: .2em 1em;
             margin: 0;
+        }
+        a {
+            color: rgb(219, 100, 30);
+            text-decoration: none;
+            /*font-family: 'Fira Mono', monospace;
+            font-weight: 400;*/
         }
         div.select, div.save {
             padding: .5em 0;
@@ -32,59 +40,30 @@
             /*filter: drop-shadow(2px 2px 2px black);*/
             box-shadow: 2px 2px 10px -5px rgb(126, 126, 126);
         }
+        .foot {
+            padding: 1em;
+            text-align: center;
+            font-weight: lighter;
+        }
+        .wip {
+            color: red;
+            /*background-color: #F0F;*/
+        }
         </style>
         <h1>Liste #{{ .UID }}</h1>
         <div id="choose">
             <h2>Select</h2>
-            <div class="select" id="s1">
-                <select name="service">
-                    <option value="txt">Text</option>
-                    <option value="view">Anzeige</option>
-                    <option value="csv">CSV</option>
-                </select>
-                <input type="text" placeholder="Ort (Parameter)">
-                <input type="button" name="okBtn" value="OK">
-                <input type="button" onclick="dels(1)" name="delBtn" value="Entfernen">
+            <div id="container">
             </div>
             <div class="save">
-                <input type="button" onclick="news()" name="newBtn" value="Neu">
+                <input type="button" onclick="save()" name="newBtn" value="Speichern">
+                <input type="button" onclick="console.log(output())" class="wip" value="CLI Output">
             </div>
             <!-- List already entered selections -->
         </div>
-        <script type="text/javascript">
-            var cdiv = document.getElementById("choose")
-            function seti(num) {
-                return document.getElementById("s"+num)
-            }
-            function dels(num) {
-                cdiv.removeChild(seti(num))
-            }
-            var lon = 1
-            function news() {
-                lon += 1
-                text = `<p class="select" id="s`+lon+`">
-                    <select name="service`+lon+`">
-                        <option value="txt">Text</option>
-                        <option value="view">Anzeige</option>
-                        <option value="csv">CSV</option>
-                    </select>
-                    <input type="text" placeholder="Ort (Parameter)" name="`+lon+`">
-                    <input type="button" name="okBtn`+lon+`" value="OK">
-                    <input type="button" onclick="dels(`+lon+`)" name="delBtn`+lon+`" value="Entfernen">
-                </p>`
-                cdiv.innerHTML = cdiv.innerHTML.substring(0, lastp()) + text + cdiv.innerHTML.substring(lastp())
-            }
-            function lastp() {
-                res = 0
-                while (true) {
-                    n = cdiv.innerHTML.indexOf("<p>",res+1)
-                    if (n==-1) {
-                        return res
-                    } else {
-                        res = n
-                    }
-                }
-            }
-        </script>
+        <div class="foot">
+            Beta-Support: <a href="mailto:auvii@tibyte.net">AuViI@TiByte.net</a>
+        </div>
+        <script type="text/javascript" src="/resources/list_edit.min.js"></script>
     </body>
 </html>

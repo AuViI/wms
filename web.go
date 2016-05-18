@@ -2,14 +2,23 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
+	"text/template"
 	"time"
 )
+
+// Handler Helper
+var indexTemplate, _ = template.ParseFiles("./template/index.html")
+var styleTemplate, _ = template.ParseFiles("./template/main.css")
+var editJsMinTmpl, _ = template.ParseFiles("./template/list_edit.min.js")
+
+var resources = map[string]string{
+	"logo.png": load("logo.png"),
+}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path[1:] {
@@ -38,6 +47,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	if i := strings.Index(cut, "/"); i != -1 {
 		cut = cut[:i]
 	}
+	w.Header().Set("Cache-Control", "max-age=600")
 	SimpleHTML(cut, w)
 }
 
@@ -46,7 +56,15 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 	switch s {
 	case "main.css":
 		w.Header().Set("Content-type", "text/css")
-		styleTemplate.Execute(w, nil)
+		err := styleTemplate.Execute(w, nil)
+		if err != nil {
+			Fail(fmt.Sprintf("main.css: %s", err))
+		}
+	case "list_edit.min.js":
+		err := editJsMinTmpl.Execute(w, nil)
+		if err != nil {
+			Fail(fmt.Sprintf("list_edit.min.js %s", err))
+		}
 	default:
 		r, ok := resources[s]
 		if !ok || r == "" {
@@ -83,14 +101,6 @@ func webSetup(port *string) {
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)
 	http.ListenAndServe(*port, nil)
-}
-
-// Handler Helper
-var indexTemplate, _ = template.ParseFiles("./template/index.html")
-var styleTemplate, _ = template.ParseFiles("./template/main.css")
-
-var resources = map[string]string{
-	"logo.png": load("logo.png"),
 }
 
 func load(res string) string {
