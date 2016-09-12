@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -88,7 +89,18 @@ var (
 
 // Show writes the forecast
 func Show(w http.ResponseWriter, r *http.Request) {
-	query := "Kühlungsborn"
+	query := r.URL.RequestURI()[10:]
+	if query == "" {
+		w.Header().Set("Location", "/forecast/Kühlungsborn")
+		w.WriteHeader(301)
+		fmt.Println(w.Header())
+	} else {
+		url, err := url.QueryUnescape(query)
+		if err != nil {
+			w.Write([]byte("An Error occurred reading the URL"))
+		}
+		query = url
+	}
 	cwd := weather.GetCurrent(query).ConvertToCelsius()
 	forecastAll := weather.GetForecast(query)
 	forecastTemplate.Execute(w, Data{
