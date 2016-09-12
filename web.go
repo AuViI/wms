@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/auvii/wms/forecast"
 )
 
 // Handler Helper
@@ -91,10 +93,26 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func forecastHandler(w http.ResponseWriter, r *http.Request) {
+	forecast.Show(w, r)
+}
+
+func ncForecastHandler(w http.ResponseWriter, r *http.Request) {
+	forecast.ShowNoCache(w, r)
+}
+
+func noCacheSwitch(cached, nocache http.HandlerFunc) http.HandlerFunc {
+	if !*nc {
+		return cached
+	}
+	return nocache
+}
+
 func webSetup(port *string) {
 	http.HandleFunc("/txt/", txtHandler)
 	http.HandleFunc("/csv/", csvHandler) // csv.go
 	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/forecast/", noCacheSwitch(forecastHandler, ncForecastHandler))
 	http.HandleFunc("/list/", listHandler)
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)

@@ -1,13 +1,14 @@
-package main
+package weather
 
 import (
 	"bytes"
 	"encoding/json"
 	"flag"
-	"github.com/mtib/simplehttp"
 	"html/template"
 	"os"
 	"strings"
+
+	"github.com/mtib/simplehttp"
 )
 
 var (
@@ -67,39 +68,40 @@ type (
 			Country    string `json:"country"`
 			Population int    `json:"population"`
 		}
-		Cod     string  `json:"cod"`
-		Cnt     int     `json:"cnt"`
-		Message float64 `json:"message"`
-		Data    []struct {
-			Time int64 `json:"dt"`
-			Main struct {
-				TempK       float64 `json:"temp"`
-				TempMinK    float64 `json:"temp_min"`
-				TempMaxK    float64 `json:"temp_max"`
-				Pressure    float64 `json:"pressure"`
-				SeaLevel    float64 `json:"sea_level"`
-				GroundLevel float64 `json:"grnd_level"`
-				Humidity    int     `json:"humidity"`
-				TempKfK     float64 `json:"temp_kf"`
-			} `json:"main"`
-			Weather []struct {
-				ID          int    `json:"id"`
-				Main        string `json:"main"`
-				Description string `json:"description"`
-				Icon        string `json:"icon"`
-			} `json:"weather"`
-			Clouds struct {
-				All int `json:"all"`
-			} `json:"clouds"`
-			Wind struct {
-				Speed  float64 `json:"speed"`
-				Degree float64 `json:"deg"`
-			} `json:"wind"`
-			Rain struct {
-				Amount float64 `json:"3h"`
-			} `json:"rain"`
-			TimeString string `json:"dt_txt"`
-		} `json:"list"`
+		Cod     string      `json:"cod"`
+		Cnt     int         `json:"cnt"`
+		Message float64     `json:"message"`
+		Data    []DataPoint `json:"list"`
+	}
+	DataPoint struct {
+		Time int64 `json:"dt"`
+		Main struct {
+			TempK       float64 `json:"temp"`
+			TempMinK    float64 `json:"temp_min"`
+			TempMaxK    float64 `json:"temp_max"`
+			Pressure    float64 `json:"pressure"`
+			SeaLevel    float64 `json:"sea_level"`
+			GroundLevel float64 `json:"grnd_level"`
+			Humidity    int     `json:"humidity"`
+			TempKfK     float64 `json:"temp_kf"`
+		} `json:"main"`
+		Weather []struct {
+			ID          int    `json:"id"`
+			Main        string `json:"main"`
+			Description string `json:"description"`
+			Icon        string `json:"icon"`
+		} `json:"weather"`
+		Clouds struct {
+			All int `json:"all"`
+		} `json:"clouds"`
+		Wind struct {
+			Speed  float64 `json:"speed"`
+			Degree float64 `json:"deg"`
+		} `json:"wind"`
+		Rain struct {
+			Amount float64 `json:"3h"`
+		} `json:"rain"`
+		TimeString string `json:"dt_txt"`
 	}
 )
 
@@ -134,5 +136,9 @@ func GetForecast(city string) *ForecastData {
 }
 
 func ktoc(k interface{}) float64 {
+	return k.(float64) - 272.15
+}
+
+func Ktoc(k interface{}) float64 {
 	return k.(float64) - 272.15
 }
