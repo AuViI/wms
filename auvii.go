@@ -9,17 +9,25 @@ import (
 var (
 	port = flag.String("port", ":8080", "Port to host webservice on")
 	wd   = flag.String("wd", fmt.Sprintf("%s/src/github.com/auvii/wms/", os.Getenv("GOPATH")), "working directory")
+	nc   = flag.Bool("no-cache", false, "If this is set, templates won't be cached")
+	help = flag.Bool("help", false, "Displays possible parameters")
 )
 
 func main() {
 	flag.Parse()
+	if *help {
+		flag.PrintDefaults()
+		return
+	}
 	err := os.Chdir(*wd)
 	if err != nil {
-		Fail(fmt.Sprint("[FAIL] Could not enter working directory:", *wd))
+		Fail(fmt.Sprint("Could not enter working directory:", *wd))
 		os.Exit(1)
 	}
 	dir, _ := os.Getwd()
 	Ok(fmt.Sprint("cwd:", dir))
+	Continue(fmt.Sprintf("Using Cache: %v", !*nc))
+	Continue(fmt.Sprintf("Using Port: %v", *port))
 	Continue("AuViI Server starting")
 	webSetup(port)
 	os.Exit(0)
