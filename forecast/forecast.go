@@ -16,8 +16,8 @@ const (
 	fcTmpl = "./template/forecast.html"
 )
 
-// Data contains all Data needed for filling the Template
-type Data struct {
+// data contains all Data needed for filling the Template
+type data struct {
 	Ort          string
 	Datum        string
 	Uhrzeit      string
@@ -26,22 +26,22 @@ type Data struct {
 	PhysGroessen string
 	Legende      string
 	Time         string
-	Geo          GeoData
+	Geo          geoData
 	Cwd          *weather.Data
-	Fwd          PrintFwd
+	Fwd          printFwd
 	RFwd         *weather.ForecastData
-	Nw           NiceWeather
+	Nw           niceWeather
 	MapsKey      string
 }
 
-// PrintFwd contains the Raw-Filtered weather data and formatted txt
-type PrintFwd struct {
+// printFwd contains the Raw-Filtered weather data and formatted txt
+type printFwd struct {
 	Raw weather.ForecastData
-	N   []PrintFwdPoint
+	N   []printFwdPoint
 }
 
-// PrintFwdPoint is a single formatted data point of PrintFwd
-type PrintFwdPoint struct {
+// printFwdPoint is a single formatted data point of PrintFwd
+type printFwdPoint struct {
 	Time  int64
 	Stamp string
 	C     string
@@ -58,22 +58,22 @@ type PrintFwdPoint struct {
 	RainA string
 }
 
-// GeoData contains Lat and Lon
-type GeoData struct {
+// geoData contains Lat and Lon
+type geoData struct {
 	Lat float64
 	Lon float64
 }
 
-// NiceWeather is PrintFwdPoint for current weather
-type NiceWeather struct {
+// niceWeather is PrintFwdPoint for current weather
+type niceWeather struct {
 	Temp    string
 	TempMax string
 	TempMin string
 }
 
-// NiceWeatherFromData converts kelvin to celsius
-func NiceWeatherFromData(w *weather.Data) NiceWeather {
-	return NiceWeather{
+// niceWeatherFromData converts kelvin to celsius
+func niceWeatherFromData(w *weather.Data) niceWeather {
+	return niceWeather{
 		Temp:    fmt.Sprintf("%.2f", w.Main.Temp),
 		TempMax: fmt.Sprintf("%.2f", w.Main.TempMax),
 		TempMin: fmt.Sprintf("%.2f", w.Main.TempMin),
@@ -111,21 +111,21 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	}
 	cwd := weather.GetCurrent(query).ConvertToCelsius()
 	forecastAll := weather.GetForecast(query)
-	forecastTemplate.Execute(w, Data{
+	forecastTemplate.Execute(w, data{
 		Ort:          query,
 		Datum:        tString(cwd.Dt),
 		Uhrzeit:      "12:00",
-		Wetterlage:   "Sonnig",
+		Wetterlage:   cwd.Weather[0].Main,
 		WetterDesc:   "Beschreibung per Hand Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
 		PhysGroessen: "Temperatur: ...",
 		Legende:      "Legende",
 		Time:         nowString(),
-		Geo:          GeoData{Lat: cwd.Coord["lat"], Lon: cwd.Coord["lon"]},
+		Geo:          geoData{Lat: cwd.Coord["lat"], Lon: cwd.Coord["lon"]},
 		Cwd:          cwd,
-		Fwd: func(f weather.ForecastData) PrintFwd {
-			var nice []PrintFwdPoint
+		Fwd: func(f weather.ForecastData) printFwd {
+			var nice []printFwdPoint
 			for _, v := range f.Data {
-				nice = append(nice, PrintFwdPoint{
+				nice = append(nice, printFwdPoint{
 					Time:  v.Time,
 					Stamp: tString(time.Unix(v.Time, 0).Local().Unix()),
 					C:     fmt.Sprintf("%.2f", weather.Ktoc(v.Main.TempK)),
@@ -136,19 +136,19 @@ func Show(w http.ResponseWriter, r *http.Request) {
 					Icon:  v.Weather[0].Icon,
 					Main:  v.Weather[0].Main,
 					Desc:  v.Weather[0].Description,
-					Cloud: v.Clouds.All,
+					Cloud: int(float64(v.Clouds.All) * 0.08),
 					WindS: fmt.Sprintf("%.2f", v.Wind.Speed),
 					WindD: int(v.Wind.Degree),
 					RainA: fmt.Sprintf("%.0f", v.Rain.Amount),
 				})
 			}
-			return PrintFwd{
+			return printFwd{
 				Raw: f,
 				N:   nice,
 			}
 		}(forecastAll.Filter(weather.MIDDAY | weather.EVENING | weather.MORNING)),
 		RFwd:    forecastAll,
-		Nw:      NiceWeatherFromData(cwd),
+		Nw:      niceWeatherFromData(cwd),
 		MapsKey: *mapskey,
 	})
 }

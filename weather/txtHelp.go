@@ -5,15 +5,18 @@ import (
 	"time"
 )
 
+// WeatherString returns the first line for /txt/ using current data
 func (w *Data) WeatherString() string {
 	n := time.Now()
 	return fmt.Sprintf("%s %s %.1f %.1f %.f %.f %.1f %.1f %.f\n", fmt.Sprint(time.Now())[:10], fmt.Sprintf("%02d:%02d:%02d", n.Hour(), n.Minute(), n.Second()), w.Main.Temp-272.15, w.Main.TempMin-272.15, w.Main.Humidity, w.Wind.Deg, w.Wind.Speed, w.Rain.Volume+w.Snow.Volume, w.Clouds.All*0.08)
 }
 
+// Header returns the header for the /txt/ file
 func (f *ForecastData) Header() string {
 	return fmt.Sprintf("# %s {%+5.2f;%+5.2f}\n# %s\n# %s", f.City.Name, f.City.Coord.Lat, f.City.Coord.Lon, time.Now(), headline)
 }
 
+// ConvertToCelsius copies a new Data packet, but converts Kelvin to Celsius
 func (w Data) ConvertToCelsius() *Data {
 	w.Main.Temp = ktoc(w.Main.Temp)
 	w.Main.TempMax = ktoc(w.Main.TempMax)
@@ -21,6 +24,7 @@ func (w Data) ConvertToCelsius() *Data {
 	return &w
 }
 
+// NForecast returns a string to be appended to /txt/ for `n` days in the future
 func (f *ForecastData) NForecast(n int) string {
 	n *= 2 // Zwei Daten je Tag
 	now := time.Now()

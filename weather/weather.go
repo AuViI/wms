@@ -16,6 +16,7 @@ var (
 )
 
 type (
+	// Query is all you need to know to query OWM for Data
 	Query struct {
 		City string
 		Key  string
@@ -32,10 +33,18 @@ const (
 )
 
 type (
+	// TODO: type for Main, Weather, Wind, Coord
+
+	// Data is the god-object
 	Data struct {
 		Coord   map[string]float64
-		Weather []map[string]interface{}
-		Main    struct {
+		Weather []struct {
+			ID          int    `json:"id"`
+			Main        string `json:"main"`
+			Description string `json:"description"`
+			Icon        string `json:"icon"`
+		} `json:"weather"`
+		Main struct {
 			Temp     float64
 			Pressure float64
 			Humidity float64
@@ -57,6 +66,7 @@ type (
 		}
 		Dt int64
 	}
+	// ForecastData contains all the forecast data
 	ForecastData struct {
 		City struct {
 			ID    int    `json:"id"`
@@ -73,6 +83,7 @@ type (
 		Message float64     `json:"message"`
 		Data    []DataPoint `json:"list"`
 	}
+	// DataPoint is part of data /t
 	DataPoint struct {
 		Time int64 `json:"dt"`
 		Main struct {
@@ -116,6 +127,7 @@ func fillTemlp(t *template.Template, c string) string {
 	return b.String()
 }
 
+// GetCurrent returns filled `Data` for `city`
 func GetCurrent(city string) *Data {
 	var wd *Data
 	wd = &Data{}
@@ -139,6 +151,7 @@ func ktoc(k interface{}) float64 {
 	return k.(float64) - 272.15
 }
 
+// Ktoc converts Kelvin to Celsius
 func Ktoc(k interface{}) float64 {
 	return k.(float64) - 272.15
 }
