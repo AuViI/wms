@@ -8,11 +8,15 @@ import (
 	"github.com/auvii/wms/weather"
 )
 
+// TODO: Move simple_view* to own package
+
 type (
+	// WeatherValue contains Display: X; Value: Y;
 	WeatherValue struct {
 		Display string
 		Value   template.HTML
 	}
+	// Page contains Title and all values
 	Page struct {
 		Title       string
 		WeatherData []WeatherValue
@@ -21,6 +25,7 @@ type (
 
 var simpleHTMLtemplate, _ = template.ParseFiles("template/simple.html")
 
+// SimpleHTML is a single call to write forecast for `city` to `w`
 func SimpleHTML(city string, w io.Writer) {
 	fillSimpleTemplate(city, w)
 }

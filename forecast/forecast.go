@@ -16,6 +16,7 @@ const (
 	fcTmpl = "./template/forecast.html"
 )
 
+// Data contains all Data needed for filling the Template
 type Data struct {
 	Ort          string
 	Datum        string
@@ -33,11 +34,13 @@ type Data struct {
 	MapsKey      string
 }
 
+// PrintFwd contains the Raw-Filtered weather data and formatted txt
 type PrintFwd struct {
 	Raw weather.ForecastData
 	N   []PrintFwdPoint
 }
 
+// PrintFwdPoint is a single formatted data point of PrintFwd
 type PrintFwdPoint struct {
 	Time  int64
 	Stamp string
@@ -55,17 +58,20 @@ type PrintFwdPoint struct {
 	RainA string
 }
 
+// GeoData contains Lat and Lon
 type GeoData struct {
 	Lat float64
 	Lon float64
 }
 
+// NiceWeather is PrintFwdPoint for current weather
 type NiceWeather struct {
 	Temp    string
 	TempMax string
 	TempMin string
 }
 
+// NiceWeatherFromData converts kelvin to celsius
 func NiceWeatherFromData(w *weather.Data) NiceWeather {
 	return NiceWeather{
 		Temp:    fmt.Sprintf("%.2f", w.Main.Temp),
@@ -99,6 +105,8 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.Write([]byte("An Error occurred reading the URL"))
 		}
+		//w.Header().Set("Refresh", "10") // Sekunden
+		w.Header().Set("Cache-Control", "max-age=600")
 		query = url
 	}
 	cwd := weather.GetCurrent(query).ConvertToCelsius()

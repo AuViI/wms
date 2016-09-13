@@ -7,6 +7,8 @@ import (
 	"regexp"
 )
 
+// TODO: move list* to own package
+
 // /list/ -> redirect /list/[:alpha:]{8}/edit
 // /list/[:alpha:]{8} to view
 
@@ -24,7 +26,12 @@ func listEditHander(w http.ResponseWriter, r *http.Request) {
 	}
 	data := new(editData)
 	data.UID = listIDregex.FindAllStringSubmatch(r.URL.Path, -1)[0][1]
-	editTemplate.Execute(w, data)
+	err := editTemplate.Execute(w, data)
+	if err != nil {
+		// TODO:0 Handle errors in list
+		fmt.Println("Failed to execute list template")
+		fmt.Println(err)
+	}
 }
 
 func listShowHandler(w http.ResponseWriter, r *http.Request) {

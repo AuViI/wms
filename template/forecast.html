@@ -243,13 +243,27 @@ Dt: {{ .Cwd.Dt }}
       var mapOptions = {
         center: new google.maps.LatLng({{ .Geo.Lat }},{{ .Geo.Lon }}),
         zoom: 10,
+        disableDefaultUI: true,
         streetViewControl: false,
-
+        /*
+            ROADMAP (normal, default 2D map)
+            SATELLITE (photographic map)
+            HYBRID (photographic map + roads and city names)
+            TERRAIN (map with mountains, rivers, etc)
+        */
+        mapTypeId: google.maps.MapTypeId.TERRAIN,
       };
-      var map = new google.maps.Map(mapCanvas, mapOptions);
+      var map = new google.maps.Map(mapCanvas, mapOptions)
     }
     </script>
 
     <script src="https://maps.googleapis.com/maps/api/js?callback=gmaps&key={{ .MapsKey }}"></script>
+
+    <script type="text/javascript">
+      rfresh = 34*60*1000 // 34 ms * min * 1/ms = 34 min
+      window.setTimeout(function(){
+        location.reload(true)
+      },rfresh)
+    </script>
   </body>
 </html>

@@ -112,7 +112,8 @@ func webSetup(port *string) {
 	http.HandleFunc("/txt/", txtHandler)
 	http.HandleFunc("/csv/", csvHandler) // csv.go
 	http.HandleFunc("/view/", viewHandler)
-	http.HandleFunc("/forecast/", noCacheSwitch(forecastHandler, ncForecastHandler))
+	http.HandleFunc("/forecast/",
+		noCacheSwitch(forecastHandler, ncForecastHandler))
 	http.HandleFunc("/list/", listHandler)
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)

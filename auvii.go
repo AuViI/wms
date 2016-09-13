@@ -33,14 +33,17 @@ func main() {
 	os.Exit(0)
 }
 
+// Fail sends `msg` to stdout with [FAIL] prefix
 func Fail(msg string) {
 	fmt.Printf("\033[1m\033[31m[FAIL]\033[0m %s\n", msg)
 }
 
+// Ok sends `msg` to stdout with [ OK ] prefix
 func Ok(msg string) {
 	fmt.Printf("\033[1m\033[32m[ OK ]\033[0m %s\n", msg)
 }
 
+// Continue sends `msg` to stdout with [ .. ] prefix
 func Continue(msg string) {
 	fmt.Printf("\033[0m\033[32m[ .. ]\033[0m %s\n", msg)
 }
