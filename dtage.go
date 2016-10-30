@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -81,7 +83,30 @@ func (r RowError) Error() string {
 }
 
 func handleDTage(w http.ResponseWriter, r *http.Request) {
-	exampleData := newNTage(3, "Braunschweig")
+	req := strings.Split(r.URL.Path, "/")
+	num := uint(3)
+	//display := "default" // different modes
+	switch len(req) {
+	case 0:
+	case 1:
+		// unreachable
+		// ["", "dtage", "ort", "n", "type"]
+		return
+	case 2:
+		fmt.Fprint(w, "Du musst einen Ort angeben\nbsp.: /dtage/Braunschweig")
+		break
+	case 3:
+		break
+	default:
+		tnum, err := strconv.ParseInt(req[3], 10, 32)
+		if err != nil {
+			fmt.Fprint(w, "Der Zeitparameter ist fehlerhaft")
+			return
+		}
+		num = uint(tnum)
+		break
+	}
+	exampleData := newNTage(num, req[2])
 	exampleData.Row("Temperatur", []string{"10", "20", "30"}, false, htmlC)
 	dtagetmpl.Execute(w, exampleData)
 }
