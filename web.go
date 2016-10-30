@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/auvii/wms/forecast"
 )
@@ -27,6 +28,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		serveIndex(w)
 	case "bsp/":
 		fmt.Fprint(w, "<html><h1>Beispiele</h1>")
+		fmt.Fprint(w, "<html><h2>Verschiedene Modi's</h2>")
 		orte := []string{"Berlin", "Kühlungsborn", "Oslo", "New York", "Braunschweig", "Rostock"}
 		prefix := []string{"txt", "forecast", "list", "csv", "dtage", "view"}
 		fmt.Fprint(w, "<table>")
@@ -37,7 +39,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			}
 			fmt.Fprint(w, "</tr>")
 		}
-		fmt.Fprint(w, "</table>")
+		fmt.Fprint(w, "</table><h2>dtage Grafiken</h2><table>")
+		modes := []string{"meteo", "astro"}
+		for _, ort := range orte {
+			fmt.Fprintf(w, "<tr><th>%s:</th>", ort)
+			fmt.Fprintf(w, "<td><a href=\"/dtage/%s/1/aktuell\">(aktuell)</a></td>", ort)
+			for _, mode := range modes {
+				for _, d := range []int{1, 3, 4} {
+					fmt.Fprintf(w, "<td><a href=\"/dtage/%s/%d/%s\">(%d Tage %s)</a></td>", ort, d, mode, d, mode)
+				}
+			}
+			fmt.Fprint(w, "</tr>")
+		}
+		fmt.Fprintf(w, "</table><code>%s</code>", time.Now().String())
 	}
 }
 
