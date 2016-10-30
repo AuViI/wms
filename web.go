@@ -26,12 +26,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	case "":
 		serveIndex(w)
 	case "bsp/":
-		fmt.Fprint(w, "<html>Beispiele:<br>")
-		// Bad Code starting
-		orte := []string{"Berlin", "Kühlungsborn", "Oslo", "New York"}
-		for _, v := range orte {
-			fmt.Fprintf(w, "<a href=\"/txt/%s/\">txt</a> <a href=\"/view/%s/\">view</a> %s<br>", v, v, v)
+		fmt.Fprint(w, "<html><h1>Beispiele</h1>")
+		orte := []string{"Berlin", "Kühlungsborn", "Oslo", "New York", "Braunschweig", "Rostock"}
+		prefix := []string{"txt", "forecast", "list", "csv", "dtage", "view"}
+		fmt.Fprint(w, "<table>")
+		for _, ort := range orte {
+			fmt.Fprintf(w, "<tr><th>%s:</th>", ort)
+			for _, pre := range prefix {
+				fmt.Fprintf(w, "<td><a href=\"/%s/%s\">%s</a></td>", pre, ort, pre)
+			}
+			fmt.Fprint(w, "</tr>")
 		}
+		fmt.Fprint(w, "</table>")
 	}
 }
 
@@ -117,6 +123,7 @@ func webSetup(port *string) {
 	http.HandleFunc("/list/", listHandler)
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)
+	http.HandleFunc("/dtage/", noCacheSwitch(handleDTage, ncHandleDTage))
 	http.ListenAndServe(*port, nil)
 }
 
