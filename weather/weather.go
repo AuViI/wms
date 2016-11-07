@@ -121,6 +121,39 @@ func (f ForecastData) Valid() bool {
 	return f.Cnt != 0
 }
 
+// MphToBf converts mp/h to Bf.
+func MphToBf(mph float64) float64 {
+	switch {
+	case mph < 1:
+		return 0
+	case mph <= 3:
+		return 1
+	case mph <= 7:
+		return 2
+	case mph <= 12:
+		return 3
+	case mph <= 18:
+		return 4
+	case mph <= 24:
+		return 5
+	case mph <= 31:
+		return 6
+	case mph <= 38:
+		return 7
+	case mph <= 46:
+		return 8
+	case mph <= 54:
+		return 9
+	case mph <= 63:
+		return 10
+	case mph <= 72:
+		return 11
+	case mph > 72:
+		return 12
+	}
+	return -1
+}
+
 func fillTemlp(t *template.Template, c string) string {
 	var b bytes.Buffer
 	t.Execute(&b, &Query{strings.Replace(c, " ", "_", -1), *key})

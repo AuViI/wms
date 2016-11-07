@@ -17,6 +17,7 @@ import (
 var indexTemplate, _ = template.ParseFiles("./template/index.html")
 var styleTemplate, _ = template.ParseFiles("./template/main.css")
 var editJsMinTmpl, _ = template.ParseFiles("./template/list_edit.min.js")
+var normListTmpl, _ = template.ParseFiles("./template/normlist.html")
 
 var resources = map[string]string{
 	"logo.png": load("logo.png"),
@@ -44,6 +45,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		for _, ort := range orte {
 			fmt.Fprintf(w, "<tr><th>%s:</th>", ort)
 			fmt.Fprintf(w, "<td><a href=\"/dtage/%s/1/aktuell\">(aktuell)</a></td>", ort)
+			fmt.Fprintf(w, "<td><a href=\"/normlist/%s\">normlist</a></td>", ort)
 			for _, mode := range modes {
 				for _, d := range []int{1, 3, 4} {
 					fmt.Fprintf(w, "<td><a href=\"/dtage/%s/%d/%s\">(%d Tage %s)</a></td>", ort, d, mode, d, mode)
@@ -121,6 +123,24 @@ func ncForecastHandler(w http.ResponseWriter, r *http.Request) {
 	forecast.ShowNoCache(w, r)
 }
 
+func normlistHandler(w http.ResponseWriter, r *http.Request) {
+	l := strings.Split(r.URL.Path, "/")
+	if len(l) > 2 {
+		normListTmpl.Execute(w, struct {
+			Ort string
+		}{
+			Ort: l[2],
+		})
+	} else {
+		fmt.Fprintf(w, "not correct request format: %v", l)
+	}
+}
+
+func ncNormlistHandler(w http.ResponseWriter, r *http.Request) {
+	normListTmpl, _ = template.ParseFiles("./template/normlist.html")
+	normlistHandler(w, r)
+}
+
 func noCacheSwitch(cached, nocache http.HandlerFunc) http.HandlerFunc {
 	if !*nc {
 		return cached
@@ -137,7 +157,10 @@ func webSetup(port *string) {
 	http.HandleFunc("/list/", listHandler)
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)
-	http.HandleFunc("/dtage/", noCacheSwitch(handleDTage, ncHandleDTage))
+	http.HandleFunc("/dtage/",
+		noCacheSwitch(handleDTage, ncHandleDTage))
+	http.HandleFunc("/normlist/",
+		noCacheSwitch(normlistHandler, ncNormlistHandler))
 	http.ListenAndServe(*port, nil)
 }
 

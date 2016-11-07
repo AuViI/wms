@@ -38,7 +38,29 @@ var (
 )
 
 func (n ntag) Now() string {
-	return time.Now().String()
+	tn := time.Now()
+	toGerman := func(d time.Weekday) string {
+		s := d.String()
+		switch s {
+		case "Monday":
+			return "Montag"
+		case "Tuesday":
+			return "Dienstag"
+		case "Wednesday":
+			return "Mittwoch"
+		case "Thursday":
+			return "Donnerstag"
+		case "Friday":
+			return "Freitag"
+		case "Saturday":
+			return "Samstag"
+		case "Sunday":
+			return "Sonntag"
+		default:
+			return s
+		}
+	}
+	return fmt.Sprintf("%v %d.%02d", toGerman(tn.Weekday()), tn.Day(), tn.Month())
 }
 
 func (n *ntag) Row(name string, data []string, bold bool, unit string) error {
@@ -90,6 +112,11 @@ func (s simpleTime) String() string {
 	return fmt.Sprintf("%02d:%02d %d.%02d.%d", t.Hour(), t.Minute(), t.Day(), t.Month(), t.Year())
 }
 
+func (s simpleTime) Error() string {
+	t := time.Unix(int64(s), 0)
+	return fmt.Sprintf("%X", t.Unix())
+}
+
 func getIconString(icon string) string {
 	return fmt.Sprintf("<img class=\"icon\" src=\"http://openweathermap.org/img/w/%s.png\" alt=\"Fehler\" />", icon)
 }
@@ -100,6 +127,10 @@ func fillMeteo(out *ntag) error {
 
 	addStr := func(name string, data []string, unit string) {
 		out.Row(name, data, false, unit)
+	}
+
+	if cwd.Dt == 0 || fwd.Cnt == 0 {
+		addStr("Fehler", make([]string, out.N), "404")
 	}
 
 	//tDat := make([]string, out.N)
@@ -113,44 +144,44 @@ func fillMeteo(out *ntag) error {
 	if time.Unix(cwd.Dt, 0).Day() == time.Unix(fwd.Data[0].Time, 0).Day() {
 		// Use forecast data for "today"
 		//tDat[0] = simpleTime(fwd.Data[0].Time).String()
-		tempDat[0] = fmt.Sprintf("%.0f", weather.Ktoc(fwd.Data[0].Main.TempK))
+		tempDat[0] = fmt.Sprintf("%.1f", weather.Ktoc(fwd.Data[0].Main.TempK))
 		presDat[0] = fmt.Sprintf("%.0f", fwd.Data[0].Main.Pressure)
-		clouDat[0] = fmt.Sprintf("%.0f", float32(fwd.Data[0].Clouds.All)*0.08)
+		clouDat[0] = fmt.Sprintf("%.0f/8", float32(fwd.Data[0].Clouds.All)*0.08)
 		iconDat[0] = getIconString(fwd.Data[0].Weather[0].Icon)
 		humiDat[0] = fmt.Sprintf("%d", fwd.Data[0].Main.Humidity)
-		wspeDat[0] = fmt.Sprintf("%.0f", fwd.Data[0].Wind.Speed*1.852)
+		wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", fwd.Data[0].Wind.Speed*1.852, weather.MphToBf(fwd.Data[0].Wind.Speed))
 
 		// don't use the same data twice
 		fwd.Data = fwd.Data[1:]
 	} else {
 		// Use current data for "today"
 		//tDat[0] = simpleTime(cwd.Dt).String()
-		tempDat[0] = fmt.Sprintf("%.0f", cwd.Main.Temp)
+		tempDat[0] = fmt.Sprintf("%.1f", cwd.Main.Temp)
 		presDat[0] = fmt.Sprintf("%.0f", cwd.Main.Pressure)
-		clouDat[0] = fmt.Sprintf("%.0f", cwd.Clouds.All*0.08)
+		clouDat[0] = fmt.Sprintf("%.0f/8", cwd.Clouds.All*0.08)
 		iconDat[0] = getIconString(cwd.Weather[0].Icon)
 		humiDat[0] = fmt.Sprintf("%.0f", cwd.Main.Humidity)
-		wspeDat[0] = fmt.Sprintf("%.0f", cwd.Wind.Speed*1.852)
+		wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", cwd.Wind.Speed*1.852, weather.MphToBf(cwd.Wind.Speed))
 	}
 	for i, val := range fwd.Data {
 		if uint(i) == out.N-1 {
 			break
 		}
 		//tDat[i+1] = simpleTime(val.Time).String()
-		tempDat[i+1] = fmt.Sprintf("%.0f", weather.Ktoc(val.Main.TempK))
+		tempDat[i+1] = fmt.Sprintf("%.1f", weather.Ktoc(val.Main.TempK))
 		presDat[i+1] = fmt.Sprintf("%.0f", val.Main.Pressure)
-		clouDat[i+1] = fmt.Sprintf("%.0f", float32(val.Clouds.All)*0.08)
+		clouDat[i+1] = fmt.Sprintf("%.0f/8", float32(val.Clouds.All)*0.08)
 		iconDat[i+1] = getIconString(val.Weather[0].Icon)
 		humiDat[i+1] = fmt.Sprintf("%d", val.Main.Humidity)
-		wspeDat[i+1] = fmt.Sprintf("%.0f", val.Wind.Speed*1.852)
+		wspeDat[i+1] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", val.Wind.Speed*1.852, weather.MphToBf(val.Wind.Speed))
 	}
 	//addStr("Zeitstempel", tDat, "")
 	addStr("Temperatur", tempDat, htmlC)
 	addStr("Luftdruck", presDat, "hPa")
 	addStr("Luftfeuchtigkeit", humiDat, "%")
-	addStr("Windgeschwindigkeit", wspeDat, "km/h")
+	addStr("Windgeschwindigkeit", wspeDat, "")
 	addStr("Wetterlage", iconDat, "")
-	addStr("Wolkendecke", clouDat, "/8")
+	addStr("Wolkenbedeckung", clouDat, "")
 	return nil
 }
 
@@ -170,12 +201,12 @@ func fillCurrent(out *ntag) error {
 			out.Row(name, []string{fmt.Sprintf("%.0f", data)}, false, unit)
 		}
 	}
-	addStr("Temperatur", cwd.Main.Temp, htmlC)
+	addStr("Temperatur", fmt.Sprintf("%.1f", cwd.Main.Temp), htmlC) // TODO eine Nachkommastelle
 	addStr("Luftdruck", cwd.Main.Pressure, "hPa")
 	addStr("Luftfeuchtigkeit", cwd.Main.Humidity, "%")
-	addStr("Windgeschwindigkeit", cwd.Wind.Speed*1.852, "km/h")
+	addStr("Windgeschwindigkeit", fmt.Sprintf("%.0f km/h<br>%.0f Bf.", cwd.Wind.Speed*1.852, weather.MphToBf(cwd.Wind.Speed)), "")
 	addStr("Wetterlage", getIconString(cwd.Weather[0].Icon), "")
-	addStr("Wolkendecke", cwd.Clouds.All*0.08, "/8")
+	addStr("Wolkendecke", fmt.Sprintf("%.0f/8", cwd.Clouds.All*0.08), "") // remove " "/8
 	return nil
 }
 

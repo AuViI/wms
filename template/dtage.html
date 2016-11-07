@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
+        {{ $refresh := 1800 }}{{/* seconds to wait before refresh */}}
         <meta charset="utf-8">
+        <meta http-equiv="refresh" content="{{ $refresh }}">
         <title>{{.Ort}}</title>
         <style media="screen">
             * {
@@ -19,6 +21,9 @@
             th, td {
                 padding: .2em 1em;
                 text-align: center;
+            }
+            h1 {
+                font-size: 2.4em;
             }
 
             #background {
@@ -53,17 +58,18 @@
             }
             .icon {
                 height:2em;
+                background-color: rgba(214, 214, 214, 0.5);
+                border-radius: .5em;
             }
         </style>
     </head>
     <body>
         <div id="background">
             <div class="header">
-                <h1>{{.Ort}}</h1>
                 {{ if eq .N 1 }}
-                    <h2>Wetterlage Heute</h2>
+                    <h1>{{.Ort}} - Wetterlage Heute - {{.Now}}</h1>
                 {{ else }}
-                    <h2>{{.N}} Tage Vorschau</h2>
+                    <h1>{{.Ort}} - {{.N}} Tage Vorschau - {{.Now}}</h1>
                 {{ end }}
             </div>
             <div id="tblblock">
@@ -93,8 +99,18 @@
             </div>
             <div class="footer">
                 Wetter f&uuml;r {{.N}} Tag(e)<br>
-                {{.Now}}
+                <span id="dt"></span>{{/* {{.Now}} */}}
             </div>
+            <script type="text/javascript">
+                let dt = document.getElementById("dt");
+                let d1 = {{ $refresh }}; //s
+                let ds = 1000; //ms
+                window.setInterval(function() {
+                    dt.innerHTML = "Aktualisierung in " + Math.round(d1/60) + " Minuten";
+                    d1 -= ds/1000.0;
+                    d1 = Math.max(d1, 60);
+                }, ds);
+            </script>
         </div>
     </body>
 </html>

@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>Ansicht {{.Ort}}</title>
+        <meta charset="utf-8">
+        <meta http-equiv="refresh" content="3600">
+        <style media="screen">
+            #cycle iframe {
+                transition: opacity 1s;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+            }
+            .hidden {
+                opacity: 0.0;
+            }
+            .visible {
+                opacity: 1.0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="cycle">
+            <iframe src="/dtage/{{.Ort}}/4/meteo" width="100%" height="100%"></iframe>
+            <iframe src="/dtage/{{.Ort}}/1/aktuell" width="100%" height="100%"></iframe>
+        </div>
+        <script type="text/javascript">
+            let cobj = document.getElementById("cycle");
+            let m = cobj.children.length;
+            let n = 0;
+            for (var iframe in cobj.children) {
+                if (cobj.children.hasOwnProperty(iframe)) {
+                    if (n==0) {
+                        cobj.children[iframe].className = "visible";
+                    } else {
+                        cobj.children[iframe].className = "hidden";
+                    }
+                    n++;
+                }
+            }
+            n=0;
+            window.setInterval(function() {
+                cobj.children[n].className = "hidden";
+                n = (n+1) % m;
+                cobj.children[n].className = "visible";
+            }, 15000);
+        </script>
+    </body>
+</html>
