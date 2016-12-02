@@ -28,8 +28,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	case "":
 		serveIndex(w)
 	case "bsp/":
-		fmt.Fprint(w, "<html><h1>Beispiele</h1>")
-		fmt.Fprint(w, "<html><h2>Verschiedene Modi's</h2>")
+		fmt.Fprintf(w, "<html><head>%s</head><body>", `<link rel="stylesheet" href="../resources/main.css" charset="utf-8">`)
+		fmt.Fprintf(w, "<div class='content'><div class='header'><h1>Beispiele</h1><p class='explain'><code>Website generiert am: %s</code></p></div></div><div id='main'>", time.Now().String())
+		fmt.Fprint(w, "<h2>Verschiedene Modi's</h2>")
 		orte := []string{"Berlin", "Kühlungsborn", "Oslo", "New York", "Braunschweig", "Rostock"}
 		prefix := []string{"txt", "forecast", "list", "csv", "dtage", "view"}
 		fmt.Fprint(w, "<table>")
@@ -53,7 +54,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			}
 			fmt.Fprint(w, "</tr>")
 		}
-		fmt.Fprintf(w, "</table><code>%s</code>", time.Now().String())
+		fmt.Fprint(w, "</table></div>")
+		fmt.Fprint(w, "</body></html>")
 	}
 }
 

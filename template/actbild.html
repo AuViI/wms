@@ -25,6 +25,9 @@
             th, td {
                 padding: .2em .5em;
             }
+            a {
+                color: #aaaaff;
+            }
 
             #background {
                 background-image: linear-gradient(0deg, rgb(54, 87, 240), rgb(64, 85, 181));
@@ -129,7 +132,7 @@
             </div>
             <div class="footer">
                 {{.Datum}}<br>
-                Wetter: {{.Type}}
+                Email: <a href="mailto:info@meteosky.de">info@meteosky.de</a> Wetter: {{.Type}}
             </div>
         </div>
     </body>
