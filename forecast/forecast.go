@@ -104,6 +104,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		url, err := url.QueryUnescape(query)
 		if err != nil {
 			w.Write([]byte("An Error occurred reading the URL"))
+			return
 		}
 		//w.Header().Set("Refresh", "10") // Sekunden
 		w.Header().Set("Cache-Control", "max-age=600")
@@ -111,6 +112,10 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	}
 	cwd := weather.GetCurrent(query).ConvertToCelsius()
 	forecastAll := weather.GetForecast(query)
+	if len(cwd.Weather) == 0 || len(forecastAll.Data) == 0 {
+		fmt.Fprintln(w, "An Error occurred")
+		return
+	}
 	forecastTemplate.Execute(w, data{
 		Ort:          query,
 		Datum:        tString(cwd.Dt),

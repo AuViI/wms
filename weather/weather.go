@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"html/template"
 	"os"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/mtib/simplehttp"
 )
@@ -26,6 +29,8 @@ type (
 var (
 	currenturl, _ = template.New("current").Parse("http://api.openweathermap.org/data/2.5/weather?q={{.City | urlquery}}&appid={{.Key}}")
 	forcasturl, _ = template.New("forcast").Parse("http://api.openweathermap.org/data/2.5/forecast?q={{.City | urlquery}}&appid={{.Key}}")
+	rpm           = 0
+	rpmMutex      sync.Mutex
 )
 
 const (
@@ -164,7 +169,11 @@ func fillTemlp(t *template.Template, c string) string {
 func GetCurrent(city string) *Data {
 	var wd *Data
 	wd = &Data{}
-	answ, _ := simplehttp.GetResponseBody(fillTemlp(currenturl, city))
+	answ, err := simplehttp.GetResponseBody(fillTemlp(currenturl, city))
+	rpmCount()
+	if err != nil {
+		panic(err)
+	}
 	json.Unmarshal(answ, wd)
 	return wd
 }
@@ -173,6 +182,7 @@ func GetCurrent(city string) *Data {
 func GetForecast(city string) *ForecastData {
 	data := new(ForecastData)
 	jdata, err := simplehttp.GetResponseBody(fillTemlp(forcasturl, city))
+	rpmCount()
 	if err != nil {
 		panic(err)
 	}
@@ -187,4 +197,44 @@ func ktoc(k interface{}) float64 {
 // Ktoc converts Kelvin to Celsius
 func Ktoc(k interface{}) float64 {
 	return k.(float64) - 272.15
+}
+
+func rpmBuildDown() {
+	select {
+	case <-time.After(1 * time.Minute):
+		rpmMutex.Lock()
+		rpm -= 1
+		// fmt.Printf("rpm: %d (--)\n", rpm)
+		rpmMutex.Unlock()
+	}
+}
+
+func rpmCount() {
+	rpmMutex.Lock()
+	rpm += 1
+	// fmt.Printf("rpm: %d (++)\n", rpm)
+	rpmMutex.Unlock()
+	go rpmBuildDown()
+	rpmAdjustSleep()
+}
+
+func rpmAdjustSleep() {
+	rpmMutex.Lock()
+	switch {
+	case rpm < 10:
+		break
+	case rpm < 30:
+		<-time.After(1 * time.Second)
+		break
+	case rpm < 60:
+		<-time.After(2 * time.Second)
+		break
+	case rpm < 120:
+		<-time.After(5 * time.Second)
+		break
+	case rpm < 240:
+		<-time.After(10 * time.Second)
+		break
+	}
+	rpmMutex.Unlock()
 }

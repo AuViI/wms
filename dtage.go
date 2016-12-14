@@ -131,7 +131,7 @@ func newNTage(n uint, ort string) *ntag {
 }
 
 func (r RowError) Error() string {
-	return fmt.Sprintf("RowError: %s", r)
+	return fmt.Sprintf("RowError: %s", string(r))
 }
 
 type simpleTime int64
@@ -153,6 +153,11 @@ func getIconString(icon string) string {
 func fillMeteo(out *ntag) error {
 	cwd := weather.GetCurrent(out.Ort).ConvertToCelsius()
 	fwd := weather.GetForecast(out.Ort).Filter(weather.MIDDAY)
+
+	if len(fwd.Data) == 0 || len(cwd.Weather) == 0 {
+		Continue("invalid request caught")
+		return RowError("invalid request")
+	}
 
 	addStr := func(name string, data []string, unit string) {
 		out.Row(name, data, false, unit)
@@ -209,7 +214,7 @@ func fillMeteo(out *ntag) error {
 	addStr("Luftdruck", presDat, "hPa")
 	addStr("Luftfeuchtigkeit", humiDat, "%")
 	addStr("Windgeschwindigkeit", wspeDat, "")
-	addStr("Wetterlage", iconDat, "")
+	addStr("Wetterzustand", iconDat, "")
 	addStr("Wolkenbedeckung", clouDat, "")
 	return nil
 }
@@ -222,6 +227,9 @@ func fillAstro(out *ntag) error {
 func fillCurrent(out *ntag) error {
 	*out = *newNTage(1, out.Ort)
 	cwd := weather.GetCurrent(out.Ort).ConvertToCelsius()
+	if len(cwd.Weather) == 0 {
+		return RowError("invalid request")
+	}
 	addStr := func(name string, data interface{}, unit string) {
 		switch data.(type) {
 		case string, int, uint, int32, int64:
@@ -234,8 +242,8 @@ func fillCurrent(out *ntag) error {
 	addStr("Luftdruck", cwd.Main.Pressure, "hPa")
 	addStr("Luftfeuchtigkeit", cwd.Main.Humidity, "%")
 	addStr("Windgeschwindigkeit", fmt.Sprintf("%.0f km/h<br>%.0f Bf.", cwd.Wind.Speed*1.852, weather.MphToBf(cwd.Wind.Speed)), "")
-	addStr("Wetterlage", getIconString(cwd.Weather[0].Icon), "")
-	addStr("Wolkendecke", fmt.Sprintf("%.0f/8", cwd.Clouds.All*0.08), "") // remove " "/8
+	addStr("Wetterzustand", getIconString(cwd.Weather[0].Icon), "")
+	addStr("Wolkenbedeckung", fmt.Sprintf("%.0f/8", cwd.Clouds.All*0.08), "")
 	return nil
 }
 
@@ -270,18 +278,26 @@ func handleDTage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	result := newNTage(num, req[2])
+	var n error
 	switch display {
 	case "meteo":
-		fillMeteo(result)
+		n = fillMeteo(result)
+		break
 	case "astro":
-		fillAstro(result)
+		n = fillAstro(result)
+		break
 	case "aktuell":
-		fillCurrent(result)
+		n = fillCurrent(result)
+		break
 	default:
 		fmt.Fprint(w, "Unbekannter Modus")
 		return
 	}
-	dtagetmpl.Execute(w, result)
+	if n == nil {
+		dtagetmpl.Execute(w, result)
+	} else {
+		fmt.Fprintf(w, "%s", n)
+	}
 }
 
 func ncHandleDTage(w http.ResponseWriter, r *http.Request) {
