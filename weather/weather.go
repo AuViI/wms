@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
-	"fmt"
+	// "fmt"
 	"html/template"
 	"os"
 	"strings"

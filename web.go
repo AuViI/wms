@@ -18,6 +18,8 @@ var indexTemplate, _ = template.ParseFiles("./template/index.html")
 var styleTemplate, _ = template.ParseFiles("./template/main.css")
 var editJsMinTmpl, _ = template.ParseFiles("./template/list_edit.min.js")
 var normListTmpl, _ = template.ParseFiles("./template/normlist.html")
+var bspTmpl, _ = template.ParseFiles("./template/bsp.html")
+var gewusstTmpl, _ = template.ParseFiles("./template/gewusst.html")
 
 var resources = map[string]string{
 	"logo.png": load("logo.png"),
@@ -27,35 +29,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path[1:] {
 	case "":
 		serveIndex(w)
-	case "bsp/":
-		fmt.Fprintf(w, "<html><head>%s</head><body>", `<link rel="stylesheet" href="../resources/main.css" charset="utf-8">`)
-		fmt.Fprintf(w, "<div class='content'><div class='header'><h1>Beispiele</h1><p class='explain'><code>Website generiert am: %s</code></p></div></div><div id='main'>", time.Now().String())
-		fmt.Fprint(w, "<h2>Verschiedene Modi's</h2>")
-		orte := []string{"Berlin", "Kühlungsborn", "Oslo", "New York", "Braunschweig", "Rostock"}
-		prefix := []string{"txt", "forecast", "list", "csv", "dtage", "view"}
-		fmt.Fprint(w, "<table>")
-		for _, ort := range orte {
-			fmt.Fprintf(w, "<tr><th>%s:</th>", ort)
-			for _, pre := range prefix {
-				fmt.Fprintf(w, "<td><a href=\"/%s/%s\">%s</a></td>", pre, ort, pre)
-			}
-			fmt.Fprint(w, "</tr>")
-		}
-		fmt.Fprint(w, "</table><h2>dtage Grafiken</h2><table>")
-		modes := []string{"meteo", "astro"}
-		for _, ort := range orte {
-			fmt.Fprintf(w, "<tr><th>%s:</th>", ort)
-			fmt.Fprintf(w, "<td><a href=\"/dtage/%s/1/aktuell\">(aktuell)</a></td>", ort)
-			fmt.Fprintf(w, "<td><a href=\"/normlist/%s\">normlist</a></td>", ort)
-			for _, mode := range modes {
-				for _, d := range []int{1, 3, 4} {
-					fmt.Fprintf(w, "<td><a href=\"/dtage/%s/%d/%s\">(%d Tage %s)</a></td>", ort, d, mode, d, mode)
-				}
-			}
-			fmt.Fprint(w, "</tr>")
-		}
-		fmt.Fprint(w, "</table></div>")
-		fmt.Fprint(w, "</body></html>")
 	}
 }
 
@@ -74,14 +47,6 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Cache-Control", "max-age=600")
 	SimpleHTML(cut, w)
-}
-
-// TODO temporary
-func gewusstHandler(w http.ResponseWriter, r *http.Request) {
-	if *nc {
-		updateGewusst()
-	}
-	testOutput(w)
 }
 
 func resourceHandler(w http.ResponseWriter, r *http.Request) {
@@ -158,21 +123,47 @@ func noCacheSwitch(cached, nocache http.HandlerFunc) http.HandlerFunc {
 	return nocache
 }
 
+func bspHandler(w http.ResponseWriter, r *http.Request) {
+	if *nc {
+		bspTmpl, _ = template.ParseFiles("./template/bsp.html")
+	}
+	data := struct {
+		Orte  []string
+		Modes []string
+		Dtage []string
+	}{
+		Orte:  []string{"Kühlungsborn", "Braunschweig", "Hamburg", "Berlin", "Oslo"},
+		Modes: []string{"txt", "forecast", "list", "csv", "dtage", "view", "normlist"},
+		Dtage: []string{"meteo", "astro"},
+	}
+	bspTmpl.Execute(w, data)
+}
+
+func gewusstHandler(w http.ResponseWriter, r *http.Request) {
+	if *nc {
+		gewusstTmpl, _ = template.ParseFiles("./template/gewusst.html")
+	}
+	gewusstTmpl.Execute(w, messages)
+}
+
 func webSetup(port *string) {
+	end := startUpdateLoop()
 	http.HandleFunc("/txt/", txtHandler)
 	http.HandleFunc("/csv/", csvHandler) // csv.go
 	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/bsp/", bspHandler)
 	http.HandleFunc("/forecast/",
 		noCacheSwitch(forecastHandler, ncForecastHandler))
 	http.HandleFunc("/list/", listHandler)
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/resources/", resourceHandler)
 	http.HandleFunc("/dtage/",
 		noCacheSwitch(handleDTage, ncHandleDTage))
 	http.HandleFunc("/normlist/",
 		noCacheSwitch(normlistHandler, ncNormlistHandler))
 	http.HandleFunc("/gewusst/", gewusstHandler)
+	http.HandleFunc("/", handler)
+	http.HandleFunc("/resources/", resourceHandler)
 	http.ListenAndServe(*port, nil)
+	end <- true
 }
 
 func load(res string) string {
@@ -182,6 +173,26 @@ func load(res string) string {
 		return ""
 	}
 	return string(bt)
+}
+
+// expects that called update functions manage mutexes
+func startUpdateLoop() chan bool {
+	calls := func() {
+		updateGewusst()
+	}
+	end := make(chan bool)
+	calls()
+	go func(e chan bool) {
+		for {
+			select {
+			case <-time.After(10 * time.Minute):
+				calls()
+			case <-e:
+				return
+			}
+		}
+	}(end)
+	return end
 }
 
 func serveIndex(w io.Writer) {

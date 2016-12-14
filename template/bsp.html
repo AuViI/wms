@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{{ $orte := .Orte }}
+{{ $modes := .Modes }}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>WMS - Seewetterstation Kühlungsborn</title>
+        <link rel="shortcut icon" href="/resources/logo.png">
+        <link rel="stylesheet" href="/resources/main.css" charset="utf-8">
+        <meta name="viewport" content="width=680">
+    </head>
+    <body>
+        <div class="content">
+            <div class="header">
+                <h1 class="movein">
+                <img src="/resources/logo.png" alt="Logo" id="logo" /> Weather Monitoring System</h1>
+                <img src="/resources/test.jpg" alt="Beispielbild nicht gefunden.." class="inline explain" />
+                <p class="explain">
+                    Schauen Sie sich die Beispiele an, ...
+                </p>
+                <h2 class="location">Beispiele</h2>
+            </div>
+            <div id="navbar">
+                <a href="/">home</a><a href="">anmelden</a><a href="bsp/">beispiele</a><a href="">impressum</a>
+            </div>
+        </div>
+        <!-- Stop bg gradient -->
+        <div id="main">
+            <h2>Verschiedene Anzeigemodi</h2>
+            <p>
+            <table>
+            {{ range $i, $ort := $orte }} <tr><th>{{ $ort }}</th>
+            {{ range $k, $mode := $modes }} <td><a href="/{{$mode}}/{{$ort}}">{{ $mode }}</a></td>
+            {{ end }} </tr> {{ end }}
+            </table>
+            </p>
+
+            <h2>'dtage' Grafiken</h2>
+            <p></p>
+
+            <h2>Sonstige</h2>
+            <h3>Gewusst?</h3>
+            <p>Die <a href="/gewusst">Gewusst</a> Anzeigen vermitteln örtliche Geheimtipps, meteorologische Begriffe und meteorologische Erscheinungen</p>
+    </body>
+</html>
