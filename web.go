@@ -76,6 +76,14 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	SimpleHTML(cut, w)
 }
 
+// TODO temporary
+func gewusstHandler(w http.ResponseWriter, r *http.Request) {
+	if *nc {
+		updateGewusst()
+	}
+	testOutput(w)
+}
+
 func resourceHandler(w http.ResponseWriter, r *http.Request) {
 	s := r.URL.Path[len("/resources/"):]
 	switch s {
@@ -163,6 +171,7 @@ func webSetup(port *string) {
 		noCacheSwitch(handleDTage, ncHandleDTage))
 	http.HandleFunc("/normlist/",
 		noCacheSwitch(normlistHandler, ncNormlistHandler))
+	http.HandleFunc("/gewusst/", gewusstHandler)
 	http.ListenAndServe(*port, nil)
 }
 

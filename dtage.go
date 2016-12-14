@@ -87,7 +87,7 @@ func (n ntag) Now() string {
 		case 12:
 			return "Dez."
 		}
-		return "@ERROR@"
+		return fmt.Sprintf("%02d", tn.Month())
 	}())
 	return fmt.Sprintf("%v %d. %s %d", toGerman(tn.Weekday()), tn.Day(), germDay, tn.Year())
 }

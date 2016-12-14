@@ -101,7 +101,7 @@
                 </table>
             </div>
             <div class="footer">
-                Email: <a href="mailto:info@meteosky.de">info@meteosky.de</a> | Wetter f&uuml;r {{.N}} Tag(e)<br>
+                Email: <a href="mailto:info@meteosky.de">info@meteosky.de</a> |{{ if eq .N 1 }} Wetter Aktuell {{ else }} Wetter f&uuml;r {{.N}} Tag(e){{ end }}<br>
                 <span id="dt"></span>{{/* {{.Now}} */}}
             </div>
             <script type="text/javascript">
