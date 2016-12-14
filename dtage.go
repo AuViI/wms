@@ -60,7 +60,36 @@ func (n ntag) Now() string {
 			return s
 		}
 	}
-	return fmt.Sprintf("%v %d.%02d", toGerman(tn.Weekday()), tn.Day(), tn.Month())
+	germDay := (func() string {
+		switch tn.Month() {
+		case 1:
+			return "Jan."
+		case 2:
+			return "Feb."
+		case 3:
+			return "März"
+		case 4:
+			return "Apr."
+		case 5:
+			return "Mai"
+		case 6:
+			return "Juni"
+		case 7:
+			return "Juli"
+		case 8:
+			return "Aug."
+		case 9:
+			return "Sept."
+		case 10:
+			return "Okt."
+		case 11:
+			return "Nov."
+		case 12:
+			return "Dez."
+		}
+		return "@ERROR@"
+	}())
+	return fmt.Sprintf("%v %d. %s %d", toGerman(tn.Weekday()), tn.Day(), germDay, tn.Year())
 }
 
 func (n *ntag) Row(name string, data []string, bold bool, unit string) error {
