@@ -102,8 +102,9 @@ table {
     margin: auto auto;
 }
 
-td {
+td, th {
     padding: .5em;
+    text-align: center;
 }
 
 .notfocusblur {

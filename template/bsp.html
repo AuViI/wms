@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 {{ $orte := .Orte }}
 {{ $modes := .Modes }}
+{{ $dtag := .Dtage }}
+{{ $show := .Show }}
 <html>
     <head>
         <meta charset="utf-8">
@@ -36,7 +38,16 @@
             </p>
 
             <h2>'dtage' Grafiken</h2>
-            <p></p>
+            <p>
+            <table>
+            <tr><td>Parameter</td> {{ range $j, $dt := $dtag }} <th>{{ call $show $dt }}</th> {{end}} </tr>
+            {{ range $i, $ort := $orte }} <tr><th>{{$ort}}</th>
+                {{ range $k, $dta := $dtag }} <td><a href="/dtage/{{$ort}}/{{$dta}}">ansehen</a></td>
+                {{ end }}
+            {{ end }}
+            </tr>
+            </table>
+            </p>
 
             <h2>Sonstige</h2>
             <h3>Gewusst?</h3>

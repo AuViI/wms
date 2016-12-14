@@ -131,10 +131,18 @@ func bspHandler(w http.ResponseWriter, r *http.Request) {
 		Orte  []string
 		Modes []string
 		Dtage []string
+		Show  func(string) string
 	}{
-		Orte:  []string{"Kühlungsborn", "Braunschweig", "Hamburg", "Berlin", "Oslo"},
+		Orte: []string{"Kühlungsborn", "Braunschweig", "Hamburg", "Berlin", "Oslo",
+			"Rostock", "Hannover", "München", "New York", "Tokio"},
 		Modes: []string{"txt", "forecast", "list", "csv", "dtage", "view", "normlist"},
-		Dtage: []string{"meteo", "astro"},
+		Dtage: []string{"1/aktuell", "3/meteo", "5/meteo", "3/astro", "5/astro"},
+		Show: func(s string) string {
+			if strings.HasPrefix(s, "1/") {
+				return s[2:]
+			}
+			return strings.Replace(s, "/", " Tage ", 1)
+		},
 	}
 	bspTmpl.Execute(w, data)
 }
