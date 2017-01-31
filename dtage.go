@@ -60,36 +60,36 @@ func (n ntag) Now() string {
 			return s
 		}
 	}
-	germDay := (func() string {
-		switch tn.Month() {
-		case 1:
-			return "Jan."
-		case 2:
-			return "Feb."
-		case 3:
-			return "März"
-		case 4:
-			return "Apr."
-		case 5:
-			return "Mai"
-		case 6:
-			return "Juni"
-		case 7:
-			return "Juli"
-		case 8:
-			return "Aug."
-		case 9:
-			return "Sept."
-		case 10:
-			return "Okt."
-		case 11:
-			return "Nov."
-		case 12:
-			return "Dez."
-		}
-		return fmt.Sprintf("%02d", tn.Month())
-	}())
-	return fmt.Sprintf("%v %d. %s %d", toGerman(tn.Weekday()), tn.Day(), germDay, tn.Year())
+	// germDay := (func() string {
+	// 	switch tn.Month() {
+	// 	case 1:
+	// 		return "Jan."
+	// 	case 2:
+	// 		return "Feb."
+	// 	case 3:
+	// 		return "März"
+	// 	case 4:
+	// 		return "Apr."
+	// 	case 5:
+	// 		return "Mai"
+	// 	case 6:
+	// 		return "Juni"
+	// 	case 7:
+	// 		return "Juli"
+	// 	case 8:
+	// 		return "Aug."
+	// 	case 9:
+	// 		return "Sept."
+	// 	case 10:
+	// 		return "Okt."
+	// 	case 11:
+	// 		return "Nov."
+	// 	case 12:
+	// 		return "Dez."
+	// 	}
+	// 	return fmt.Sprintf("%02d", tn.Month())
+	// }())
+	return fmt.Sprintf("%v %d.%d.%d", toGerman(tn.Weekday()), tn.Day(), tn.Month(), tn.Year())
 }
 
 func (n *ntag) Row(name string, data []string, bold bool, unit string) error {
@@ -150,7 +150,7 @@ func getIconString(icon string) string {
 	return fmt.Sprintf("<img class=\"icon\" src=\"http://openweathermap.org/img/w/%s.png\" alt=\"Fehler\" />", icon)
 }
 
-func fillMeteo(out *ntag) error {
+func fillMeteo(out *ntag, offset uint) error {
 	cwd := weather.GetCurrent(out.Ort).ConvertToCelsius()
 	fwd := weather.GetForecast(out.Ort).Filter(weather.MIDDAY)
 
@@ -175,47 +175,50 @@ func fillMeteo(out *ntag) error {
 	humiDat := make([]string, out.N) // Luftfeuchtigkeit
 	wspeDat := make([]string, out.N) // Windgeschwindigkeit
 
-	if time.Unix(cwd.Dt, 0).Day() == time.Unix(fwd.Data[0].Time, 0).Day() {
-		// Use forecast data for "today"
-		//tDat[0] = simpleTime(fwd.Data[0].Time).String()
-		tempDat[0] = fmt.Sprintf("%.1f", weather.Ktoc(fwd.Data[0].Main.TempK))
-		presDat[0] = fmt.Sprintf("%.0f", fwd.Data[0].Main.Pressure)
-		clouDat[0] = fmt.Sprintf("%.0f/8", float32(fwd.Data[0].Clouds.All)*0.08)
-		iconDat[0] = getIconString(fwd.Data[0].Weather[0].Icon)
-		humiDat[0] = fmt.Sprintf("%d", fwd.Data[0].Main.Humidity)
-		wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", fwd.Data[0].Wind.Speed*1.852, weather.MphToBf(fwd.Data[0].Wind.Speed))
+	if offset == 0 {
+		if time.Unix(cwd.Dt, 0).Day() == time.Unix(fwd.Data[0].Time, 0).Day() {
+			// Use forecast data for "today"
+			//tDat[0] = simpleTime(fwd.Data[0].Time).String()
+			tempDat[0] = fmt.Sprintf("%.1f", weather.Ktoc(fwd.Data[0].Main.TempK))
+			presDat[0] = fmt.Sprintf("%.0f", fwd.Data[0].Main.Pressure)
+			clouDat[0] = fmt.Sprintf("%.0f/8", float32(fwd.Data[0].Clouds.All)*0.08)
+			iconDat[0] = getIconString(fwd.Data[0].Weather[0].Icon)
+			humiDat[0] = fmt.Sprintf("%d", fwd.Data[0].Main.Humidity)
+			wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", fwd.Data[0].Wind.Speed*1.852, weather.MphToBf(fwd.Data[0].Wind.Speed))
 
-		// don't use the same data twice
-		fwd.Data = fwd.Data[1:]
-	} else {
-		// Use current data for "today"
-		//tDat[0] = simpleTime(cwd.Dt).String()
-		tempDat[0] = fmt.Sprintf("%.1f", cwd.Main.Temp)
-		presDat[0] = fmt.Sprintf("%.0f", cwd.Main.Pressure)
-		clouDat[0] = fmt.Sprintf("%.0f/8", cwd.Clouds.All*0.08)
-		iconDat[0] = getIconString(cwd.Weather[0].Icon)
-		humiDat[0] = fmt.Sprintf("%.0f", cwd.Main.Humidity)
-		wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", cwd.Wind.Speed*1.852, weather.MphToBf(cwd.Wind.Speed))
+			// don't use the same data twice
+			fwd.Data = fwd.Data[1:]
+		} else {
+			// Use current data for "today"
+			//tDat[0] = simpleTime(cwd.Dt).String()
+			tempDat[0] = fmt.Sprintf("%.1f", cwd.Main.Temp)
+			presDat[0] = fmt.Sprintf("%.0f", cwd.Main.Pressure)
+			clouDat[0] = fmt.Sprintf("%.0f/8", cwd.Clouds.All*0.08)
+			iconDat[0] = getIconString(cwd.Weather[0].Icon)
+			humiDat[0] = fmt.Sprintf("%.0f", cwd.Main.Humidity)
+			wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", cwd.Wind.Speed*1.852, weather.MphToBf(cwd.Wind.Speed))
+		}
 	}
+	ioffset := int(offset)
 	for i, val := range fwd.Data {
-		if uint(i) == out.N-1 {
+		if uint(i) == out.N-1+offset {
 			break
 		}
 		//tDat[i+1] = simpleTime(val.Time).String()
-		tempDat[i+1] = fmt.Sprintf("%.1f", weather.Ktoc(val.Main.TempK))
-		presDat[i+1] = fmt.Sprintf("%.0f", val.Main.Pressure)
-		clouDat[i+1] = fmt.Sprintf("%.0f/8", float32(val.Clouds.All)*0.08)
-		iconDat[i+1] = getIconString(val.Weather[0].Icon)
-		humiDat[i+1] = fmt.Sprintf("%d", val.Main.Humidity)
-		wspeDat[i+1] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", val.Wind.Speed*1.852, weather.MphToBf(val.Wind.Speed))
+		tempDat[i+1+ioffset] = fmt.Sprintf("%.1f", weather.Ktoc(val.Main.TempK))
+		presDat[i+1+ioffset] = fmt.Sprintf("%.0f", val.Main.Pressure)
+		clouDat[i+1+ioffset] = fmt.Sprintf("%.0f/8", float32(val.Clouds.All)*0.08)
+		iconDat[i+1+ioffset] = getIconString(val.Weather[0].Icon)
+		humiDat[i+1+ioffset] = fmt.Sprintf("%d", val.Main.Humidity)
+		wspeDat[i+1+ioffset] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", val.Wind.Speed*1.852, weather.MphToBf(val.Wind.Speed))
 	}
 	//addStr("Zeitstempel", tDat, "")
 	addStr("Temperatur", tempDat, htmlC)
-	addStr("Luftdruck", presDat, "hPa")
-	addStr("Luftfeuchtigkeit", humiDat, "%")
-	addStr("Windgeschwindigkeit", wspeDat, "")
 	addStr("Wetterzustand", iconDat, "")
 	addStr("Wolkenbedeckung", clouDat, "")
+	addStr("Windgeschwindigkeit", wspeDat, "")
+	addStr("Luftfeuchtigkeit", humiDat, "%")
+	addStr("Luftdruck", presDat, "hPa")
 	return nil
 }
 
@@ -277,11 +280,18 @@ func handleDTage(w http.ResponseWriter, r *http.Request) {
 			num = 1
 		}
 	}
-	result := newNTage(num, req[2])
+	var result *ntag
+	switch req[2] {
+	case "Kübo", "Kühlungsborn", "Kuehlungsborn", "Kuebo":
+		result = newNTage(num, "Kühlungsborn")
+		result.Ort = "Ostseebad Kühlungsborn"
+	default:
+		result = newNTage(num, req[2])
+	}
 	var n error
 	switch display {
 	case "meteo":
-		n = fillMeteo(result)
+		n = fillMeteo(result, 0)
 		break
 	case "astro":
 		n = fillAstro(result)
