@@ -14,12 +14,14 @@ import (
 )
 
 // Handler Helper
-var indexTemplate, _ = template.ParseFiles("./template/index.html")
-var styleTemplate, _ = template.ParseFiles("./template/main.css")
-var editJsMinTmpl, _ = template.ParseFiles("./template/list_edit.min.js")
-var normListTmpl, _ = template.ParseFiles("./template/normlist.html")
-var bspTmpl, _ = template.ParseFiles("./template/bsp.html")
-var gewusstTmpl, _ = template.ParseFiles("./template/gewusst.html")
+var (
+	indexTemplate, _ = template.ParseFiles("./template/index.html")
+	styleTemplate, _ = template.ParseFiles("./template/main.css")
+	editJsMinTmpl, _ = template.ParseFiles("./template/list_edit.min.js")
+	normListTmpl, _  = template.ParseFiles("./template/normlist.html")
+	bspTmpl, _       = template.ParseFiles("./template/bsp.html")
+	gewusstTmpl, _   = template.ParseFiles("./template/gewusst.html")
+)
 
 var resources = map[string]string{
 	"logo.png": load("logo.png"),
@@ -53,6 +55,9 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 	s := r.URL.Path[len("/resources/"):]
 	switch s {
 	case "main.css":
+		if *nc {
+			styleTemplate, _ = template.ParseFiles("./template/main.css")
+		}
 		w.Header().Set("Content-type", "text/css")
 		err := styleTemplate.Execute(w, nil)
 		if err != nil {

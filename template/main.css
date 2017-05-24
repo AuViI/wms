@@ -1,11 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
 
-* {
-    padding: 0;
-    margin: 0;
-}
-
-
 div.content {
     width: 100%;
     background-image: linear-gradient(140deg, rgb(66, 170, 201), rgb(18, 101, 126));
@@ -15,7 +9,8 @@ div.content {
 
 @keyframes fadein {
     0% {opacity: 0;}
-    75% {opacity: 0;}
+    50% {opacity: 0;}
+    75% {opacity: 0.3;}
     100% {opacity: 1;}
 }
 
@@ -27,8 +22,6 @@ div.content {
 img#logo {
     width: 2em;
     height: 2em;
-    opacity: 0.8;
-    transform: translateY(.6em);
     animation-name: fadein;
     animation-duration: 3s;
     animation-fill-mode: forwards;
@@ -102,8 +95,8 @@ table {
     margin: auto auto;
 }
 
-td, th {
-    padding: .5em;
+td {
+    padding: .5em 1em!important;
     text-align: center;
 }
 

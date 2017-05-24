@@ -1,12 +1,40 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Gewusst</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    </head>
-    <body>
-        <h1>Gewusst?</h1>
-        {{ range . }} <h2>{{ .Title }}</h2> <p>{{ .Message }}</p> {{ end }}
-    </body>
+<head>
+  <meta charset="utf-8">
+  <title>Wussten sie schon?</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+<style>
+body{
+  background-color: #fafafa;
+}
+h1 {
+  background-color: #838383;
+  color: white;
+  padding: .5em 0 .4em 0;
+  margin: 0;
+}
+.entry {
+  border: 1px solid #a7a7a7;
+  border-radius: 1em;
+  padding: 1em;
+  background-color: white;
+  width: 30%;
+  margin: auto auto;
+}
+.entry h2 {
+  padding: 0;
+  margin: 0;
+}
+h1 {
+  text-align: center;
+}
+</style>
+<h1>Wussten sie schon?</h1>
+<br>
+{{ range . }}
+<div class="entry"><h2>Titel: {{ .Title }}</h2> <code>[{{ .Title }}.txt]</code><p><pre>{{ .Message }}</pre></p></div><br>{{ end }}
+</body>
 </html>
