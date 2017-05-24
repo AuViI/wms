@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// Gewusst is a type combining title and content
 type Gewusst [2]string
 
 const (
@@ -24,6 +25,7 @@ var (
 	gewusstWait sync.Mutex
 )
 
+// NewGewusst combines title and content to make new Gewusst object
 func NewGewusst(title, text string) Gewusst {
 	return Gewusst{title, text}
 }
@@ -49,7 +51,8 @@ func updateGewusst() int {
 	}
 	files, err := ioutil.ReadDir(path.Join(*gewFolder, quart))
 	if err != nil {
-		fmt.Errorf("can't find 'gewusst' folder: %s\n", *gewFolder)
+		err = fmt.Errorf("Can't find 'gewusst' folder: %s", *gewFolder)
+		fmt.Printf("%s\n", err)
 		messages = make([]Gewusst, 0)
 		return 0
 	}
@@ -73,10 +76,12 @@ func testOutput(w io.Writer) {
 	}
 }
 
+// Title returns the title of a Gewusst object
 func (g *Gewusst) Title() string {
 	return g[0]
 }
 
+// Message returns the content of a Gewusst object
 func (g *Gewusst) Message() string {
 	return g[1]
 }

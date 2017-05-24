@@ -10,26 +10,26 @@ Struct {
   Time         string
 }
 -->
+{{ $gradbeg := "#82a0d5" }}
+{{ $gradend := "#4b6ca6" }}
 <html>
   <head>
     <meta charset="utf-8">
     <title>Wetterprognose {{ .Ort }}</title>
     <link rel="shortcut icon" href="resources/logo.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <style media="screen">
       body {
         overflow: hidden;
       }
-      * {
-        padding: 0;
-        margin: 0;
-      }
 
-      .descriptor {
+      .descriptor, h2 {
         font-family: sans-serif;
         padding: .5em;
+        margin: 0;
         border-bottom-right-radius: .5em;
-        background-color: rgb(101, 140, 208);
+        background-color: {{ $gradbeg }};
         display: inline;
         float: left;
       }
@@ -43,20 +43,20 @@ Struct {
         left: 1em;
         top: 10%;
         bottom: 12%;
-        right: 81%;
-        background-image: linear-gradient(180deg, rgb(101, 140, 208), rgb(75, 108, 166));
+        right: 86%;
+        background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
         border-radius: .6em;
         padding: .5em;
       }
 
       .bottom {
         position: fixed;
-        left: 20%;
+        left: 70%;
         right: 1em;
         bottom: 12%;
         padding: .5em;
         border-radius: .6em;
-        background-image: linear-gradient(180deg, rgb(101, 140, 208), rgb(75, 108, 166));
+        background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
       }
 
       .bottom div {
@@ -64,8 +64,6 @@ Struct {
         background-color: rgb(231, 231, 231);
         border-radius: .5em;
         padding: .5em;
-        width: 49%;
-        box-sizing: border-box;
       }
 
       .oms {
@@ -93,7 +91,7 @@ Struct {
         padding: .5em;
         border-top-left-radius: .6em;
         border-top-right-radius: .6em;
-        background-image: linear-gradient(180deg, rgb(101, 140, 208), rgb(75, 108, 166));
+        background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
       }
 
       .left div {
@@ -159,6 +157,16 @@ Struct {
       td {
         border: 1px solid black;
       }
+      pre {
+          height: 100%;
+      }
+      .series {
+          width: 100%;
+      }
+      .series td {
+          padding: 1em;
+          font-family: monospace;
+      }
     </style>
   </head>
   <body>
@@ -168,7 +176,7 @@ Struct {
         <pre>
 Wind: {{ .Cwd.Wind.Speed }} m/s
       {{ .Cwd.Wind.Deg }} deg
-Cloud: {{ .Cwd.Clouds.All }}/8
+Cloud: {{ .Cwd.Clouds.All }}%
 Temp: {{ .Nw.Temp }} Celsius
       ( {{ .Nw.TempMin }} | {{ .Nw.TempMax }})
 Pressure: {{ .Cwd.Main.Pressure }} hPa
@@ -176,16 +184,18 @@ Humidity: {{ .Cwd.Main.Humidity }}%
 Rain: {{ .Cwd.Rain.Volume }} mm
 Snow: {{ .Cwd.Snow.Volume }} mm
 Dt: {{ .Cwd.Dt }}
+        </pre>
       </div>
       <br>
       <div class="tritage">
-        Data: {{ len .Fwd.N }}
-      <table>
-        {{ range .Fwd.N }}
+      <table class="series">
         <tr>
           <td>
-            {{ html .Stamp }}
+          Data: {{ len .Fwd.N }}
           </td>
+        </tr>
+        {{ range .Fwd.N }}
+        <tr>
           <td>
             Temp: {{ .C }} C<br>
             ( {{ .CMax }} C | {{ .CMin }} C)<br>
@@ -209,23 +219,6 @@ Dt: {{ .Cwd.Dt }}
         <p>
           {{ html .WetterDesc }}
         </p>
-      </div>
-      <div class="groessen">
-        {{ html .PhysGroessen }}<br>
-        <table>
-          <tr>
-            <td>Luftdruck</td>
-          </tr>
-          <tr>
-            <td>Luftfeuchtigkeit</td>
-          </tr>
-          <tr>
-            <td>Wassertemperatur</td>
-          </tr>
-          <tr>
-            <td>...</td>
-          </tr>
-        </table>
       </div>
     </div>
     <div class="legende">

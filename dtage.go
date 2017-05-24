@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/auvii/wms/weather"
 	"net/http"
 	"strconv"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/auvii/wms/weather"
 )
 
 type (
@@ -224,7 +225,6 @@ func fillMeteo(out *ntag, offset uint) error {
 
 func fillAstro(out *ntag) error {
 	return out.Row("Sonnenaufgang", []string{"4:50", "5:20", "3:55"}, false, "Uhr")
-	return nil
 }
 
 func fillCurrent(out *ntag) error {
