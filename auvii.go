@@ -17,7 +17,7 @@ func main() {
 	flag.Parse()
 	if *help {
 		flag.PrintDefaults()
-		return
+		os.Exit(0)
 	}
 	err := os.Chdir(*wd)
 	if err != nil {

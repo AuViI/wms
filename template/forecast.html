@@ -12,6 +12,7 @@ Struct {
 -->
 {{ $gradbeg := "#82a0d5" }}
 {{ $gradend := "#4b6ca6" }}
+{{ $toic := .ToIcon }}
 <html>
   <head>
     <meta charset="utf-8">
@@ -64,6 +65,13 @@ Struct {
         background-color: rgb(231, 231, 231);
         border-radius: .5em;
         padding: .5em;
+      }
+
+      .mapIcon img {
+        width: 6em;
+        position: absolute;
+        top: -3em;
+        left: -3em;
       }
 
       .oms {
@@ -209,10 +217,17 @@ Dt: {{ .Cwd.Dt }}
             WindD: {{ .WindD }} Grad<br>
             RainA: {{ .RainA }} mm
           </td>
+        </tr>
         {{ end }}
       </table>
       </div>
     </div>
+    {{ range .WetterArea }}
+      <div style="position:fixed;top:{{.Y}}%;left:{{.X}}%;" class="mapIcon">{{ call $toic .Icon }}</div>
+    {{ end }}
+    {{ range .Cwd.Weather}}
+      <div style="position:fixed;top:45%;left:55%;" class="mapIcon">{{ call $toic .Icon }}</div>
+    {{ end }}
     <div class="bottom oms">
       <div class="heute">
         <h2 class="head">{{ html .Wetterlage }}</h2><br>
@@ -225,7 +240,7 @@ Dt: {{ .Cwd.Dt }}
       {{ .Legende }} (Icon Test):<br>
       {{ range .RFwd.Data }}
         {{ range .Weather }}
-        <img src="http://openweathermap.org/img/w/{{ .Icon }}.png" alt="" width="40px" />
+        {{ call $toic .Icon }}
         {{ end }}
       {{ end }}
     </div>

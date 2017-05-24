@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
+	"fmt"
 	// "fmt"
 	"html/template"
 	"os"
@@ -34,7 +35,8 @@ var (
 )
 
 const (
-	headline = "YYYY-MM-DD HH:MM:SS TEMP MIN HUMID WINDGRAD FORCE RAIN CLOUDCOVER\n"
+	headline      = "YYYY-MM-DD HH:MM:SS TEMP MIN HUMID WINDGRAD FORCE RAIN CLOUDCOVER\n"
+	currentGeoUrl = "http://api.openweathermap.org/data/2.5/weather?lat=%.1f&lon=%.1f&appid=%s"
 )
 
 type (
@@ -171,6 +173,18 @@ func GetCurrent(city string) *Data {
 	wd = &Data{}
 	answ, err := simplehttp.GetResponseBody(fillTemlp(currenturl, city))
 	rpmCount()
+	if err != nil {
+		panic(err)
+	}
+	json.Unmarshal(answ, wd)
+	return wd
+}
+
+func GetCurrentByGeo(lat, lon float64) *Data {
+	var wd *Data
+	wd = &Data{}
+	fmt.Printf(currentGeoUrl+"\n", lat, lon, *key)
+	answ, err := simplehttp.GetResponseBody(fmt.Sprintf(currentGeoUrl, lat, lon, *key))
 	if err != nil {
 		panic(err)
 	}

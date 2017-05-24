@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -31,7 +32,15 @@ type data struct {
 	Fwd          printFwd
 	RFwd         *weather.ForecastData
 	Nw           niceWeather
+	ToIcon       func(string) template.HTML
 	MapsKey      string
+	WetterArea   []mapIcon
+}
+
+type mapIcon struct {
+	Icon string
+	X    float64
+	Y    float64
 }
 
 // printFwd contains the Raw-Filtered weather data and formatted txt
@@ -116,7 +125,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "An Error occurred")
 		return
 	}
-	forecastTemplate.Execute(w, data{
+	var dat data = data{
 		Ort:          query,
 		Datum:        tString(cwd.Dt),
 		Uhrzeit:      "12:00",
@@ -155,7 +164,29 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		RFwd:    forecastAll,
 		Nw:      niceWeatherFromData(cwd),
 		MapsKey: *mapskey,
-	})
+		ToIcon: func(in string) template.HTML {
+			return template.HTML(fmt.Sprintf("<img src=\"http://openweathermap.org/img/w/%s.png\" alt=\"%s\" width=\"40px\" />", in, in))
+		},
+		WetterArea: make([]mapIcon, 8),
+	}
+	cc := func(n int) float64 {
+		if n == 0 || n == 4 {
+			return 0
+		} else if n < 4 {
+			return 1
+		} else {
+			return -1
+		}
+	}
+	for i := 0; i < 8; i++ {
+		x := cc(i)
+		y := cc((i + 6) % 8)
+		xgeo := x*0.5 + dat.Geo.Lat
+		ygeo := y*0.5 + dat.Geo.Lon
+		mult := math.Abs(x-y)/4.0 + 1
+		dat.WetterArea[i] = mapIcon{weather.GetCurrentByGeo(xgeo, ygeo).Weather[0].Icon, 55 + 20*x*mult, 45 + 20*y*mult}
+	}
+	forecastTemplate.Execute(w, dat)
 }
 
 // ShowNoCache calls Show with new template
