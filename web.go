@@ -261,6 +261,7 @@ func serveIndex(w io.Writer) {
 
 func renderPictures() {
 	fmt.Println("rendering pictures")
+	os.Setenv("DISPLAY", ":0")
 	locations := [...]string{"Kühlungsborn", "Braunschweig", "Rostock", "Warnemünde"}
 	for _, l := range locations {
 		cmd := exec.Command("electron", "hfscc", l)
