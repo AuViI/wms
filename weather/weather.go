@@ -39,7 +39,7 @@ var cacheJSON = make(map[string]Cache)
 const (
 	headline      = "YYYY-MM-DD HH:MM:SS TEMP MIN HUMID WINDGRAD FORCE RAIN CLOUDCOVER\n"
 	currentGeoUrl = "http://api.openweathermap.org/data/2.5/weather?lat=%.1f&lon=%.1f&appid=%s"
-	cacheDuration = 15 * 60 // 15 minutes
+	cacheDuration = 44 * 60 // 44 minutes
 )
 
 type (
@@ -268,14 +268,8 @@ func rpmAdjustSleep() {
 	switch {
 	case rpm < 10:
 		break
-	case rpm < 20:
-		<-time.After(300 * time.Millisecond)
-		break
-	case rpm < 30:
-		<-time.After(1 * time.Second)
-		break
 	case rpm < 40:
-		<-time.After(2 * time.Second)
+		<-time.After(1 * time.Second)
 		break
 	case rpm < 50:
 		<-time.After(5 * time.Second)

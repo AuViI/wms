@@ -238,8 +238,8 @@ func startUpdateLoop() chan bool {
 			go (func() {
 				<-time.After(2 * time.Minute)
 				renderPictures()
-				counter = 0
 			})()
+			counter = 0
 		}
 		counter += 1
 	}
@@ -265,10 +265,13 @@ func serveIndex(w io.Writer) {
 func renderPictures() {
 	fmt.Println("rendering pictures")
 	os.Setenv("DISPLAY", ":0")
-	locations := [...]string{"Kühlungsborn", "Braunschweig", "Rostock", "Warnemünde"}
+	locations := [...]string{"Kühlungsborn", "Rostock", "Warnemünde"}
 	for _, l := range locations {
 		cmd := exec.Command("electron", "hfscc", l)
+		fmt.Println("rendering picture for", l)
 		cmd.Run()
 		cmd.Wait()
+		<-time.After(30 * time.Second)
 	}
+	fmt.Println("finish rendering pictures")
 }
