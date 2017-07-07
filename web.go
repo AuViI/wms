@@ -235,8 +235,11 @@ func startUpdateLoop() chan bool {
 	calls := func() {
 		updateGewusst()
 		if counter%12 == 0 {
-			renderPictures()
-			counter = 0
+			go (func() {
+				<-time.After(2 * time.Minute)
+				renderPictures()
+				counter = 0
+			})()
 		}
 		counter += 1
 	}
