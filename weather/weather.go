@@ -34,13 +34,20 @@ var (
 	rpmMutex      sync.Mutex
 )
 
+var cacheJSON = make(map[string]Cache)
+
 const (
 	headline      = "YYYY-MM-DD HH:MM:SS TEMP MIN HUMID WINDGRAD FORCE RAIN CLOUDCOVER\n"
 	currentGeoUrl = "http://api.openweathermap.org/data/2.5/weather?lat=%.1f&lon=%.1f&appid=%s"
+	cacheDuration = 15 * 60 // 15 minutes
 )
 
 type (
 	// TODO: type for Main, Weather, Wind, Coord
+	Cache struct {
+		CacheDate int64
+		Content   []byte
+	}
 
 	// Data is the god-object
 	Data struct {
@@ -128,6 +135,32 @@ func (f ForecastData) Valid() bool {
 	return f.Cnt != 0
 }
 
+func age(link string) (int64, bool) {
+	uNow := time.Now().Unix()
+	cache, exists := cacheJSON[link]
+	if exists {
+		return uNow - cache.CacheDate, true
+	}
+	return 0, false
+}
+
+func getLink(link string) ([]byte, error) {
+	dt, cached := age(link)
+	smplReq := strings.Split(link, "/") // debug
+	linkUniq := smplReq[len(smplReq)-1] // debug
+	if cached && dt < cacheDuration {
+		go fmt.Printf("using cache (%ds) for %s\n", dt, linkUniq) // debug
+		return cacheJSON[link].Content, nil
+	}
+	rpmCount()
+	answ, err := simplehttp.GetResponseBody(link)
+	if err == nil {
+		go fmt.Printf("updating cache for %s\n", linkUniq) // debug
+		cacheJSON[link] = Cache{Content: answ, CacheDate: time.Now().Unix()}
+	}
+	return answ, err
+}
+
 // MphToBf converts mp/h to Bf.
 func MphToBf(mph float64) float64 {
 	switch {
@@ -171,8 +204,7 @@ func fillTemlp(t *template.Template, c string) string {
 func GetCurrent(city string) *Data {
 	var wd *Data
 	wd = &Data{}
-	answ, err := simplehttp.GetResponseBody(fillTemlp(currenturl, city))
-	rpmCount()
+	answ, err := getLink(fillTemlp(currenturl, city))
 	if err != nil {
 		panic(err)
 	}
@@ -183,8 +215,8 @@ func GetCurrent(city string) *Data {
 func GetCurrentByGeo(lat, lon float64) *Data {
 	var wd *Data
 	wd = &Data{}
-	fmt.Printf(currentGeoUrl+"\n", lat, lon, *key)
-	answ, err := simplehttp.GetResponseBody(fmt.Sprintf(currentGeoUrl, lat, lon, *key))
+	// fmt.Printf(currentGeoUrl+"\n", lat, lon, *key)
+	answ, err := getLink(fmt.Sprintf(currentGeoUrl, lat, lon, *key))
 	if err != nil {
 		panic(err)
 	}
@@ -195,8 +227,7 @@ func GetCurrentByGeo(lat, lon float64) *Data {
 // GetForecast from OpenWeatherMap
 func GetForecast(city string) *ForecastData {
 	data := new(ForecastData)
-	jdata, err := simplehttp.GetResponseBody(fillTemlp(forcasturl, city))
-	rpmCount()
+	jdata, err := getLink(fillTemlp(forcasturl, city))
 	if err != nil {
 		panic(err)
 	}
@@ -237,16 +268,19 @@ func rpmAdjustSleep() {
 	switch {
 	case rpm < 10:
 		break
+	case rpm < 20:
+		<-time.After(300 * time.Millisecond)
+		break
 	case rpm < 30:
 		<-time.After(1 * time.Second)
 		break
-	case rpm < 60:
+	case rpm < 40:
 		<-time.After(2 * time.Second)
 		break
-	case rpm < 120:
+	case rpm < 50:
 		<-time.After(5 * time.Second)
 		break
-	case rpm < 240:
+	case rpm < 80:
 		<-time.After(10 * time.Second)
 		break
 	}

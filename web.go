@@ -5,6 +5,9 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"os/exec"
+	"path"
 	"regexp"
 	"strings"
 	"text/template"
@@ -21,6 +24,10 @@ var (
 	normListTmpl, _  = template.ParseFiles("./template/normlist.html")
 	bspTmpl, _       = template.ParseFiles("./template/bsp.html")
 	gewusstTmpl, _   = template.ParseFiles("./template/gewusst.html")
+)
+
+const (
+	renderFolder = "./pics/"
 )
 
 var resources = map[string]string{
@@ -159,6 +166,39 @@ func gewusstHandler(w http.ResponseWriter, r *http.Request) {
 	gewusstTmpl.Execute(w, messages)
 }
 
+func renderHandler(w http.ResponseWriter, r *http.Request) {
+	fold, errf := os.Open(renderFolder)
+	if os.IsNotExist(errf) {
+		os.Mkdir(renderFolder, os.ModeDir|os.ModePerm)
+	}
+	fold.Close()
+	l := strings.Split(r.URL.Path, "/")
+	infos, errs := ioutil.ReadDir(renderFolder)
+	if errs != nil {
+		fmt.Fprintf(w, "Error while reading directory %s: %s", renderFolder, errs)
+		return
+	}
+	reqFileName := l[len(l)-1]
+	otherwise := ""
+	add := func(location string) {
+		otherwise += fmt.Sprintf("<a href='%s'>%s</a><br>", location, location)
+	}
+	for _, v := range infos {
+		if v.Name() == reqFileName {
+			f, e := os.Open(path.Join(renderFolder, v.Name()))
+			if e != nil {
+				fmt.Fprintf(w, "Error while reading file %s: %s", v.Name(), e)
+				return
+			}
+			io.Copy(w, f)
+			f.Close()
+			return
+		}
+		add(v.Name())
+	}
+	fmt.Fprint(w, otherwise)
+}
+
 func webSetup(port *string) {
 	end := startUpdateLoop()
 	http.HandleFunc("/txt/", txtHandler)
@@ -173,6 +213,7 @@ func webSetup(port *string) {
 	http.HandleFunc("/normlist/",
 		noCacheSwitch(normlistHandler, ncNormlistHandler))
 	http.HandleFunc("/gewusst/", gewusstHandler)
+	http.HandleFunc("/render/", renderHandler)
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)
 	http.ListenAndServe(*port, nil)
@@ -190,8 +231,14 @@ func load(res string) string {
 
 // expects that called update functions manage mutexes
 func startUpdateLoop() chan bool {
+	counter := 0
 	calls := func() {
 		updateGewusst()
+		if counter%12 == 0 {
+			renderPictures()
+			counter = 0
+		}
+		counter += 1
 	}
 	end := make(chan bool)
 	calls()
@@ -210,4 +257,14 @@ func startUpdateLoop() chan bool {
 
 func serveIndex(w io.Writer) {
 	indexTemplate.Execute(w, nil)
+}
+
+func renderPictures() {
+	fmt.Println("rendering pictures")
+	locations := [...]string{"Kühlungsborn", "Braunschweig", "Rostock", "Warnemünde"}
+	for _, l := range locations {
+		cmd := exec.Command("electron", "hfscc", l)
+		cmd.Run()
+		cmd.Wait()
+	}
 }
