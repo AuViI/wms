@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -14,6 +15,8 @@ import (
 	"time"
 
 	"github.com/auvii/wms/forecast"
+	"github.com/auvii/wms/weather"
+	"github.com/mmcloughlin/globe"
 )
 
 // Handler Helper
@@ -199,6 +202,29 @@ func renderHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, otherwise)
 }
 
+func cacheHandler(w http.ResponseWriter, r *http.Request) {
+	g := globe.New()
+	g.DrawGraticule(10.0)
+	g.DrawLandBoundaries()
+	for _, v := range weather.GetCachedLocations() {
+		// TODO v[2] for color
+		fmt.Println(v)
+		if v[0] != 0 && v[1] != 0 {
+			g.DrawDot(v[0], v[1], 0.05, globe.Color(color.RGBA{0x00, 0x00, 0xFF, 0xFF}))
+		}
+	}
+	g.CenterOn(52.0, 11.0)
+	g.SavePNG("/tmp/globe.png", 1000)
+	f, e := os.Open("/tmp/globe.png")
+	if e != nil {
+		fmt.Fprintln(w, "error reading globe.png")
+		return
+	}
+	w.Header().Set("Content-type", "image/png")
+	io.Copy(w, f)
+	f.Close()
+}
+
 func webSetup(port *string) {
 	end := startUpdateLoop()
 	http.HandleFunc("/txt/", txtHandler)
@@ -214,6 +240,7 @@ func webSetup(port *string) {
 		noCacheSwitch(normlistHandler, ncNormlistHandler))
 	http.HandleFunc("/gewusst/", gewusstHandler)
 	http.HandleFunc("/render/", renderHandler)
+	http.HandleFunc("/cached/", cacheHandler)
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/resources/", resourceHandler)
 	http.ListenAndServe(*port, nil)

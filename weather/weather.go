@@ -135,6 +135,25 @@ func (f ForecastData) Valid() bool {
 	return f.Cnt != 0
 }
 
+func GetCacheRaw() *map[string]Cache {
+	return &cacheJSON
+}
+
+func GetCachedLocations() [][]float64 {
+	data := make([][]float64, len(cacheJSON))
+	i := 0
+	for _, v := range cacheJSON {
+		dp := &Data{}
+		json.Unmarshal(v.Content, dp)
+		data[i] = make([]float64, 3)
+		data[i][0] = dp.Coord["lat"]
+		data[i][1] = dp.Coord["lon"]
+		data[i][2] = float64(v.CacheDate)
+		i = i + 1
+	}
+	return data
+}
+
 func age(link string) (int64, bool) {
 	uNow := time.Now().Unix()
 	cache, exists := cacheJSON[link]
