@@ -1,3 +1,6 @@
+/// Runs and manages the development version of the next
+/// iteration of the AuVi software, made for the Jugend-Forscht
+/// contest 2015.
 package main
 
 import (
@@ -7,10 +10,50 @@ import (
 )
 
 var (
-	port = flag.String("port", ":8080", "Port to host webservice on")
-	wd   = flag.String("wd", fmt.Sprintf("%s/src/github.com/auvii/wms/", os.Getenv("GOPATH")), "working directory")
-	nc   = flag.Bool("no-cache", false, "If this is set, templates won't be cached")
-	help = flag.Bool("help", false, "Displays possible parameters")
+	/*
+	 *  pointer = flag.Type(
+	 *      'cmd',
+	 *	    'default',
+	 *      'helptext')
+	 */
+
+	// port to host webserver on
+	port = flag.String(
+		"port",
+		":8080",
+		"Port to host webservice on")
+
+	// wd is directoy to cd into for execution
+	// important to find:
+	//  - gewusst/
+	//  - resources/
+	//  - template/
+	//  - hfscc/[index.js]
+	// [- pics/]
+	wd = flag.String(
+		"wd",
+		fmt.Sprintf(
+			"%s/src/github.com/auvii/wms/",
+			os.Getenv("GOPATH")),
+		"working directory")
+
+	// nc is true to avoid caching
+	nc = flag.Bool(
+		"no-cache",
+		false,
+		"If this is set, templates won't be cached")
+
+	// help displays help text instead of running
+	help = flag.Bool(
+		"help",
+		false,
+		"Displays possible parameters")
+
+	// render accepts a list of locations to render
+	render = flag.String(
+		"render",
+		"",
+		"Comma seperated locations to render")
 )
 
 func main() {
