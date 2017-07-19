@@ -1,5 +1,26 @@
 package main
 
+import (
+	"fmt"
+	"github.com/auvii/wms/forecast"
+	"github.com/auvii/wms/weather"
+	"github.com/mmcloughlin/globe"
+	"image/color"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"path"
+	"regexp"
+	"strings"
+	"sync"
+	"text/template"
+)
+
+var (
+	cachePNGMutex = &sync.Mutex{}
+)
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path[1:] {
 	case "":
@@ -33,7 +54,8 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 	switch s {
 	case "main.css":
 		if *nc {
-			styleTemplate, _ = template.ParseFiles("./template/main.css")
+			st, _ := template.ParseFiles("./template/main.css")
+			styleTemplate = st
 		}
 		w.Header().Set("Content-type", "text/css")
 		err := styleTemplate.Execute(w, nil)
@@ -168,12 +190,14 @@ func cacheHandler(w http.ResponseWriter, r *http.Request) {
 	g.DrawLandBoundaries()
 	for _, v := range weather.GetCachedLocations() {
 		// TODO v[2] for color
-		fmt.Println(v)
+		// fmt.Println(v)
 		if v[0] != 0 && v[1] != 0 {
-			g.DrawDot(v[0], v[1], 0.05, globe.Color(color.RGBA{0x00, 0x00, 0xFF, 0xFF}))
+			g.DrawDot(v[0], v[1], 0.02, globe.Color(color.RGBA{0x00, 0x00, 0xFF, 0xFF}))
 		}
 	}
 	g.CenterOn(52.0, 11.0)
+	cachePNGMutex.Lock()
+	defer cachePNGMutex.Unlock()
 	g.SavePNG("/tmp/globe.png", 1000)
 	f, e := os.Open("/tmp/globe.png")
 	if e != nil {

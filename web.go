@@ -1,34 +1,24 @@
 package main
 
 import (
-	"fmt"
-	"image/color"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"os/exec"
 	"path"
-	"regexp"
-	"strings"
 	"text/template"
 	"time"
-
-	"github.com/auvii/wms/forecast"
-	"github.com/auvii/wms/weather"
-	"github.com/mmcloughlin/globe"
 )
 
 var (
 	// text/html templates
-	indexTemplate, _ = simpleTemplate("index.html")
-	styleTemplate, _ = simpleTemplate("main.css")
-	normListTmpl, _  = simpleTemplate("normlist.html")
-	bspTmpl, _       = simpleTemplate("bsp.html")
-	gewusstTmpl, _   = simpleTemplate("gewusst.html")
+	indexTemplate = simpleTemplate("index.html")
+	styleTemplate = simpleTemplate("main.css")
+	normListTmpl  = simpleTemplate("normlist.html")
+	bspTmpl       = simpleTemplate("bsp.html")
+	gewusstTmpl   = simpleTemplate("gewusst.html")
 
 	// text/css templates
-	editJsMinTmpl, _ = simpleTemplate("list_edit.min.js")
+	editJsMinTmpl = simpleTemplate("list_edit.min.js")
 
 	// binary resources
 	// TODO change to map string to []byte
@@ -45,8 +35,9 @@ const (
 
 /// simpleTemplate expects the templates to be found inside
 /// the packages `templateFolder` folder
-func simpleTemplate(tmplfile) template.Template {
-	return template.ParseFiles(path.Join(templateFolder, tmplfile))
+func simpleTemplate(tmplfile string) *template.Template {
+	t, _ := template.ParseFiles(path.Join(templateFolder, tmplfile))
+	return t
 }
 
 /// webSetup is called from main and sets up the server
@@ -76,6 +67,9 @@ func webSetup(port *string) {
 /// serveIndex executes the index template and writes
 /// to the given Writer
 func serveIndex(w io.Writer) {
+	if *nc {
+		indexTemplate = simpleTemplate("index.html")
+	}
 	indexTemplate.Execute(w, nil)
 }
 
@@ -93,7 +87,7 @@ func loadOr(res, alt string) string {
 	if err != nil {
 		return alt
 	}
-	return res
+	return string(byt)
 }
 
 /// noCacheSwitch switches between two `http.HandlerFunc`

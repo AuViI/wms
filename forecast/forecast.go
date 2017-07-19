@@ -108,7 +108,6 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	if query == "" {
 		w.Header().Set("Location", "/forecast/Kühlungsborn")
 		w.WriteHeader(301)
-		fmt.Println(w.Header())
 	} else {
 		url, err := url.QueryUnescape(query)
 		if err != nil {
@@ -160,7 +159,8 @@ func Show(w http.ResponseWriter, r *http.Request) {
 				Raw: f,
 				N:   nice,
 			}
-		}(forecastAll.Filter(weather.MIDDAY | weather.EVENING | weather.MORNING)),
+		}(forecastAll.Filter(weather.MIDDAY)),
+		// }(forecastAll.Filter(weather.MIDDAY | weather.EVENING | weather.MORNING)),
 		RFwd:    forecastAll,
 		Nw:      niceWeatherFromData(cwd),
 		MapsKey: *mapskey,
@@ -192,6 +192,5 @@ func Show(w http.ResponseWriter, r *http.Request) {
 // ShowNoCache calls Show with new template
 func ShowNoCache(w http.ResponseWriter, r *http.Request) {
 	forecastTemplate, _ = template.ParseFiles(fcTmpl)
-	fmt.Println("Re-Caching")
 	Show(w, r)
 }

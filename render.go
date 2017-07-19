@@ -1,5 +1,13 @@
 package main
 
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+)
+
 /// renderPictures saves current view for application flags
 /// parameterised into a png file to be accessed and printed.
 ///
@@ -12,20 +20,18 @@ func renderPictures() {
 	}
 
 	// local vars and display switch
-	secwait := 50
 	locations := strings.Split(*render, ",")
 	os.Setenv("DISPLAY", ":0")
 
 	// logging
-	fmt.Println("rendering pictures")
-	fmt.Printf("working with: '%s'\non display: ':0'\n", *render)
-	fmt.Printf("seconds between: %d\nlocation array: %v\n", secwait, locations)
+	Ok("rendering pictures")
+	Continue(fmt.Sprintf("location array: %v", locations))
 
 	// iteration over locations
 	for _, l := range locations {
 		lt := strings.TrimSpace(l)
 		if lt != "" {
-			fmt.Println("rendering picture for", l)
+			Continue(fmt.Sprintf("rendering picture for%s", l))
 			// using electron application which is submodule
 			// inside "./hfscc", so this only works when the
 			// current process is executed inside the repos'
@@ -35,8 +41,8 @@ func renderPictures() {
 			cmd.Wait()
 			// sleep so cache can recover and windows don't
 			// overlap in pictures [not tested]
-			<-time.After(secwait * time.Second)
+			<-time.After(50 * time.Second)
 		}
 	}
-	fmt.Println("finish rendering pictures")
+	Ok("finish rendering pictures")
 }

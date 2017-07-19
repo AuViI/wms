@@ -51,8 +51,7 @@ func updateGewusst() int {
 	}
 	files, err := ioutil.ReadDir(path.Join(*gewFolder, quart))
 	if err != nil {
-		err = fmt.Errorf("Can't find 'gewusst' folder: %s/%s", *gewFolder, quart)
-		fmt.Printf("%s\n", err)
+		Fail(fmt.Sprintf("Can't find 'gewusst' folder: %s/%s", *gewFolder, quart))
 		messages = make([]Gewusst, 0)
 		return 0
 	}

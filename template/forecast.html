@@ -205,6 +205,7 @@ Dt: {{ .Cwd.Dt }}
         {{ range .Fwd.N }}
         <tr>
           <td>
+            {{ .Stamp }}
             Temp: {{ .C }} C<br>
             ( {{ .CMax }} C | {{ .CMin }} C)<br>
             Pres: {{ .Pres }} hPa<br>

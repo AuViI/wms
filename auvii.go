@@ -1,6 +1,3 @@
-/// Runs and manages the development version of the next
-/// iteration of the AuVi software, made for the Jugend-Forscht
-/// contest 2015.
 package main
 
 import (
@@ -71,6 +68,7 @@ func main() {
 	Ok(fmt.Sprint("cwd:", dir))
 	Continue(fmt.Sprintf("Using Cache: %v", !*nc))
 	Continue(fmt.Sprintf("Using Port: %v", *port))
+	Continue(fmt.Sprintf("URL: localhost%v", *port))
 	Continue("AuViI Server starting")
 	webSetup(port)
 	os.Exit(0)
