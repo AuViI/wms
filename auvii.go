@@ -68,7 +68,7 @@ func main() {
 	Ok(fmt.Sprint("cwd:", dir))
 	Continue(fmt.Sprintf("Using Cache: %v", !*nc))
 	Continue(fmt.Sprintf("Using Port: %v", *port))
-	Continue(fmt.Sprintf("URL: localhost%v", *port))
+	Continue(fmt.Sprintf("URL: http://localhost%v", *port))
 	Continue("AuViI Server starting")
 	webSetup(port)
 	os.Exit(0)
