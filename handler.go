@@ -128,12 +128,14 @@ func bspHandler(w http.ResponseWriter, r *http.Request) {
 		Orte  []string
 		Modes []string
 		Dtage []string
+		Rend  []string
 		Show  func(string) string
 	}{
 		Orte: []string{"Kühlungsborn", "Braunschweig", "Hamburg", "Berlin", "Oslo",
 			"Rostock", "Hannover", "München", "New York", "Tokio"},
 		Modes: []string{"txt", "forecast", "list", "csv", "dtage", "view", "normlist"},
 		Dtage: []string{"1/aktuell", "3/meteo", "5/meteo", "3/astro", "5/astro"},
+		Rend:  renderFiles(),
 		Show: func(s string) string {
 			if strings.HasPrefix(s, "1/") {
 				return s[2:]
@@ -149,6 +151,18 @@ func gewusstHandler(w http.ResponseWriter, r *http.Request) {
 		gewusstTmpl, _ = template.ParseFiles("./template/gewusst.html")
 	}
 	gewusstTmpl.Execute(w, messages)
+}
+
+func renderFiles() []string {
+	infos, errs := ioutil.ReadDir(renderFolder)
+	if errs != nil {
+		return nil
+	}
+	files := make([]string, 0)
+	for _, v := range infos {
+		files = append(files, v.Name())
+	}
+	return files
 }
 
 func renderHandler(w http.ResponseWriter, r *http.Request) {

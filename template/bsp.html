@@ -3,6 +3,7 @@
 {{ $modes := .Modes }}
 {{ $dtag := .Dtage }}
 {{ $show := .Show }}
+{{ $rend := .Rend }}
 <html>
     <head>
         <meta charset="utf-8">
@@ -24,39 +25,45 @@
                 <h2 class="location">Beispiele</h2>
             </div>
             <div id="navbar">
-                <a href="/">home</a><a href="">anmelden</a><a href="/bsp/">beispiele</a><a href="">impressum</a>
+                <a href="/">home</a>
+                <a href="">anmelden</a>
+                <a href="/bsp/">beispiele</a>
+                <a href="">impressum</a>
+                <a href="https://github.com/auvii/wms">github</a>
             </div>
         </div>
         <!-- Stop bg gradient -->
         <div id="main">
             <h2>Verschiedene Anzeigemodi</h2>
-            <p>
             <table>
             {{ range $i, $ort := $orte }} <tr><th>{{ $ort }}</th>
             {{ range $k, $mode := $modes }} <td><a href="/{{$mode}}/{{$ort}}">{{ $mode }}</a></td>
             {{ end }} </tr> {{ end }}
             </table>
-            </p>
 
             <h2>Gerenderte Wetterkarten</h2>
-            <p>
-                Zur Zeit werden nur einige ausgewählte Grafiken regelmäßig als gerenderte PNG Datei hier
-                automatisch erzeugt: <a href="/render">Link</a>
-            </p>
+            <!-- <p> -->
+            <!--     Zur Zeit werden nur einige ausgewählte Grafiken regelmäßig als gerenderte PNG Datei hier -->
+            <!--     automatisch erzeugt: <a href="/render">Link</a> -->
+            <!-- </p> -->
+            <table>
+            {{ range $i, $f := $rend }}
+                <tr><th>{{ $i }}</th><td><a href="/render/{{ $f }}">{{ $f }}</a></td></tr>
+            {{ end }}
+            </table>
 
             <h2>'dtage' Grafiken</h2>
-            <p>
             <table>
             <tr><td>Parameter</td> {{ range $j, $dt := $dtag }} <th>{{ call $show $dt }}</th> {{end}} </tr>
             {{ range $i, $ort := $orte }} <tr><th>{{$ort}}</th>
                 {{ range $k, $dta := $dtag }} <td><a href="/dtage/{{$ort}}/{{$dta}}">ansehen</a></td>
                 {{ end }}
-            {{ end }}
-            </tr>
+            {{ end }}</tr>
             </table>
-            </p>
 
             <h2>Sonstige</h2>
+            <h3>Cache Visualisierung:</h3>
+            <img src="/cached" class="center" width="50%"/>
             <h3>Gewusst?</h3>
             <p>Die <a href="/gewusst">Gewusst</a> Anzeigen vermitteln örtliche Geheimtipps, meteorologische Begriffe und meteorologische Erscheinungen</p>
     </body>
