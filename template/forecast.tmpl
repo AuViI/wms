@@ -39,15 +39,22 @@ Struct {
         font-size: 130%;
       }
 
+      a, a:hover, a:focus {
+        text-decoration: none;
+        color: #0F182F;
+      }
+
       .left {
         position: fixed;
-        left: 1em;
-        top: 10%;
-        bottom: 12%;
-        right: 86%;
+        left: .6em;
+        top: 6em;
         background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
         border-radius: .6em;
         padding: .5em;
+      }
+
+      .left * {
+        overflow: hidden;
       }
 
       .bottom {
@@ -90,9 +97,53 @@ Struct {
         padding: .8em .2em;
       }
 
+      .tritage {
+        overflow: hidden;
+        margin-top: .7em;
+      }
+
+      .tritage * {
+        border: none;
+        overflow: hidden;
+      }
+
+      .datatable {
+        width: 100%;
+      }
+
+      .datatable td {
+        padding-top: 1em;
+      }
+
+      .datatable tr:first-child td {
+        padding-top: 0;
+      }
+
+      .datapoint {
+        border-collapse: collapse;
+        background-color: #F5F5F5;
+        border: 1px solid #CCCCCC;
+        width: 100%;
+      }
+
+      .datapoint td {
+        border: none;
+        padding: 0 .1em 0 .1em;
+        margin: 0;
+      }
+
+      .datapoint tr {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .datapoint img {
+        width: 100%;
+      }
+
       .legende {
         position: fixed;
-        top: 90%;
         left: 0;
         right: 0;
         bottom: 0;
@@ -103,15 +154,10 @@ Struct {
       }
 
       .left div {
-        height: 46%;
-        float: none;
+        float: top;
         padding: .5em;
         border-radius: .5em;
         background-color: rgb(231, 231, 231);
-      }
-
-      .tritage {
-        overflow-y: scroll;
       }
 
       .head {
@@ -167,6 +213,8 @@ Struct {
       }
       pre {
           height: 100%;
+          margin: 0;
+          padding: .3em;
       }
       .series {
           width: 100%;
@@ -182,41 +230,35 @@ Struct {
     <div class="left oms">
       <div class="heutedaten">
         <pre>
-Wind: {{ .Cwd.Wind.Speed }} m/s
-      {{ .Cwd.Wind.Deg }} deg
-Cloud: {{ .Cwd.Clouds.All }}%
-Temp: {{ .Nw.Temp }} Celsius
-      ( {{ .Nw.TempMin }} | {{ .Nw.TempMax }})
-Pressure: {{ .Cwd.Main.Pressure }} hPa
-Humidity: {{ .Cwd.Main.Humidity }}%
-Rain: {{ .Cwd.Rain.Volume }} mm
-Snow: {{ .Cwd.Snow.Volume }} mm
-Dt: {{ .Cwd.Dt }}
-        </pre>
+Temp.:  {{ .Nw.Temp }} °C
+Druck:  {{ .Cwd.Main.Pressure }} hPa
+Luftf.: {{ .Cwd.Main.Humidity }}%
+Wind:   {{ .Cwd.Wind.Speed }} m/s
+        {{ .Cwd.Wind.Deg }} deg
+Wolken: {{ .Cwd.Clouds.All }}%
+Regen:  {{ .Cwd.Rain.Volume }} mm
+Schnee: {{ .Cwd.Snow.Volume }} mm</pre>
       </div>
-      <br>
       <div class="tritage">
-      <table class="series">
-        <tr>
-          <td>
-          Data: {{ len .Fwd.N }}
-          </td>
-        </tr>
+        <table class="datatable">
         {{ range .Fwd.N }}
         <tr>
           <td>
-            {{ .Stamp }}
-            Temp: {{ .C }} C<br>
-            ( {{ .CMax }} C | {{ .CMin }} C)<br>
-            Pres: {{ .Pres }} hPa<br>
-            Humid: {{ .Humid }}%<br>
-            Main: {{ .Main }}<br>
-            Icon: <img src="http://openweathermap.org/img/w/{{ .Icon }}.png" alt="" /><br>
-            Desc: {{ .Desc }}<br>
-            Cloud: {{ .Cloud }}/8<br>
-            WindS: {{ .WindS }} m/s<br>
-            WindD: {{ .WindD }} Grad<br>
-            RainA: {{ .RainA }} mm
+            {{.Stamp}}
+            <table class="datapoint">
+              <tr>
+                <td>
+                  <img src="http://openweathermap.org/img/w/{{ .Icon }}.png" alt="" />
+                </td>
+                <td>
+                  <pre>
+{{ .C }} °C
+{{ .Pres }} hPa
+{{ .Cloud }}/8 bedeckt
+{{ .RainA }} mm NS</pre>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
         {{ end }}
@@ -238,12 +280,8 @@ Dt: {{ .Cwd.Dt }}
       </div>
     </div>
     <div class="legende">
-      {{ .Legende }} (Icon Test):<br>
-      {{ range .RFwd.Data }}
-        {{ range .Weather }}
-        {{ call $toic .Icon }}
-        {{ end }}
-      {{ end }}
+      {{ .Legende }}<br>
+      Resources: Daten und Icons von <a target="_blank" href="https://openweathermap.org">OpenWeatherMap</a>
     </div>
     <div id="gmap"></div>
     <span id="status">Generiert am {{ .Time }}</span>

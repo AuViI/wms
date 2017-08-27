@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	fcTmpl = "./template/forecast.html"
+	fcTmpl = "./template/forecast.tmpl"
 )
 
 // data contains all Data needed for filling the Template
@@ -137,7 +137,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		Cwd:          cwd,
 		Fwd: func(f weather.ForecastData) printFwd {
 			var nice []printFwdPoint
-			for _, v := range f.Data {
+			for _, v := range f.Data[0:3] {
 				nice = append(nice, printFwdPoint{
 					Time:  v.Time,
 					Stamp: tString(time.Unix(v.Time, 0).Local().Unix()),
