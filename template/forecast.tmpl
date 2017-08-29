@@ -13,6 +13,7 @@ Struct {
 {{ $gradbeg := "#82a0d5" }}
 {{ $gradend := "#4b6ca6" }}
 {{ $toic := .ToIcon }}
+{{ $datestrip := .DatumStrip }}
 <html>
   <head>
     <meta charset="utf-8">
@@ -25,14 +26,27 @@ Struct {
         overflow: hidden;
       }
 
-      .descriptor, h2 {
+      .descriptor {
+        color: white;
         font-family: sans-serif;
-        padding: .5em;
+        padding: .8em 1em .8em 1em;
         margin: 0;
         border-bottom-right-radius: .5em;
         background-color: {{ $gradbeg }};
         display: inline;
         float: left;
+      }
+
+      .descriptor h1 {
+        padding: 0;
+        margin: 0;
+      }
+
+      .descriptor h4 {
+        font-weight: 400;
+        text-align: center;
+        padding: 0;
+        margin: 0;
       }
 
       h2.descriptor {
@@ -41,13 +55,13 @@ Struct {
 
       a, a:hover, a:focus {
         text-decoration: none;
-        color: #0F182F;
+        color: #CCFAFF;
       }
 
       .left {
         position: fixed;
         left: .6em;
-        top: 6em;
+        top: 6.5em;
         background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
         border-radius: .6em;
         padding: .5em;
@@ -59,9 +73,9 @@ Struct {
 
       .bottom {
         position: fixed;
-        left: 70%;
-        right: 1em;
-        bottom: 12%;
+        right: .7em;
+        bottom: 4.6em;
+        max-width: 35%;
         padding: .5em;
         border-radius: .6em;
         background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
@@ -90,11 +104,18 @@ Struct {
       }
 
       .heute {
+
+      }
+
+      .heute h2 {
+        padding: .3em;
+        margin: 0;
       }
 
       .heute p {
         text-align: justify;
-        padding: .8em .2em;
+        padding: .2em;
+        margin: 0;
       }
 
       .tritage {
@@ -123,6 +144,7 @@ Struct {
         border-collapse: collapse;
         background-color: #F5F5F5;
         border: 1px solid #CCCCCC;
+        text-align: left;
         width: 100%;
       }
 
@@ -143,6 +165,7 @@ Struct {
       }
 
       .legende {
+        color: white;
         position: fixed;
         left: 0;
         right: 0;
@@ -226,25 +249,28 @@ Struct {
     </style>
   </head>
   <body>
-    <h1 class="descriptor">Wetterprognose {{ html .Ort }}</h1><h2 class="descriptor">Daten: {{ html .Datum }} Uhr</h2>
+    <div class="descriptor">
+        <h1>Wetterprognose {{ html .Ort }}</h1>
+        <h4>{{ html .Datum }} Uhr</h4>
+    </div>
     <div class="left oms">
       <div class="heutedaten">
         <pre>
 Temp.:  {{ .Nw.Temp }} °C
 Druck:  {{ .Cwd.Main.Pressure }} hPa
 Luftf.: {{ .Cwd.Main.Humidity }}%
-Wind:   {{ .Cwd.Wind.Speed }} m/s
-        {{ .Cwd.Wind.Deg }} deg
+Wind:   {{ .Cwd.Wind.Speed }} m/s{{ if .Cwd.Wind.Speed }}
+        {{ .Cwd.Wind.Deg }} deg{{end}}
 Wolken: {{ .Cwd.Clouds.All }}%
-Regen:  {{ .Cwd.Rain.Volume }} mm
-Schnee: {{ .Cwd.Snow.Volume }} mm</pre>
+{{ if .Cwd.Rain.Volume }}Regen:  {{ .Cwd.Rain.Volume }} mm
+{{end}}{{if .Cwd.Snow.Volume}}Schnee: {{ .Cwd.Snow.Volume }} mm{{end}}</pre>
       </div>
       <div class="tritage">
         <table class="datatable">
         {{ range .Fwd.N }}
         <tr>
-          <td>
-            {{.Stamp}}
+          <td style="text-align:center">
+            {{ call $datestrip .Stamp }}
             <table class="datapoint">
               <tr>
                 <td>
@@ -254,7 +280,7 @@ Schnee: {{ .Cwd.Snow.Volume }} mm</pre>
                   <pre>
 {{ .C }} °C
 {{ .Pres }} hPa
-{{ .Cloud }}/8 bedeckt
+{{if .Cloud}}{{ .Cloud }}/8 bedeckt{{else}}klar{{end}}
 {{ .RainA }} mm NS</pre>
                 </td>
               </tr>
@@ -273,9 +299,10 @@ Schnee: {{ .Cwd.Snow.Volume }} mm</pre>
     {{ end }}
     <div class="bottom oms">
       <div class="heute">
-        <h2 class="head">{{ html .Wetterlage }}</h2><br>
+        <h2>Wussten Sie schon?</h2>
         <p>
-          {{ html .WetterDesc }}
+            Die englische Bezeichnung für die 
+            Heutige Wetterlage ist "{{ html .Wetterlage }}".
         </p>
       </div>
     </div>

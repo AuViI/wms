@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/auvii/wms/weather"
@@ -21,6 +22,7 @@ const (
 type data struct {
 	Ort          string
 	Datum        string
+	DatumStrip   func(string) string
 	Uhrzeit      string
 	Wetterlage   string
 	WetterDesc   string
@@ -125,8 +127,11 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var dat data = data{
-		Ort:          query,
-		Datum:        tString(cwd.Dt),
+		Ort:   query,
+		Datum: tString(cwd.Dt),
+		DatumStrip: func(s string) string {
+			return strings.Split(s, " ")[0]
+		},
 		Uhrzeit:      "12:00",
 		Wetterlage:   cwd.Weather[0].Main,
 		WetterDesc:   "Beschreibung per Hand Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
@@ -137,10 +142,10 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		Cwd:          cwd,
 		Fwd: func(f weather.ForecastData) printFwd {
 			var nice []printFwdPoint
-			for _, v := range f.Data[0:3] {
+			for _, v := range f.Data[0:3] { //TODO hardcoded upper limit (3)
 				nice = append(nice, printFwdPoint{
 					Time:  v.Time,
-					Stamp: tString(time.Unix(v.Time, 0).Local().Unix()),
+					Stamp: strings.Split(tString(time.Unix(v.Time, 0).Local().Unix()), " ")[0],
 					C:     fmt.Sprintf("%.2f", weather.Ktoc(v.Main.TempK)),
 					CMax:  fmt.Sprintf("%.2f", weather.Ktoc(v.Main.TempMaxK)),
 					CMin:  fmt.Sprintf("%.2f", weather.Ktoc(v.Main.TempMinK)),
@@ -186,7 +191,10 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		mult := math.Abs(x-y)/4.0 + 1
 		dat.WetterArea[i] = mapIcon{weather.GetCurrentByGeo(xgeo, ygeo).Weather[0].Icon, 55 + 20*x*mult, 45 + 20*y*mult}
 	}
-	forecastTemplate.Execute(w, dat)
+	err := forecastTemplate.Execute(w, dat)
+	if err != nil {
+		fmt.Printf("Forecast error: %s\n", err)
+	}
 }
 
 // ShowNoCache calls Show with new template

@@ -131,7 +131,7 @@ func bspHandler(w http.ResponseWriter, r *http.Request) {
 		Rend  []string
 		Show  func(string) string
 	}{
-		Orte: []string{"Kühlungsborn", "Braunschweig", "Hamburg", "Berlin", "Oslo",
+		Orte: []string{"Kühlungsborn", "Braunschweig", "Hamburg", "Berlin", "Oslo", "Holbaek",
 			"Rostock", "Hannover", "München", "New York", "Tokio"},
 		Modes: []string{"txt", "forecast", "list", "csv", "dtage", "view", "normlist"},
 		Dtage: []string{"1/aktuell", "3/meteo", "5/meteo", "3/astro", "5/astro"},
