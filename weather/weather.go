@@ -5,10 +5,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	// "fmt"
 	"html/template"
 	"os"
-	"strings"
+	//"strings"
 	"sync"
 	"time"
 
@@ -79,6 +78,8 @@ type (
 			Volume float64 `json:"3h"`
 		}
 		Dt int64
+		Cod     interface{} `json:"cod"`
+		Message string      `json:"message"`
 	}
 	// ForecastData contains all the forecast data
 	ForecastData struct {
@@ -92,9 +93,9 @@ type (
 			Country    string `json:"country"`
 			Population int    `json:"population"`
 		}
-		Cod     string      `json:"cod"`
+		Cod     interface{} `json:"cod"`
+		Message string      `json:"message"`
 		Cnt     int         `json:"cnt"`
-		Message float64     `json:"message"`
 		Data    []DataPoint `json:"list"`
 	}
 	// DataPoint is part of data /t
@@ -211,7 +212,8 @@ func MphToBf(mph float64) float64 {
 
 func fillTemlp(t *template.Template, c string) string {
 	var b bytes.Buffer
-	t.Execute(&b, &Query{strings.Replace(c, " ", "_", -1), *key})
+	//t.Execute(&b, &Query{strings.Replace(c, " ", "_", -1), *key})
+    t.Execute(&b, &Query{c, *key})
 	return b.String()
 }
 
@@ -223,6 +225,7 @@ func GetCurrent(city string) *Data {
 	if err != nil {
 		panic(err)
 	}
+    fmt.Println(string(answ))
 	json.Unmarshal(answ, wd)
 	return wd
 }
@@ -241,11 +244,20 @@ func GetCurrentByGeo(lat, lon float64) *Data {
 // GetForecast from OpenWeatherMap
 func GetForecast(city string) *ForecastData {
 	data := new(ForecastData)
-	jdata, err := getLink(fillTemlp(forcasturl, city))
+    link := fillTemlp(forcasturl, city)
+	jdata, err := getLink(link)
+
+    fmt.Println(link)
+    fmt.Println(string(jdata))
+
 	if err != nil {
 		panic(err)
 	}
+
 	json.Unmarshal(jdata, data)
+
+    fmt.Printf("Cod: %v\n", data.Cod)
+    fmt.Printf("Message: %s\n", data.Message)
 	return data
 }
 
