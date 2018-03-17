@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+    "github.com/auvii/wms/weather/redirect"
 	"github.com/mtib/simplehttp"
 )
 
@@ -226,6 +227,11 @@ func fillTemlp(t *template.Template, c string) string {
 
 // GetCurrent returns filled `Data` for `city`
 func GetCurrent(city string) *Data {
+
+    if redirect.IsRedirected(city) {
+        city = redirect.Redirect(city)
+    }
+
 	var wd *Data
 	wd = &Data{}
 	answ, err := getLink(fillTemlp(currenturl, city))
@@ -250,6 +256,13 @@ func GetCurrentByGeo(lat, lon float64) *Data {
 
 // GetForecast from OpenWeatherMap
 func GetForecast(city string) *ForecastData {
+
+    if redirect.IsRedirected(city) {
+        city = redirect.Redirect(city)
+    }
+
+    //fmt.Println(city)
+
 	data := new(ForecastData)
     link := fillTemlp(forcasturl, city)
 	jdata, err := getLink(link)
