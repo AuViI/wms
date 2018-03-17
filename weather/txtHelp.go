@@ -19,7 +19,7 @@ func (f *ForecastData) Header() string {
     if f.Valid() {
 	    return fmt.Sprintf("# %s {%+5.2f;%+5.2f}\n# %s\n# %s", f.City.Name, f.City.Coord.Lat, f.City.Coord.Lon, time.Now(), headline)
     }
-    return fmt.Sprintf("ERROR\n# %s\n", time.Now())
+    return fmt.Sprintf("SEVERE ERROR ENCOUNTERED\n# %s\n", time.Now())
 }
 
 // ConvertToCelsius copies a new Data packet, but converts Kelvin to Celsius

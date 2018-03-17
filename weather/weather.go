@@ -27,8 +27,8 @@ type (
 )
 
 var (
-	currenturl, _ = template.New("current").Parse("http://api.openweathermap.org/data/2.5/weather?q={{.City | urlquery}}&appid={{.Key}}")
-	forcasturl, _ = template.New("forcast").Parse("http://api.openweathermap.org/data/2.5/forecast?q={{.City | urlquery}}&appid={{.Key}}")
+	currenturl, _ = template.New("current").Parse("http://api.openweathermap.org/data/2.5/weather?q={{.City}}&appid={{.Key}}")
+	forcasturl, _ = template.New("forcast").Parse("http://api.openweathermap.org/data/2.5/forecast?q={{.City}}&appid={{.Key}}")
 	rpm           = 0
 	rpmMutex      sync.Mutex
 )
@@ -79,7 +79,7 @@ type (
 		}
 		Dt int64
 		Cod     interface{} `json:"cod"`
-		Message string      `json:"message"`
+		Message interface{} `json:"message"`
 	}
 	// ForecastData contains all the forecast data
 	ForecastData struct {
@@ -94,7 +94,7 @@ type (
 			Population int    `json:"population"`
 		}
 		Cod     interface{} `json:"cod"`
-		Message string      `json:"message"`
+		Message interface{} `json:"message"`
 		Cnt     int         `json:"cnt"`
 		Data    []DataPoint `json:"list"`
 	}
@@ -133,7 +133,14 @@ type (
 
 // Valid if data was returned
 func (f ForecastData) Valid() bool {
-	return f.Cnt != 0
+    switch f.Cod.(type) {
+        case float64:
+            return int(f.Cod.(float64)) == 200
+        case string:
+            return f.Cod.(string) == "200"
+        default:
+            return false
+    }
 }
 
 func GetCacheRaw() *map[string]Cache {
@@ -225,7 +232,7 @@ func GetCurrent(city string) *Data {
 	if err != nil {
 		panic(err)
 	}
-    fmt.Println(string(answ))
+    //fmt.Println(string(answ))
 	json.Unmarshal(answ, wd)
 	return wd
 }
@@ -247,8 +254,8 @@ func GetForecast(city string) *ForecastData {
     link := fillTemlp(forcasturl, city)
 	jdata, err := getLink(link)
 
-    fmt.Println(link)
-    fmt.Println(string(jdata))
+    //fmt.Println(link)
+    //fmt.Println(string(jdata))
 
 	if err != nil {
 		panic(err)
@@ -256,8 +263,7 @@ func GetForecast(city string) *ForecastData {
 
 	json.Unmarshal(jdata, data)
 
-    fmt.Printf("Cod: %v\n", data.Cod)
-    fmt.Printf("Message: %s\n", data.Message)
+    //fmt.Printf("Data: %v\n", data)
 	return data
 }
 
