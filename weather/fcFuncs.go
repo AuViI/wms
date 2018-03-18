@@ -2,16 +2,25 @@ package weather
 
 import "time"
 
+// FilterFunc can be used to filter a set of DataPoints
 type FilterFunc func(*DataPoint) bool
 
+// FilterMode should not be initialized, use the Constants!
+// you can use | or & if you want to customize your call of Filter
 type FilterMode int
 
 const (
-	MIDDAY    FilterMode = 00001
-	MORNING   FilterMode = 00010
-	MIDNIGHT  FilterMode = 00100
-	MIDS      FilterMode = 00101
-	EVENING   FilterMode = 01000
+	// MIDDAY is 12:00
+	MIDDAY FilterMode = 00001
+	// MORNING is 06:00
+	MORNING FilterMode = 00010
+	// MIDNIGHT is 00:00
+	MIDNIGHT FilterMode = 00100
+	// MIDS is 12:00 and 00:00
+	MIDS FilterMode = 00101
+	// EVENING is 19:00
+	EVENING FilterMode = 01000
+	// INTERVAL6 is all the above
 	INTERVAL6 FilterMode = 01111
 )
 
@@ -19,6 +28,8 @@ func (i FilterMode) is(mode FilterMode) bool {
 	return i&mode != 0
 }
 
+// Filter filters the ForecastData to only contain certain DataPoints
+// TODO: there should be a version of Filter returning a channel
 func (f ForecastData) Filter(mode FilterMode) ForecastData {
 	inrange := func(h, t int) bool {
 		dis := h - t

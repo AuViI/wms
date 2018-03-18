@@ -1,0 +1,3 @@
+[submodule "hfscc"]
+	path = hfscc
+	url = https://github.com/auvii/hfscc

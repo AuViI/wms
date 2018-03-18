@@ -4,41 +4,55 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/auvii/wms/weather"
 )
 
 const (
-	fcTmpl = "./template/forecast.html"
+	fcTmpl = "./template/forecast.tmpl"
 )
 
-type Data struct {
+// data contains all Data needed for filling the Template
+type data struct {
 	Ort          string
 	Datum        string
+	DatumStrip   func(string) string
 	Uhrzeit      string
 	Wetterlage   string
 	WetterDesc   string
 	PhysGroessen string
 	Legende      string
 	Time         string
-	Geo          GeoData
+	Geo          geoData
 	Cwd          *weather.Data
-	Fwd          PrintFwd
+	Fwd          printFwd
 	RFwd         *weather.ForecastData
-	Nw           NiceWeather
+	Nw           niceWeather
+	ToIcon       func(string) template.HTML
 	MapsKey      string
+	WetterArea   []mapIcon
 }
 
-type PrintFwd struct {
+type mapIcon struct {
+	Icon string
+	X    float64
+	Y    float64
+}
+
+// printFwd contains the Raw-Filtered weather data and formatted txt
+type printFwd struct {
 	Raw weather.ForecastData
-	N   []PrintFwdPoint
+	N   []printFwdPoint
 }
 
-type PrintFwdPoint struct {
+// printFwdPoint is a single formatted data point of PrintFwd
+type printFwdPoint struct {
 	Time  int64
 	Stamp string
 	C     string
@@ -55,19 +69,22 @@ type PrintFwdPoint struct {
 	RainA string
 }
 
-type GeoData struct {
+// geoData contains Lat and Lon
+type geoData struct {
 	Lat float64
 	Lon float64
 }
 
-type NiceWeather struct {
+// niceWeather is PrintFwdPoint for current weather
+type niceWeather struct {
 	Temp    string
 	TempMax string
 	TempMin string
 }
 
-func NiceWeatherFromData(w *weather.Data) NiceWeather {
-	return NiceWeather{
+// niceWeatherFromData converts kelvin to celsius
+func niceWeatherFromData(w *weather.Data) niceWeather {
+	return niceWeather{
 		Temp:    fmt.Sprintf("%.2f", w.Main.Temp),
 		TempMax: fmt.Sprintf("%.2f", w.Main.TempMax),
 		TempMin: fmt.Sprintf("%.2f", w.Main.TempMin),
@@ -93,33 +110,42 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	if query == "" {
 		w.Header().Set("Location", "/forecast/Kühlungsborn")
 		w.WriteHeader(301)
-		fmt.Println(w.Header())
 	} else {
 		url, err := url.QueryUnescape(query)
 		if err != nil {
 			w.Write([]byte("An Error occurred reading the URL"))
+			return
 		}
+		//w.Header().Set("Refresh", "10") // Sekunden
+		w.Header().Set("Cache-Control", "max-age=600")
 		query = url
 	}
 	cwd := weather.GetCurrent(query).ConvertToCelsius()
 	forecastAll := weather.GetForecast(query)
-	forecastTemplate.Execute(w, Data{
-		Ort:          query,
-		Datum:        tString(cwd.Dt),
+	if len(cwd.Weather) == 0 || len(forecastAll.Data) == 0 {
+		fmt.Fprintln(w, "An Error occurred")
+		return
+	}
+	var dat data = data{
+		Ort:   query,
+		Datum: tString(cwd.Dt),
+		DatumStrip: func(s string) string {
+			return strings.Split(s, " ")[0]
+		},
 		Uhrzeit:      "12:00",
-		Wetterlage:   "Sonnig",
+		Wetterlage:   cwd.Weather[0].Main,
 		WetterDesc:   "Beschreibung per Hand Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
 		PhysGroessen: "Temperatur: ...",
 		Legende:      "Legende",
 		Time:         nowString(),
-		Geo:          GeoData{Lat: cwd.Coord["lat"], Lon: cwd.Coord["lon"]},
+		Geo:          geoData{Lat: cwd.Coord["lat"], Lon: cwd.Coord["lon"]},
 		Cwd:          cwd,
-		Fwd: func(f weather.ForecastData) PrintFwd {
-			var nice []PrintFwdPoint
-			for _, v := range f.Data {
-				nice = append(nice, PrintFwdPoint{
+		Fwd: func(f weather.ForecastData) printFwd {
+			var nice []printFwdPoint
+			for _, v := range f.Data[0:3] { //TODO hardcoded upper limit (3)
+				nice = append(nice, printFwdPoint{
 					Time:  v.Time,
-					Stamp: tString(time.Unix(v.Time, 0).Local().Unix()),
+					Stamp: strings.Split(tString(time.Unix(v.Time, 0).Local().Unix()), " ")[0],
 					C:     fmt.Sprintf("%.2f", weather.Ktoc(v.Main.TempK)),
 					CMax:  fmt.Sprintf("%.2f", weather.Ktoc(v.Main.TempMaxK)),
 					CMin:  fmt.Sprintf("%.2f", weather.Ktoc(v.Main.TempMinK)),
@@ -128,26 +154,51 @@ func Show(w http.ResponseWriter, r *http.Request) {
 					Icon:  v.Weather[0].Icon,
 					Main:  v.Weather[0].Main,
 					Desc:  v.Weather[0].Description,
-					Cloud: v.Clouds.All,
+					Cloud: int(float64(v.Clouds.All) * 0.08),
 					WindS: fmt.Sprintf("%.2f", v.Wind.Speed),
 					WindD: int(v.Wind.Degree),
 					RainA: fmt.Sprintf("%.0f", v.Rain.Amount),
 				})
 			}
-			return PrintFwd{
+			return printFwd{
 				Raw: f,
 				N:   nice,
 			}
-		}(forecastAll.Filter(weather.MIDDAY | weather.EVENING | weather.MORNING)),
+		}(forecastAll.Filter(weather.MIDDAY)),
+		// }(forecastAll.Filter(weather.MIDDAY | weather.EVENING | weather.MORNING)),
 		RFwd:    forecastAll,
-		Nw:      NiceWeatherFromData(cwd),
+		Nw:      niceWeatherFromData(cwd),
 		MapsKey: *mapskey,
-	})
+		ToIcon: func(in string) template.HTML {
+			return template.HTML(fmt.Sprintf("<img src=\"http://openweathermap.org/img/w/%s.png\" alt=\"%s\" width=\"40px\" />", in, in))
+		},
+		WetterArea: make([]mapIcon, 8),
+	}
+	cc := func(n int) float64 {
+		if n == 0 || n == 4 {
+			return 0
+		} else if n < 4 {
+			return 1
+		} else {
+			return -1
+		}
+	}
+	for i := 0; i < 8; i++ {
+		x := cc(i)
+		y := cc((i + 6) % 8)
+		xgeo := x*0.5 + dat.Geo.Lat
+		ygeo := y*0.5 + dat.Geo.Lon
+		mult := math.Abs(x-y)/4.0 + 1
+		dat.WetterArea[i] = mapIcon{weather.GetCurrentByGeo(xgeo, ygeo).Weather[0].Icon, 55 + 20*x*mult, 45 + 20*y*mult}
+	}
+	err := forecastTemplate.Execute(w, dat)
+	if err != nil {
+		fmt.Printf("Forecast error: %s\n", err)
+	}
 }
 
 // ShowNoCache calls Show with new template
 func ShowNoCache(w http.ResponseWriter, r *http.Request) {
 	forecastTemplate, _ = template.ParseFiles(fcTmpl)
-	fmt.Println("Re-Caching")
 	Show(w, r)
 }

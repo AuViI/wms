@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+{{ $orte := .Orte }}
+{{ $modes := .Modes }}
+{{ $dtag := .Dtage }}
+{{ $show := .Show }}
+{{ $rend := .Rend }}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>WMS - Seewetterstation Kühlungsborn</title>
+        <link rel="shortcut icon" href="/resources/logo.png">
+        <link rel="stylesheet" href="/resources/main.css" charset="utf-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <meta name="viewport" content="width=680">
+    </head>
+    <body>
+        <div class="content">
+            <div class="header">
+                <h1 class="movein">
+                <img src="/resources/logo.png" alt="Logo" id="logo" /> Weather Monitoring System</h1>
+                <img src="/resources/test.jpg" alt="Beispielbild nicht gefunden.." class="inline explain" />
+                <p class="explain">
+                    Schauen Sie sich die Beispiele an, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+                <h2 class="location">Beispiele</h2>
+            </div>
+            <div id="navbar">
+                <a href="/">home</a>
+                <a href="">anmelden</a>
+                <a href="/bsp/">beispiele</a>
+                <a href="">impressum</a>
+                <a href="https://github.com/auvii/wms">github</a>
+            </div>
+        </div>
+        <!-- Stop bg gradient -->
+        <div id="main">
+            <h2>Verschiedene Anzeigemodi</h2>
+            <table>
+            {{ range $i, $ort := $orte }} <tr><th>{{ $ort }}</th>
+            {{ range $k, $mode := $modes }} <td><a href="/{{$mode}}/{{$ort}}">{{ $mode }}</a></td>
+            {{ end }} </tr> {{ end }}
+            </table>
+
+            <h2>Gerenderte Wetterkarten</h2>
+            <!-- <p> -->
+            <!--     Zur Zeit werden nur einige ausgewählte Grafiken regelmäßig als gerenderte PNG Datei hier -->
+            <!--     automatisch erzeugt: <a href="/render">Link</a> -->
+            <!-- </p> -->
+            <table>
+            {{ range $i, $f := $rend }}
+                <tr><th>{{ $i }}</th><td><a href="/render/{{ $f }}">{{ $f }}</a></td></tr>
+            {{ end }}
+            </table>
+
+            <h2>'dtage' Grafiken</h2>
+            <table>
+            <tr><td>Parameter</td> {{ range $j, $dt := $dtag }} <th>{{ call $show $dt }}</th> {{end}} </tr>
+            {{ range $i, $ort := $orte }} <tr><th>{{$ort}}</th>
+                {{ range $k, $dta := $dtag }} <td><a href="/dtage/{{$ort}}/{{$dta}}">ansehen</a></td>
+                {{ end }}
+            {{ end }}</tr>
+            </table>
+
+            <h2>Sonstige</h2>
+            <h3>Cache Visualisierung:</h3>
+            <img src="/cached" class="center" width="50%"/>
+            <h3>Gewusst?</h3>
+            <p>Die <a href="/gewusst">Gewusst</a> Anzeigen vermitteln örtliche Geheimtipps, meteorologische Begriffe und meteorologische Erscheinungen</p>
+    </body>
+</html>

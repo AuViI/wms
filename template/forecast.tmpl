@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<!--
+Struct {
+  Ort          string
+  Datum        string
+  Uhrzeit      string
+  Wetterlage   string
+  PhysGroessen string
+  Legende      string
+  Time         string
+}
+-->
+{{ $gradbeg := "#82a0d5" }}
+{{ $gradend := "#4b6ca6" }}
+{{ $toic := .ToIcon }}
+{{ $datestrip := .DatumStrip }}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Wetterprognose {{ .Ort }}</title>
+    <link rel="shortcut icon" href="/resources/logo.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style media="screen">
+      body {
+        overflow: hidden;
+      }
+
+      .descriptor {
+        color: white;
+        font-family: sans-serif;
+        padding: .8em 1em .8em 1em;
+        margin: 0;
+        border-bottom-right-radius: .5em;
+        background-color: {{ $gradbeg }};
+        display: inline;
+        float: left;
+      }
+
+      .descriptor h1 {
+        padding: 0;
+        margin: 0;
+      }
+
+      .descriptor h4 {
+        font-weight: 400;
+        text-align: center;
+        padding: 0;
+        margin: 0;
+      }
+
+      h2.descriptor {
+        font-size: 130%;
+      }
+
+      a, a:hover, a:focus {
+        text-decoration: none;
+        color: #CCFAFF;
+      }
+
+      .left {
+        position: fixed;
+        left: .6em;
+        top: 6.5em;
+        background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
+        border-radius: .6em;
+        padding: .5em;
+      }
+
+      .left * {
+        overflow: hidden;
+      }
+
+      .bottom {
+        position: fixed;
+        right: .7em;
+        bottom: 4.6em;
+        max-width: 35%;
+        padding: .5em;
+        border-radius: .6em;
+        background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
+      }
+
+      .bottom div {
+        float: left;
+        background-color: rgb(231, 231, 231);
+        border-radius: .5em;
+        padding: .5em;
+      }
+
+      .mapIcon img {
+        width: 6em;
+        position: absolute;
+        top: -3em;
+        left: -3em;
+      }
+
+      .oms {
+        box-shadow: .3em .3em 10px rgba(77, 77, 77, 0.55);
+      }
+
+      .groessen {
+        margin-left: 2%;
+      }
+
+      .heute {
+
+      }
+
+      .heute h2 {
+        padding: .3em;
+        margin: 0;
+      }
+
+      .heute p {
+        text-align: justify;
+        padding: .2em;
+        margin: 0;
+      }
+
+      .tritage {
+        overflow: hidden;
+        margin-top: .7em;
+      }
+
+      .tritage * {
+        border: none;
+        overflow: hidden;
+      }
+
+      .datatable {
+        width: 100%;
+      }
+
+      .datatable td {
+        padding-top: 1em;
+      }
+
+      .datatable tr:first-child td {
+        padding-top: 0;
+      }
+
+      .datapoint {
+        border-collapse: collapse;
+        background-color: #F5F5F5;
+        border: 1px solid #CCCCCC;
+        text-align: left;
+        width: 100%;
+      }
+
+      .datapoint td {
+        border: none;
+        padding: 0 .1em 0 .1em;
+        margin: 0;
+      }
+
+      .datapoint tr {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .datapoint img {
+        width: 100%;
+      }
+
+      .legende {
+        color: white;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: .5em;
+        border-top-left-radius: .6em;
+        border-top-right-radius: .6em;
+        background-image: linear-gradient(180deg, {{ $gradbeg }}, {{ $gradend }});
+      }
+
+      .left div {
+        float: top;
+        padding: .5em;
+        border-radius: .5em;
+        background-color: rgb(231, 231, 231);
+      }
+
+      .head {
+        background-color: white;
+        border-top-left-radius: .3em;
+        border-bottom-right-radius: .3em;
+        float:none;
+        display:inline-block;
+        padding: .2em .5em;
+      }
+
+      #gmap {
+        position:absolute;
+        left:0;
+        right:0;
+        top:0;
+        bottom:0;
+        z-index: -100;
+        background-image: linear-gradient(37deg, #A3CCFF, #E8EDDB);
+        pointer-events:none;
+      }
+
+      #map { /* Unused */
+        width: 100%;
+        height: 100%;
+        z-index: -101;
+      }
+
+      .bg { /* Unused */
+        z-index: -100;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-image: linear-gradient(120deg, rgb(46, 167, 235), rgb(74, 87, 204));
+      }
+
+      #status {
+        text-align: right;
+        position: fixed;
+        font-family: monospace;
+        opacity: .6;
+        right: 0;
+        top: 0;
+        padding: .2em;
+        color: rgb(60, 60, 60);
+        background-color: rgb(240, 240, 240);
+        border-bottom-left-radius: .3em;
+      }
+      td {
+        border: 1px solid black;
+      }
+      pre {
+          height: 100%;
+          margin: 0;
+          padding: .3em;
+      }
+      .series {
+          width: 100%;
+      }
+      .series td {
+          padding: 1em;
+          font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="descriptor">
+        <h1>Wetterprognose {{ html .Ort }}</h1>
+        <h4>{{ html .Datum }} Uhr</h4>
+    </div>
+    <div class="left oms">
+      <div class="heutedaten">
+        <pre>
+Temp.:  {{ .Nw.Temp }} °C
+Druck:  {{ .Cwd.Main.Pressure }} hPa
+Luftf.: {{ .Cwd.Main.Humidity }}%
+Wind:   {{ .Cwd.Wind.Speed }} m/s{{ if .Cwd.Wind.Speed }}
+        {{ .Cwd.Wind.Deg }} deg{{end}}
+Wolken: {{ .Cwd.Clouds.All }}%
+{{ if .Cwd.Rain.Volume }}Regen:  {{ .Cwd.Rain.Volume }} mm
+{{end}}{{if .Cwd.Snow.Volume}}Schnee: {{ .Cwd.Snow.Volume }} mm{{end}}</pre>
+      </div>
+      <div class="tritage">
+        <table class="datatable">
+        {{ range .Fwd.N }}
+        <tr>
+          <td style="text-align:center">
+            {{ call $datestrip .Stamp }}
+            <table class="datapoint">
+              <tr>
+                <td>
+                  <img src="http://openweathermap.org/img/w/{{ .Icon }}.png" alt="" />
+                </td>
+                <td>
+                  <pre>
+{{ .C }} °C
+{{ .Pres }} hPa
+{{if .Cloud}}{{ .Cloud }}/8 bedeckt{{else}}klar{{end}}
+{{ .RainA }} mm NS</pre>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        {{ end }}
+      </table>
+      </div>
+    </div>
+    {{ range .WetterArea }}
+      <div style="position:fixed;top:{{.Y}}%;left:{{.X}}%;" class="mapIcon">{{ call $toic .Icon }}</div>
+    {{ end }}
+    {{ range .Cwd.Weather}}
+      <div style="position:fixed;top:45%;left:55%;" class="mapIcon">{{ call $toic .Icon }}</div>
+    {{ end }}
+    <div class="bottom oms">
+      <div class="heute">
+        <h2>Wussten Sie schon?</h2>
+        <p>
+            Die englische Bezeichnung für die 
+            Heutige Wetterlage ist "{{ html .Wetterlage }}".
+        </p>
+      </div>
+    </div>
+    <div class="legende">
+      {{ .Legende }}<br>
+      Resources: Daten und Icons von <a target="_blank" href="https://openweathermap.org">OpenWeatherMap</a>
+    </div>
+    <div id="gmap"></div>
+    <span id="status">Generiert am {{ .Time }}</span>
+    <script>
+    function gmaps() {
+      var mapCanvas = document.getElementById("gmap");
+      var mapOptions = {
+        center: new google.maps.LatLng({{ .Geo.Lat }},{{ .Geo.Lon }}),
+        zoom: 10,
+        disableDefaultUI: true,
+        streetViewControl: false,
+        /*
+            ROADMAP (normal, default 2D map)
+            SATELLITE (photographic map)
+            HYBRID (photographic map + roads and city names)
+            TERRAIN (map with mountains, rivers, etc)
+        */
+        mapTypeId: google.maps.MapTypeId.TERRAIN,
+      };
+      var map = new google.maps.Map(mapCanvas, mapOptions)
+    }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?callback=gmaps&key={{ .MapsKey }}"></script>
+
+    <script type="text/javascript">
+      rfresh = 34*60*1000 // 34 ms * min * 1/ms = 34 min
+      window.setTimeout(function(){
+        location.reload(true)
+      },rfresh)
+    </script>
+  </body>
+</html>

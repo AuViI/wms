@@ -10,6 +10,8 @@ import (
 	"github.com/auvii/wms/weather"
 )
 
+// TODO: Move csv* to own package
+
 type data struct {
 	Time                                              string
 	Temp, TempMin, Humid, WindGrad, Wind, Rain, Cloud float32
@@ -71,5 +73,9 @@ func csvWriter(w http.ResponseWriter, city string) {
 			Cloud:    float32(fore.Data[i-1].Clouds.All) * 0.08,
 		}
 	}
-	csvTemplate.Execute(w, value)
+	err := csvTemplate.Execute(w, value)
+	if err != nil {
+		// TODO:40 better handling of error in csv
+		fmt.Println("Failed to execute CSV template")
+	}
 }

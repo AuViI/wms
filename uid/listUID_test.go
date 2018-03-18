@@ -1,4 +1,4 @@
-package main
+package uid
 
 import (
 	"fmt"
@@ -6,13 +6,13 @@ import (
 )
 
 func TestUIDGen(t *testing.T) {
-	fmt.Println(getRUID(8))
-	fmt.Println(getRUID(8))
-	fmt.Println(getRUID(10))
+	fmt.Println(GetRUID(8))
+	fmt.Println(GetRUID(8))
+	fmt.Println(GetRUID(10))
 }
 
 func BenchmarkUIDGen(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		getRUID(8)
+		GetRUID(8)
 	}
 }

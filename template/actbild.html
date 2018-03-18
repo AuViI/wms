@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+{{ /* UNUSED */ }}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Actbild.bmp</title>
+        <link rel="shortcut icon" href="resources/logo.png">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <style media="screen">
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            body {
+                color: white;
+            }
+            table {
+                width: 100%;
+                font-size: 200%;
+                font-family: sans-serif;
+            }
+            th {
+                text-align: right;
+            }
+            th::after {
+                content: ":";
+            }
+            th, td {
+                padding: .2em .5em;
+            }
+            a {
+                color: #aaaaff;
+            }
+
+            #background {
+                background-image: linear-gradient(0deg, rgb(54, 87, 240), rgb(64, 85, 181));
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 2em;
+            }
+            #tblblock {
+                padding-top: 2em;
+            }
+
+            .header {
+                background-color: rgb(105, 123, 207);
+                padding: 1em;
+                text-align: center;
+            }
+            .footer {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                background-color: rgb(36, 36, 36);
+                text-align: right;
+                padding: 1em;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="background">
+            <div class="header">
+                <h1>Stadt Ostseebad Kühlungsborn</h1>
+                <h2>Geophysikalische Größen</h2>
+            </div>
+            <div id="tblblock">
+                <table>
+                    <tr>
+                        <th>
+                            Luftdruck
+                        </th>
+                        <td>
+                            {{.Pressure}} hPa
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Luftfeuchtigkeit
+                        </th>
+                        <td>
+                            {{.Humidity}}%
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Wassertemperatur
+                        </th>
+                        <td>
+                            {{.Watertmp}}<sup>o</sup>C
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Temperatur
+                        </th>
+                        <td>
+                            von {{.Temp.Min}}<sup>o</sup>C bis {{.Temp.Max}}<sup>o</sup>C
+                        </td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <th>
+                            SA
+                        </th>
+                        <td>
+                            {{.Sun.Rise}}
+                        </td>
+                        <th>
+                            SU
+                        </th>
+                        <td>
+                            {{.Sun.Set}} Uhr
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            MU
+                        </th>
+                        <td>
+                            {{.Moon.Set}}
+                        </td>
+                        <th>
+                            MA
+                        </th>
+                        <td>
+                            {{.Moon.Rise}} Uhr
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="footer">
+                {{.Datum}}<br>
+                Email: <a href="mailto:info@meteosky.de">info@meteosky.de</a> Wetter: {{.Type}}
+            </div>
+        </div>
+    </body>
+</html>

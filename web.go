@@ -1,106 +1,97 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"regexp"
-	"strings"
+	"path"
 	"text/template"
-
-	"github.com/auvii/wms/forecast"
+	"time"
 )
 
-// Handler Helper
-var indexTemplate, _ = template.ParseFiles("./template/index.html")
-var styleTemplate, _ = template.ParseFiles("./template/main.css")
-var editJsMinTmpl, _ = template.ParseFiles("./template/list_edit.min.js")
+var (
+	// text/html templates
+	indexTemplate = simpleTemplate("index.html")
+	styleTemplate = simpleTemplate("main.css")
+	normListTmpl  = simpleTemplate("normlist.html")
+	bspTmpl       = simpleTemplate("bsp.html")
+	gewusstTmpl   = simpleTemplate("gewusst.html")
 
-var resources = map[string]string{
-	"logo.png": load("logo.png"),
-}
+	// text/css templates
+	editJsMinTmpl = simpleTemplate("list_edit.min.js")
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path[1:] {
-	case "":
-		serveIndex(w)
-	case "bsp/":
-		fmt.Fprint(w, "<html>Beispiele:<br>")
-		// Bad Code starting
-		orte := []string{"Berlin", "Kühlungsborn", "Oslo", "New York"}
-		for _, v := range orte {
-			fmt.Fprintf(w, "<a href=\"/txt/%s/\">txt</a> <a href=\"/view/%s/\">view</a> %s<br>", v, v, v)
-		}
+	// binary resources
+	// TODO change to map string to []byte
+	resources = map[string]string{
+		"logo.png": load("logo.png"),
 	}
+)
+
+const (
+	renderFolder   = "./pics/"
+	templateFolder = "./template/"
+	resourceFolder = "./resources/"
+)
+
+/// simpleTemplate expects the templates to be found inside
+/// the packages `templateFolder` folder
+func simpleTemplate(tmplfile string) *template.Template {
+	t, _ := template.ParseFiles(path.Join(templateFolder, tmplfile))
+	return t
 }
 
-func txtHandler(w http.ResponseWriter, r *http.Request) {
-	cut := r.URL.Path[len("/txt/"):]
-	if i := strings.Index(cut, "/"); i != -1 {
-		cut = cut[:i]
+/// webSetup is called from main and sets up the server
+/// and is blocking
+func webSetup(port *string) {
+	end := startUpdateLoop() // bool chan, used to kill the goroutine
+	http.HandleFunc("/txt/", txtHandler)
+	http.HandleFunc("/csv/", csvHandler)
+	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/bsp/", bspHandler)
+	http.HandleFunc("/forecast/",
+		noCacheSwitch(forecastHandler, ncForecastHandler))
+	http.HandleFunc("/list/", listHandler)
+	http.HandleFunc("/dtage/",
+		noCacheSwitch(handleDTage, ncHandleDTage))
+	http.HandleFunc("/normlist/",
+		noCacheSwitch(normlistHandler, ncNormlistHandler))
+	http.HandleFunc("/gewusst/", gewusstHandler)
+	http.HandleFunc("/render/", renderHandler)
+	http.HandleFunc("/cached/", cacheHandler)
+	http.HandleFunc("/resources/", resourceHandler)
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(*port, nil)
+	end <- true
+}
+
+/// serveIndex executes the index template and writes
+/// to the given Writer
+func serveIndex(w io.Writer) {
+	if *nc {
+		indexTemplate = simpleTemplate("index.html")
 	}
-	fmt.Fprintf(w, "%s", PrognoseTxt(cut, DaysForecastTxt))
+	indexTemplate.Execute(w, nil)
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request) {
-	cut := r.URL.Path[len("/view/"):]
-	if i := strings.Index(cut, "/"); i != -1 {
-		cut = cut[:i]
+/// load reads a file inside the resource folder into a string
+///
+/// TODO change to load []byte
+func load(res string) string {
+	return loadOr(res, "error")
+}
+
+/// loadOr reads a file inside the resource folder and returns
+/// its contents or returns the specified alternative on error
+func loadOr(res, alt string) string {
+	byt, err := ioutil.ReadFile(path.Join(resourceFolder, res))
+	if err != nil {
+		return alt
 	}
-	w.Header().Set("Cache-Control", "max-age=600")
-	SimpleHTML(cut, w)
+	return string(byt)
 }
 
-func resourceHandler(w http.ResponseWriter, r *http.Request) {
-	s := r.URL.Path[len("/resources/"):]
-	switch s {
-	case "main.css":
-		w.Header().Set("Content-type", "text/css")
-		err := styleTemplate.Execute(w, nil)
-		if err != nil {
-			Fail(fmt.Sprintf("main.css: %s", err))
-		}
-	case "list_edit.min.js":
-		err := editJsMinTmpl.Execute(w, nil)
-		if err != nil {
-			Fail(fmt.Sprintf("list_edit.min.js %s", err))
-		}
-	default:
-		r, ok := resources[s]
-		if !ok || r == "" {
-			fmt.Fprintf(w, "404 - not found %s", s)
-			return
-		}
-		io.WriteString(w, r)
-	}
-}
-
-func listHandler(w http.ResponseWriter, r *http.Request) {
-	isList, _ := regexp.MatchString("/list/[a-zA-Z0-9]{8}", r.URL.Path)
-	isEdit, _ := regexp.MatchString("/list/[a-zA-Z0-9]{8}/edit", r.URL.Path)
-	if isList && !isEdit {
-		// check if exists, else redirect to /list/[pattern]/edit
-		listShowHandler(w, r)
-	}
-	if !isList && !isEdit {
-		// generate uid, redirect to /list/[pattern]/edit
-		link := fmt.Sprintf("http://%s/list/%s/edit", r.Host, getRUID(8))
-		http.Redirect(w, r, link, 307)
-	}
-	if isEdit {
-		listEditHander(w, r)
-	}
-}
-
-func forecastHandler(w http.ResponseWriter, r *http.Request) {
-	forecast.Show(w, r)
-}
-
-func ncForecastHandler(w http.ResponseWriter, r *http.Request) {
-	forecast.ShowNoCache(w, r)
-}
-
+/// noCacheSwitch switches between two `http.HandlerFunc`
+/// depending on the nc boolean application flag
 func noCacheSwitch(cached, nocache http.HandlerFunc) http.HandlerFunc {
 	if !*nc {
 		return cached
@@ -108,26 +99,50 @@ func noCacheSwitch(cached, nocache http.HandlerFunc) http.HandlerFunc {
 	return nocache
 }
 
-func webSetup(port *string) {
-	http.HandleFunc("/txt/", txtHandler)
-	http.HandleFunc("/csv/", csvHandler) // csv.go
-	http.HandleFunc("/view/", viewHandler)
-	http.HandleFunc("/forecast/", noCacheSwitch(forecastHandler, ncForecastHandler))
-	http.HandleFunc("/list/", listHandler)
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/resources/", resourceHandler)
-	http.ListenAndServe(*port, nil)
-}
-
-func load(res string) string {
-	bt, err := ioutil.ReadFile(fmt.Sprintf("./resources/%s", res))
-	if err != nil {
-		fmt.Printf("trying to load %s, not found", res)
-		return ""
+/// startUpdateLoop runs numerous functions to update
+/// data all over the server. It runs insite a go
+/// routine until the returned channel receives something
+///
+/// This does not manage its own mutexes but expects
+/// called functions to handle being called asynchronically
+func startUpdateLoop() chan bool {
+	counter := 0
+	calls := func() {
+		updateGewusst() // update entries for /gewusst/
+		if counter%12 == 0 {
+			/*
+			 * rendering pictures requires an application
+			 * being run on the active display in fullscreen.
+			 * This can be rather annoying. The application
+			 * itself needs to be open for a short while
+			 * loading all assets, as any other client would.
+			 * A screnshot is taken, and saved to the /render/
+			 * folder to be accessible.
+			 */
+			go (func() {
+				<-time.After(2 * time.Minute)
+				renderPictures() // render new pictures
+			})()
+			counter = 0
+		}
+		counter += 1
 	}
-	return string(bt)
-}
 
-func serveIndex(w io.Writer) {
-	indexTemplate.Execute(w, nil)
+	// this chan is returned to give the outside world a
+	// chance to kill this looping goroutine
+	end := make(chan bool)
+
+	calls()
+	go func(e chan bool) {
+		for {
+			select {
+			case <-time.After(10 * time.Minute):
+				calls()
+			case <-e:
+				return
+			}
+		}
+	}(end)
+
+	return end
 }

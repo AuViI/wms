@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {{ $refresh := 1800 }}{{/* seconds to wait before refresh */}}
+        <meta charset="utf-8">
+        <meta http-equiv="refresh" content="{{ $refresh }}">
+        <link rel="shortcut icon" href="resources/logo.png">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <title>{{.Ort}}</title>
+        <style media="screen">
+            * {
+                padding: 0;
+                margin: 0;
+                font-family: sans-serif;
+                text-shadow: 0 0 10px rgba(0,0,0,0.2);
+            }
+            body {
+                color: white;
+            }
+            table {
+                margin: auto auto;
+                font-size: 2.5em;
+            }
+            th, td {
+                padding: .2em 1em;
+                text-align: center;
+            }
+            td {
+                height: 6.2vh;
+            }
+            h1 {
+                font-size: 2.6em;
+            }
+
+            a {
+                color: #FFF;
+                text-decoration: none;
+            }
+            #background {
+                background-image: linear-gradient(180deg, rgb(66, 170, 201), rgb(18, 101, 126));
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 0;
+            }
+            #tblblock {
+                padding-top: 2em;
+                padding-bottom: 2em;
+            }
+            #ort {
+                font-size: 140%;
+            }
+            #icon {
+                position: absolute;
+                bottom: 104%;
+                left: 7px;
+                height: 88%;
+            }
+
+            .header {
+                background-color: rgba(255, 255, 255, 0.2);
+                text-shadow: 0 0 10px rgba(0,0,0,0.3);
+                padding: 1.5em;
+                margin: 0;
+                text-align: center;
+            }
+            .footer {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                background-color: rgb(36, 36, 36);
+                color: #AAA;
+                text-align: right;
+                padding: 1em;
+            }
+            .param {
+                text-align: right;
+            }
+            .icon {
+                height:2em;
+                background-color: rgba(214, 214, 214, 0.5);
+                border-radius: .5em;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="background">
+            <div class="header">
+                {{ if eq .N 1 }}
+                <h1><span id="ort">{{.Ort}}</span><br>Wetterlage Heute - {{.Now}}</h1>
+                {{ else }}
+                <h1><span id="ort">{{.Ort}}</span><br>{{.N}} Tage Vorschau - {{.Now}}</h1>
+                {{ end }}
+            </div>
+            <div id="tblblock">
+                <table>
+                    {{ range .Data }}
+                    <tr>
+                        <td class="param">
+                            {{.Name}}
+                        </td>
+                        {{ $unit := .Unit }}
+                        {{ if .Bold }}
+                            {{ range .Data }}
+                            <th>
+                                {{.}} {{ $unit }}
+                            </th>
+                            {{ end }}
+                        {{ else }} {{/* not bold */}}
+                            {{ range .Data }}
+                            <td>
+                                {{.}} {{ $unit }}
+                            </td>
+                            {{ end }}
+                        {{ end }}
+                    </tr>
+                    {{ end }}
+                </table>
+            </div>
+            <div class="footer">
+                Email: <a href="mailto:info@meteosky.de">info@meteosky.de</a> |{{ if eq .N 1 }} Wetter Aktuell {{ else }} Wetter f&uuml;r {{.N}} Tag(e){{ end }}<br>
+                <span id="dt"></span>{{/* {{.Now}} */}}
+                <img id="icon" src="/resources/logo.png">
+            </div>
+            <script type="text/javascript">
+                let dt = document.getElementById("dt");
+                let d1 = {{ $refresh }}; //s
+                let ds = 1000; //ms
+                window.setInterval(function() {
+                    dt.innerHTML = "Aktualisierung in " + Math.round(d1/60) + " Minuten";
+                    d1 -= ds/1000.0;
+                    d1 = Math.max(d1, 60);
+                }, ds);
+            </script>
+        </div>
+    </body>
+</html>
