@@ -1,4 +1,4 @@
-package main
+package txt
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ var testOrte = []string{
 
 func TestBareTXT(t *testing.T) {
 	for _, v := range testOrte {
-		fmt.Println(PrognoseTxt(v, DaysForecastTxt))
+		fmt.Println(PrognoseTxt(v, 5))
 	}
 }
 
@@ -23,6 +23,6 @@ func TestBareTXT(t *testing.T) {
 // in the environment Variable $OWM
 func BenchmarkBareTXT(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		PrognoseTxt("New York", DaysForecastTxt)
+		PrognoseTxt("New York", 5)
 	}
 }

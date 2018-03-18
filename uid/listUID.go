@@ -1,10 +1,10 @@
-package main
+package uid
 
 import "fmt"
 import "math/rand"
 import "time"
 
-func getRUID(length int) (uid string) {
+func GetRUID(length int) (uid string) {
 	n := int(time.Now().Unix() % 777)
 	for x := 0; x < length; x++ {
 		uid += order(rand.Intn(61) + n)

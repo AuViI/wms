@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/auvii/wms/forecast"
 	"github.com/auvii/wms/weather"
+    "github.com/auvii/wms/txt"
+    "github.com/auvii/wms/uid"
 	"github.com/mmcloughlin/globe"
 	"image/color"
 	"io"
@@ -37,7 +39,7 @@ func txtHandler(w http.ResponseWriter, r *http.Request) {
 	if i := strings.Index(cut, "/"); i != -1 {
 		cut = cut[:i]
 	}
-	fmt.Fprintf(w, "%s", PrognoseTxt(cut, DaysForecastTxt))
+	fmt.Fprintf(w, "%s", txt.PrognoseTxt(cut, DaysForecastTxt))
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +88,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if !isList && !isEdit {
 		// generate uid, redirect to /list/[pattern]/edit
-		link := fmt.Sprintf("http://%s/list/%s/edit", r.Host, getRUID(8))
+		link := fmt.Sprintf("http://%s/list/%s/edit", r.Host, uid.GetRUID(8))
 		http.Redirect(w, r, link, 307)
 	}
 	if isEdit {
