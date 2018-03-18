@@ -11,6 +11,9 @@ var redirects = map[string]string{
     "Kübo": "Kühlungsborn",
     "Kuehlungsborn": "Kühlungsborn",
     "Kühlungsborn": "Ostseebad Kühlungsborn",
+    "Ostseebad Kuehlungsborn": "Kühlungsborn",
+    "OstseebadKuehlungsborn": "Kühlungsborn",
+    "OstseebadKühlungsborn": "Kühlungsborn",
     "Ostseebad Kühlungsborn": "Ostseebad Kühlungsborn, DE",
 }
 
