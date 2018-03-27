@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"io"
 
-	"github.com/auvii/wms/weather"
+	"github.com/AuViI/wms/weather"
 )
 
 // TODO: Move simple_view* to own package

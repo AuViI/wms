@@ -7,7 +7,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/auvii/wms/weather"
+	"github.com/AuViI/wms/weather"
 )
 
 // TODO: Move csv* to own package

@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/auvii/wms/forecast"
-	"github.com/auvii/wms/weather"
-    "github.com/auvii/wms/txt"
-    "github.com/auvii/wms/uid"
+	"github.com/AuViI/wms/forecast"
+	"github.com/AuViI/wms/weather"
+    "github.com/AuViI/wms/txt"
+    "github.com/AuViI/wms/uid"
 	"github.com/mmcloughlin/globe"
 	"image/color"
 	"io"

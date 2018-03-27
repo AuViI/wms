@@ -6,8 +6,8 @@ WMS Management Server
 
 ```bash
 # compilation
-go get github.com/auvii/wms
-cd $GOPATH/src/github.com/auvii/wms
+go get github.com/AuViI/wms
+cd $GOPATH/src/github.com/AuViI/wms
 make deps       #init submodules
 
 # execution depends on settings

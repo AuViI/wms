@@ -1,6 +1,6 @@
 package txt
 
-import "github.com/auvii/wms/weather"
+import "github.com/AuViI/wms/weather"
 
 // PrognoseTxt returns `aktuelltxt` style text for `city` for `n` Days
 func PrognoseTxt(city string, n int) string {

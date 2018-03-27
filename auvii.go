@@ -30,7 +30,7 @@ var (
 	wd = flag.String(
 		"wd",
 		fmt.Sprintf(
-			"%s/src/github.com/auvii/wms/",
+			"%s/src/github.com/AuViI/wms/",
 			os.Getenv("GOPATH")),
 		"working directory")
 

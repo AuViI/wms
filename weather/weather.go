@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-    "github.com/auvii/wms/weather/redirect"
+    "github.com/AuViI/wms/weather/redirect"
 	"github.com/mtib/simplehttp"
 )
 

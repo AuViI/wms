@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/auvii/wms/weather"
+	"github.com/AuViI/wms/weather"
 )
 
 const (
