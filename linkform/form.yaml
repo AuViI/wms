@@ -1,0 +1,46 @@
+targets:
+    txt:
+        title: "Text Anzeige"
+        link: "/txt/{{index .param 0}}"
+        param:
+            location: string
+    forecast:
+        title: "Wetterkarte"
+        link: "/forecast/{{index .param 0}}/{{index .param 1}}/{{index .param 2}}"
+        param:
+            location: string
+            color: color
+            icon: image
+    list:
+        title: "Listen Erstellung"
+        link: "/list/"
+        param:
+    csv:
+        title: "Tabelle Herunterladen"
+        link: "/csv/{{index .param 0}}"
+        param:
+            location: string
+    dtage:
+        title: "Wetteranzeige"
+        link: "/dtage/{{index .param 0}}/{{index .param 1}}"
+        param:
+            location: string
+            duration: integer
+    render:
+        title: "Liste gerenderter Bilder"
+        link: "/render/"
+        param:
+    view:
+        title: "Mobile Wetteranzeige"
+        link: "/view/{{index .param 0}}/{{index .param 1}}"
+        param:
+            location: string
+            duration: integer
+    normlist:
+        title: "Liste für die Anzeige"
+        link: "/normlist/{{index .param 0}}/{{index .param 1}}/{{index .param 2}}"
+        param:
+            location: string
+            color: color
+            icon: image
+imagedir: "$HOME/wms/icons"

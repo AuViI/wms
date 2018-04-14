@@ -23,7 +23,8 @@ var (
 	// binary resources
 	// TODO change to map string to []byte
 	resources = map[string]string{
-		"logo.png": load("logo.png"),
+		"logo.png":        load("logo.png"),
+		"logo_invert.png": load("logo_invert.png"),
 	}
 )
 

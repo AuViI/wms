@@ -46,17 +46,18 @@
                 padding: 0;
             }
             #tblblock {
-                padding-top: 2em;
-                padding-bottom: 2em;
+                padding-top: 5em;
+                padding-bottom: 1em;
             }
             #ort {
-                font-size: 140%;
+                font-size: 180%;
             }
             #icon {
                 position: absolute;
-                bottom: 104%;
-                left: 7px;
-                height: 88%;
+                bottom: 6%;
+                left: 0.2em;
+                height: calc(88% * 3);
+                opacity: 0.8;
             }
 
             .header {
@@ -123,7 +124,7 @@
             <div class="footer">
                 Email: <a href="mailto:info@meteosky.de">info@meteosky.de</a> |{{ if eq .N 1 }} Wetter Aktuell {{ else }} Wetter f&uuml;r {{.N}} Tag(e){{ end }}<br>
                 <span id="dt"></span>{{/* {{.Now}} */}}
-                <img id="icon" src="/resources/logo.png">
+                <img id="icon" src="/resources/logo_invert.png">
             </div>
             <script type="text/javascript">
                 let dt = document.getElementById("dt");
