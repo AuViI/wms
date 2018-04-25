@@ -15,6 +15,11 @@ var redirects = map[string]string{
 	"OstseebadKuehlungsborn":  "Kühlungsborn",
 	"OstseebadKühlungsborn":   "Kühlungsborn",
 	"Ostseebad Kühlungsborn":  "Ostseebad Kühlungsborn, DE",
+    "Frankfurt":               "Frankfurt (M)",
+    "Frankfurt (M)":           "Frankfurt(M)",
+    "Frankfurt(M)":            "Frankfurt a.M.",
+    "Frankfurt a.M.":          "Frankfurt am Main",
+    "Frankfurt am Main":       "Frankfurt am Main, DE",
 }
 
 const debugPrint = false
