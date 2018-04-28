@@ -56,17 +56,51 @@ make offline #use generator for data
     optimized answers
 ```
 
-## Roadmap
+### Statically served resources
 
-- [x] rendering pictures
-- [x] smart caching
-- [ ] pretty forcast map
-- [ ] user accounts
-- [ ] smarter caching (cache server)
-- [ ] optimizations
-- [ ] >50% test coverage
-- [ ] better documentation
-- [ ] refactoring (incl. language)
+Binary resources can be server from the `./resource/` folder, to enable serving them they have to be loaded into the resource map in `web.go`. This is to guarantee they are read and served correctly.
+
+### Template Normalisation
+
+To enable theming of all templates universally a standart has to be created. To signal the template should have the ending `.theme.gtmpl`.
+
+The theming information is given to the template as such:
+
+```golang
+// .Theme
+struct Theme {
+    MainColor   ThemeColor
+    SecondColor ThemeColor
+    Icon        ThemeIcon
+    Client      ThemeClient
+}
+
+struct ThemeClient {
+    Name string
+    Link string
+}
+
+struct ThemeIcon {
+    Binary []byte
+    Link   string
+    func (i Icon) Img() string {} // generate <img> tag
+}
+
+```
+
+This still has to be implemented
+
+### Configuration
+
+- [ ] Config location via CMD
+- [ ] Using config
+
+There is a configuration file written in YAML, used to configure shown examples,
+and locations for files. These include maps to client icons.
+
+### Form generator
+
+To create links to give out to clients there will be a generator, which will be created from a yaml describing what kind of information is needed to generate a link for each specific output.
 
 ## License
 
