@@ -1,7 +1,24 @@
 package config
 
-import "gopkg.in/yaml.v2"
-import "io/ioutil"
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"sync"
+	"time"
+
+	"gopkg.in/yaml.v2"
+)
+
+var CONFIG_LOCATION = func() string {
+	// Maybe do something smarter here
+	return path.Join(os.Getenv("HOME"), ".wmsrc.yaml")
+}()
+
+var lastConfig, _ = getEasyConfigInternal()
+var lastRead = time.Now()
+var mutex sync.Mutex
 
 // LoadConfig loads configuration at file in yaml
 func LoadConfig(file string) (Configuration, error) {
@@ -36,4 +53,28 @@ func WriteConfig(c Configuration, file string) error {
 // WriteDefault writes out default configuration to file in yaml
 func WriteDefault(file string) error {
 	return WriteConfig(DefaultConfig, file)
+}
+
+func getEasyConfigInternal() (Configuration, error) {
+	conf, err := LoadConfig(CONFIG_LOCATION)
+	if err == nil {
+		return conf, err
+	}
+	err = WriteDefault(CONFIG_LOCATION)
+	if err != nil {
+		return conf, err
+	}
+	return LoadConfig(CONFIG_LOCATION)
+}
+
+func GetEasyConfig() (Configuration, error) {
+	mutex.Lock()
+	defer mutex.Unlock()
+	if time.Now().Sub(lastRead) > time.Minute*5 {
+		conf, err := getEasyConfigInternal()
+		lastConfig = conf
+		lastRead = time.Now()
+		return conf, err
+	}
+	return lastConfig, nil
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/AuViI/wms/config"
 	"github.com/AuViI/wms/forecast"
 	"github.com/AuViI/wms/txt"
 	"github.com/AuViI/wms/uid"
@@ -126,6 +127,15 @@ func bspHandler(w http.ResponseWriter, r *http.Request) {
 	if *nc {
 		bspTmpl, _ = template.ParseFiles("./template/bsp.html")
 	}
+	conf, err := config.GetEasyConfig()
+	var modi, orte []string
+	if err != nil {
+		modi = []string{"error"}
+		orte = []string{"error"}
+	} else {
+		modi = conf.ExampleModi
+		orte = conf.ExampleCities
+	}
 	data := struct {
 		Orte  []string
 		Modes []string
@@ -133,9 +143,8 @@ func bspHandler(w http.ResponseWriter, r *http.Request) {
 		Rend  []string
 		Show  func(string) string
 	}{
-		Orte: []string{"Kühlungsborn", "Frankfurt", "Braunschweig", "Hamburg", "Berlin", "Oslo", "Holbaek",
-			"Rostock", "Hannover", "München", "New York", "Tokio"},
-		Modes: []string{"txt", "forecast", "list", "csv", "dtage", "view", "normlist"},
+		Orte:  orte,
+		Modes: modi,
 		Dtage: []string{"1/aktuell", "3/meteo", "5/meteo", "3/astro", "5/astro"},
 		Rend:  renderFiles(),
 		Show: func(s string) string {
