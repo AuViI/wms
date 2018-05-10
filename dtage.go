@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -285,8 +284,7 @@ func handleDTage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var result *ntag
-	locregex := regexp.MustCompile("(.*)&([0-9a-f]{6})&([0-9a-f]{6})&(.*)")
-	locparam := locregex.FindStringSubmatch(req[2])
+	locparam := model.ThemeRegex.FindStringSubmatch(req[2])
 
 	if len(locparam) == 0 || locparam[0] == "" {
 		result = newNTage(num, req[2])

@@ -6,18 +6,31 @@
     #all {
         max-width: 40em;
         margin: 0 auto;
+        padding-bottom: 3em;
+    }
+    .output {
+        padding: 1em;
+        margin-left: 2em;
+    }
+    form {
+        margin-left: 2em;
     }
     p {
         padding-left: 2em;
+    }
+    h2 {
+        padding-top: 3em;
     }
 </style>
 <body>
     <div id="all">
         <h1>Link Generator</h1>
         <p>Vorübergehende Lösung um Links für spezielle Ansichten zu generieren. Einfach die entsprechenden Formulare ausfüllen und ein Link sollte automatisch generiert werden.</p>
-        <h2>dtage Custom Link</h2>
+
+        <h2><u>dtage</u> Custom Link</h2>
         <p>Für die "dtage" Grafik hier den gewünschten Ort, einen Link(!) zum Firmenlogo und die Farben für den Farbverlauf auswählen. Aktuell gibt es keine Platzhalter um Standartwerte zu verwenden, also müssen alle Werte angegeben werden!</p>
-        <h3>dtage Formular</h3>
+
+        <h3><u>dtage</u> Formular</h3>
         <form id="dtage">
             <input id="dtage_ort" type="text" placeholder="Ort">
             <input id="dtage_icon" type="text" placeholder="Link zum Icon"><br>
@@ -26,14 +39,40 @@
             Anfang: <input id="dtage_col1" type="color">
             Ende: <input id="dtage_col2" type="color">
         </form>
-        <code id="dtage_out"></code>
+
+        <h3><u>dtage</u> Ausgabe</h3>
+        <code id="dtage_out" class="output"></code>
+
+        <h2><u>forecast</u> Formular</h2>
+        <p>Für die Bodenwetterkarten</p>
+
+        <h3><u>forecast</u> Formular</h3>
+        <form id="forecast">
+            <input id="forecast_ort" type="text" placeholder="Ort">
+            <input id="forecast_icon" type="text" placeholder="Link zum Icon"><br>
+
+            Farbverlauf 
+            Anfang: <input id="forecast_col1" type="color">
+            Ende: <input id="forecast_col2" type="color">
+        </form>
+
+        <h3><u>forecast</u> Ausgabe</h3>
+        <code id="forecast_out" class="output"></code>
     </div>
     <script>
-        var dtage_form = document.getElementById("dtage");
-        var dtage_out = document.getElementById("dtage_out");
+        function geti(id) {
+            return document.getElementById(id);
+        }
+
+        var dtage_form = geti("dtage");
+        var dtage_out = geti("dtage_out");
+
+        var forecast_form = geti("forecast");
+        var forecast_out = geti("forecast_out");
 
         function recalc() {
             recalc_dtage();
+            recalc_forecast();
         }
 
         function recalc_add(f) {
@@ -44,20 +83,41 @@
 
         function recalc_dtage() {
             function makeDtage(o, i, c1, c2) {
-                return "/dtage/"+o+"&"+c1.substring(1)
-                    +"&"+c2.substring(1)+"&"+i.split("/").join("|")
+                return makeTheme("dtage", o, i, c1, c2);
             }
-            var ort = document.getElementById("dtage_ort").value;
-            var icon = document.getElementById("dtage_icon").value;
-            var col1 = document.getElementById("dtage_col1").value;
-            var col2 = document.getElementById("dtage_col2").value;
+            var ort = geti("dtage_ort").value;
+            var icon = geti("dtage_icon").value;
+            var col1 = geti("dtage_col1").value;
+            var col2 = geti("dtage_col2").value;
 
             var link = makeDtage(ort, icon, col1, col2);
             dtage_out.innerHTML = "Link für " + dtage_form.elements[0].value
                 + ": <a target='_blank' href='" + link + "'>" + link + "</a>.";
         }
 
+        function recalc_forecast() {
+            function makeForecast(o, i, c1, c2) {
+                return makeTheme("forecast", o, i, c1, c2);
+            }
+            var ort = geti("forecast_ort").value;
+            var icon = geti("forecast_icon").value;
+            var col1 = geti("forecast_col1").value;
+            var col2 = geti("forecast_col2").value;
+
+            var link = makeForecast(ort, icon, col1, col2);
+            forecast_out.innerHTML = "Link für " + forecast_form.elements[0].value
+                + ": <a target='_blank' href='" + link + "'>" + link + "</a>.";
+        }
+
+        function makeTheme(target, o, i, c1, c2) {
+            return "/" + target + "/"+o+"&"+c1.substring(1)
+                    +"&"+c2.substring(1)+"&"+i.split("/").join("|");
+        }
+
         recalc_add(dtage_form);
+        recalc_add(forecast_form);
+
+        recalc();
     </script>
 </body>
 </html>

@@ -118,9 +118,21 @@ func Show(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("An Error occurred reading the URL"))
 			return
 		}
-		//w.Header().Set("Refresh", "10") // Sekunden
 		w.Header().Set("Cache-Control", "max-age=600")
 		query = url
+	}
+	param := model.ThemeRegex.FindStringSubmatch(query)
+	var theme model.TemplateTheme
+	if len(param) == 0 || param[0] == "" {
+		// just location provided
+		theme = model.GetDefaultTheme().Prepare()
+	} else {
+		query = param[1]
+		theme = model.Theme{
+			StartColor: model.ThemeColorFromHex(fmt.Sprintf("#%s", param[2])),
+			EndColor:   model.ThemeColorFromHex(fmt.Sprintf("#%s", param[3])),
+			IconLink:   strings.Replace(param[4], "|", "/", -1),
+		}.Prepare()
 	}
 	cwd := weather.GetCurrent(query).ConvertToCelsius()
 	forecastAll := weather.GetForecast(query)
@@ -174,7 +186,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		ToIcon: func(in string) template.HTML {
 			return template.HTML(fmt.Sprintf("<img src=\"http://openweathermap.org/img/w/%s.png\" alt=\"%s\" width=\"40px\" />", in, in))
 		},
-		Theme:      model.GetDefaultTheme().Prepare(),
+		Theme:      theme,
 		WetterArea: make([]mapIcon, 8),
 	}
 	cc := func(n int) float64 {
