@@ -1,0 +1,63 @@
+<html>
+<head>
+    <title>WMS Link Generator</title>
+</head>
+<style>
+    #all {
+        max-width: 40em;
+        margin: 0 auto;
+    }
+    p {
+        padding-left: 2em;
+    }
+</style>
+<body>
+    <div id="all">
+        <h1>Link Generator</h1>
+        <p>Vorübergehende Lösung um Links für spezielle Ansichten zu generieren. Einfach die entsprechenden Formulare ausfüllen und ein Link sollte automatisch generiert werden.</p>
+        <h2>dtage Custom Link</h2>
+        <p>Für die "dtage" Grafik hier den gewünschten Ort, einen Link(!) zum Firmenlogo und die Farben für den Farbverlauf auswählen. Aktuell gibt es keine Platzhalter um Standartwerte zu verwenden, also müssen alle Werte angegeben werden!</p>
+        <h3>dtage Formular</h3>
+        <form id="dtage">
+            <input id="dtage_ort" type="text" placeholder="Ort">
+            <input id="dtage_icon" type="text" placeholder="Link zum Icon"><br>
+
+            Farbverlauf 
+            Anfang: <input id="dtage_col1" type="color">
+            Ende: <input id="dtage_col2" type="color">
+        </form>
+        <code id="dtage_out"></code>
+    </div>
+    <script>
+        var dtage_form = document.getElementById("dtage");
+        var dtage_out = document.getElementById("dtage_out");
+
+        function recalc() {
+            recalc_dtage();
+        }
+
+        function recalc_add(f) {
+            for (var i = 0; i < f.length; i++) {
+                f.elements[i].oninput = recalc;
+            }
+        }
+
+        function recalc_dtage() {
+            function makeDtage(o, i, c1, c2) {
+                return "/dtage/"+o+"&"+c1.substring(1)
+                    +"&"+c2.substring(1)+"&"+i.split("/").join("|")
+            }
+            var ort = document.getElementById("dtage_ort").value;
+            var icon = document.getElementById("dtage_icon").value;
+            var col1 = document.getElementById("dtage_col1").value;
+            var col2 = document.getElementById("dtage_col2").value;
+
+            var link = makeDtage(ort, icon, col1, col2);
+            dtage_out.innerHTML = "Link für " + dtage_form.elements[0].value
+                + ": <a target='_blank' href='" + link + "'>" + link + "</a>.";
+        }
+
+        recalc_add(dtage_form);
+    </script>
+</body>
+</html>

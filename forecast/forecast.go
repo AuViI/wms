@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AuViI/wms/model"
 	"github.com/AuViI/wms/weather"
 )
 
@@ -35,6 +36,7 @@ type data struct {
 	RFwd         *weather.ForecastData
 	Nw           niceWeather
 	ToIcon       func(string) template.HTML
+	Theme        model.TemplateTheme
 	MapsKey      string
 	WetterArea   []mapIcon
 }
@@ -172,6 +174,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		ToIcon: func(in string) template.HTML {
 			return template.HTML(fmt.Sprintf("<img src=\"http://openweathermap.org/img/w/%s.png\" alt=\"%s\" width=\"40px\" />", in, in))
 		},
+		Theme:      model.GetDefaultTheme().Prepare(),
 		WetterArea: make([]mapIcon, 8),
 	}
 	cc := func(n int) float64 {

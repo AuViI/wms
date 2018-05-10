@@ -3,19 +3,22 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
 	"time"
 
+	"github.com/AuViI/wms/model"
 	"github.com/AuViI/wms/weather"
 )
 
 type (
 	ntag struct {
-		N    uint
-		Ort  string
-		Data []row
+		N     uint
+		Ort   string
+		Data  []row
+		Theme model.TemplateTheme
 	}
 	row struct {
 		Name string
@@ -280,14 +283,30 @@ func handleDTage(w http.ResponseWriter, r *http.Request) {
 			num = 1
 		}
 	}
+
 	var result *ntag
-	switch req[2] {
-	case "Kübo", "Kühlungsborn", "Kuehlungsborn", "Kuebo":
-		result = newNTage(num, "Kühlungsborn")
-		result.Ort = "Ostseebad Kühlungsborn"
-	default:
+	locregex := regexp.MustCompile("(.*)&([0-9a-f]{6})&([0-9a-f]{6})&(.*)")
+	locparam := locregex.FindStringSubmatch(req[2])
+
+	if len(locparam) == 0 || locparam[0] == "" {
 		result = newNTage(num, req[2])
+		result.Theme = model.Theme{
+			StartColor: model.ThemeColor{66, 170, 201},
+			EndColor:   model.ThemeColor{18, 101, 126},
+			IconLink:   "/resources/logo.png",
+		}.Prepare()
+	} else if len(locparam) == 5 {
+		result = newNTage(num, locparam[1])
+		result.Theme = model.Theme{
+			StartColor: model.ThemeColorFromHex(fmt.Sprintf("#%s", locparam[2])),
+			EndColor:   model.ThemeColorFromHex(fmt.Sprintf("#%s", locparam[3])),
+			IconLink:   strings.Replace(locparam[4], "|", "/", -1),
+		}.Prepare()
+	} else {
+		fmt.Printf("len(locparam) = %d\n", len(locparam))
+		fmt.Println("Something went wrong")
 	}
+
 	var n error
 	switch display {
 	case "meteo":
@@ -303,6 +322,7 @@ func handleDTage(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Unbekannter Modus")
 		return
 	}
+
 	if n == nil {
 		dtagetmpl.Execute(w, result)
 	} else {

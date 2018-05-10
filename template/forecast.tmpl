@@ -10,10 +10,13 @@ Struct {
   Time         string
 }
 -->
-{{ $gradbeg := "#82a0d5" }}
-{{ $gradend := "#4b6ca6" }}
+{{ $gradbeg := .Theme.StartColor }}
+{{ $gradend := .Theme.EndColor }}
+{{ $icon := .Theme.IconLink }}
 {{ $toic := .ToIcon }}
 {{ $datestrip := .DatumStrip }}
+
+
 <html>
   <head>
     <meta charset="utf-8">
@@ -192,6 +195,13 @@ Struct {
         padding: .2em .5em;
       }
 
+      #themeicon {
+        position:absolute;
+        right: 0.5em;
+        top: 2em;
+        width: 3em;
+      }
+
       #gmap {
         position:absolute;
         left:0;
@@ -253,6 +263,7 @@ Struct {
         <h1>Wetterprognose {{ html .Ort }}</h1>
         <h4>{{ html .Datum }} Uhr</h4>
     </div>
+    {{ $icon }}
     <div class="left oms">
       <div class="heutedaten">
         <pre>

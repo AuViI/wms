@@ -25,6 +25,7 @@ var (
 	resources = map[string]string{
 		"logo.png":        load("logo.png"),
 		"logo_invert.png": load("logo_invert.png"),
+		"linkgen.html":    load("linkgen.html"),
 	}
 )
 
