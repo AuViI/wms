@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/AuViI/wms/config"
 	"os"
+	"strings"
 )
 
 var (
@@ -49,7 +51,13 @@ var (
 	// render accepts a list of locations to render
 	render = flag.String(
 		"render",
-		"",
+		func() string {
+			conf, err := config.GetEasyConfig()
+			if err != nil {
+				return ""
+			}
+			return strings.Join(conf.Rendering.Cities, ",")
+		}(),
 		"Comma seperated locations to render")
 )
 

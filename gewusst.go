@@ -30,9 +30,27 @@ func NewGewusst(title, text string) Gewusst {
 	return Gewusst{title, text}
 }
 
+func treeGenGewusst() {
+	if _, err := os.Stat(*gewFolder); os.IsNotExist(err) {
+		quarts := []int{1, 2, 3, 4}
+		folders := make([]string, len(quarts)+1)
+		folders[0] = *gewFolder
+		for i, v := range quarts {
+			folders[i+1] = path.Join(
+				*gewFolder,
+				fmt.Sprintf("Q%d", v),
+			)
+		}
+		for _, v := range folders {
+			os.Mkdir(v, os.ModePerm)
+		}
+	}
+}
+
 // update returns the amount of messages in the gewusst folder
 func updateGewusst() int {
 	gewusstWait.Lock()
+	treeGenGewusst()
 	defer gewusstWait.Unlock()
 	quart := "Q"
 	switch time.Now().Month() {

@@ -14,4 +14,4 @@ debug: default
 	./wms -no-cache
 
 run: default
-	./wms -render "Kühlungsborn,Rostock,Warnemünde"
+	./wms

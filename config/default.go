@@ -25,7 +25,13 @@ var DefaultConfig = Configuration{
 		"normlist",
 	},
 	Rendering: RenderConfig{
-		Cities:   []string{"Kühlungsborn"},
+		Cities: []string{
+			"Frankfurt",
+			"Köln",
+			"Kühlungsborn",
+			"Rostock",
+			"Warnemünde",
+		},
 		Interval: 12,
 	},
 	DTageLinks: []string{"1/aktuell", "3/meteo", "5/meteo"},

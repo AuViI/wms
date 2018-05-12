@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/AuViI/wms/config"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -61,6 +62,7 @@ func webSetup(port *string) {
 	http.HandleFunc("/render/", renderHandler)
 	http.HandleFunc("/cached/", cacheHandler)
 	http.HandleFunc("/resources/", resourceHandler)
+	http.HandleFunc("/tools/sleep/", sleepHandler)
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(*port, nil)
 	end <- true
@@ -110,19 +112,21 @@ func noCacheSwitch(cached, nocache http.HandlerFunc) http.HandlerFunc {
 func startUpdateLoop() chan bool {
 	counter := 0
 	calls := func() {
+		var timeout int
+		conf, err := config.GetEasyConfig()
+		if err != nil {
+			timeout = 12
+		} else {
+			timeout = conf.Rendering.Interval
+		}
 		updateGewusst() // update entries for /gewusst/
-		if counter%12 == 0 {
+		if counter%timeout == 0 {
 			/*
-			 * rendering pictures requires an application
-			 * being run on the active display in fullscreen.
-			 * This can be rather annoying. The application
-			 * itself needs to be open for a short while
-			 * loading all assets, as any other client would.
-			 * A screnshot is taken, and saved to the /render/
-			 * folder to be accessible.
+			 * Using headless chrome this procedure is
+			 * way less annoying.
 			 */
 			go (func() {
-				<-time.After(2 * time.Minute)
+				<-time.After(20 * time.Second)
 				renderPictures() // render new pictures
 			})()
 			counter = 0

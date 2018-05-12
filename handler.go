@@ -15,9 +15,11 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"text/template"
+	"time"
 )
 
 var (
@@ -78,6 +80,26 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		io.WriteString(w, r)
 	}
+}
+
+func sleepHandler(w http.ResponseWriter, r *http.Request) {
+	//  /tools/sleep/<num>
+	// 0 1     2     3
+	path := strings.Split(r.URL.Path, "/")
+	if len(path) < 4 {
+		return
+	}
+	num, cerror := strconv.ParseInt(path[3], 10, 64)
+	if cerror != nil {
+		fmt.Fprintf(w, "Error: %v", cerror)
+		return
+	}
+
+	func(w io.Writer, n int64) {
+		fmt.Fprintf(w, "Waiting %dms ", n)
+		time.Sleep(time.Millisecond * time.Duration(n))
+		fmt.Fprintf(w, "done\n")
+	}(w, num)
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
