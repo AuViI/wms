@@ -230,7 +230,9 @@ func fillAstro(out *ntag) error {
 }
 
 func fillCurrent(out *ntag) error {
+	tc := out.Theme
 	*out = *newNTage(1, out.Ort)
+	out.Theme = tc
 	cwd := weather.GetCurrent(out.Ort).ConvertToCelsius()
 	if len(cwd.Weather) == 0 {
 		return RowError("invalid request")
