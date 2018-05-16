@@ -58,7 +58,7 @@ var defaultTheme = Theme{
 }
 
 func ToHTMLColor(c ThemeColor) string {
-	return fmt.Sprintf("#%x%x%x", c.R, c.G, c.B)
+	return fmt.Sprintf("#%02x%02x%02x", c.R, c.G, c.B)
 }
 
 func ToHTMLIcon(iconLink string) template.HTML {
