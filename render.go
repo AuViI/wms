@@ -17,9 +17,6 @@ const (
 
 /// renderPictures saves current view for application flags
 /// parameterised into a png file to be accessed and printed.
-///
-/// Requires that folder `hfscc` is inside the current workding
-/// directory when executing.
 func renderPictures() {
 	// render is "" by default, turned off
 	if *render == "" {
@@ -32,14 +29,17 @@ func renderPictures() {
 	absFolder := path.Join(cwd, screenshotFolder)
 
 	Ok("rendering pictures")
-	//Continue(fmt.Sprintf("location array: %v", locations))
 
 	toForecast := func(loc string) string {
 		return fmt.Sprintf("http://localhost%s/forecast/%s", *port, loc)
 	}
 
-	toFilename := func(loc string) string {
-		file := fmt.Sprintf("cap_%s.png", loc)
+	toDTage := func(loc string) string {
+		return fmt.Sprintf("http://localhost%s/dtage/%s", *port, loc)
+	}
+
+	toFilename := func(loc, prefix string) string {
+		file := fmt.Sprintf("cap_%s_%s.png", prefix, loc)
 		return fmt.Sprintf(path.Join(absFolder, file))
 	}
 
@@ -49,40 +49,41 @@ func renderPictures() {
 		screenshotHeight,
 	)
 
-	if _, staterr := os.Stat(absFolder); os.IsNotExist(staterr) {
-		os.Mkdir(absFolder, os.ModePerm)
+	fullRender := func(link, filename string) {
+		Continue(fmt.Sprintf("render %s to %s", link, filename))
+		cmd := exec.Command(
+			"google-chrome-stable",
+			"--headless",
+			"--screenshot",
+			windowSize,
+			link)
+		cmd.Run()
+		cmd.Wait()
+
+		time.Sleep(2 * time.Second)
+
+		if _, staterr := os.Stat(absFolder); os.IsNotExist(staterr) {
+			os.Mkdir(absFolder, os.ModePerm)
+		}
+
+		cmdCopy := exec.Command(
+			"mv",
+			"screenshot.png",
+			filename)
+		cmdCopy.Run()
+		cmdCopy.Wait()
+
+		// sleep so cache can recover and windows don't
+		// overlap in pictures [not tested]
+		time.Sleep(5 * time.Second)
 	}
 
 	// iteration over locations
 	for _, l := range locations {
 		lt := strings.TrimSpace(l)
 		if lt != "" {
-			Continue(fmt.Sprintf("render %s", l))
-			// using electron application which is submodule
-			// inside "./hfscc", so this only works when the
-			// current process is executed inside the repos'
-			// directory
-			cmd := exec.Command(
-				"google-chrome-stable",
-				"--headless",
-				"--screenshot",
-				windowSize,
-				toForecast(l))
-			cmd.Run()
-			cmd.Wait()
-
-			time.Sleep(2 * time.Second)
-
-			cmdCopy := exec.Command(
-				"mv",
-				"screenshot.png",
-				toFilename(l))
-			cmdCopy.Run()
-			cmdCopy.Wait()
-
-			// sleep so cache can recover and windows don't
-			// overlap in pictures [not tested]
-			time.Sleep(10 * time.Second)
+			fullRender(toForecast(lt), toFilename("forecast", lt))
+			fullRender(toDTage(lt), toFilename("dtage", lt))
 		}
 	}
 	Ok("finish rendering pictures")

@@ -126,12 +126,11 @@ func startUpdateLoop() chan bool {
 			 * way less annoying.
 			 */
 			go (func() {
-				<-time.After(20 * time.Second)
 				renderPictures() // render new pictures
 			})()
 			counter = 0
 		}
-		counter += 1
+		counter++
 	}
 
 	// this chan is returned to give the outside world a
