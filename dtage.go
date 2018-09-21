@@ -159,7 +159,7 @@ func fillMeteo(out *ntag, offset uint) error {
 
 	if len(fwd.Data) == 0 || len(cwd.Weather) == 0 {
 		Continue("invalid request caught")
-		return RowError("invalid request")
+		return RowError("invalid request icon string")
 	}
 
 	addStr := func(name string, data []string, unit string) {
@@ -171,12 +171,12 @@ func fillMeteo(out *ntag, offset uint) error {
 	}
 
 	//tDat := make([]string, out.N)
-	tempDat := make([]string, out.N) // Temperatur
-	presDat := make([]string, out.N) // Luftdruck
-	clouDat := make([]string, out.N) // Wolkendecke
-	iconDat := make([]string, out.N) // Icon
-	humiDat := make([]string, out.N) // Luftfeuchtigkeit
-	wspeDat := make([]string, out.N) // Windgeschwindigkeit
+	tempDat := make([]string, out.N) // Temperatur			(K & C -> C)
+	presDat := make([]string, out.N) // Luftdruck			(hPa   -> hPa)
+	clouDat := make([]string, out.N) // Wolkendecke			(%     -> 1/8)
+	iconDat := make([]string, out.N) // Icon				(txt   -> link)
+	humiDat := make([]string, out.N) // Luftfeuchtigkeit	(%     -> %)
+	wspeDat := make([]string, out.N) // Windgeschwindigkeit (m/s   -> km/h & bf)
 
 	if offset == 0 {
 		if time.Unix(cwd.Dt, 0).Day() == time.Unix(fwd.Data[0].Time, 0).Day() {
@@ -187,7 +187,7 @@ func fillMeteo(out *ntag, offset uint) error {
 			clouDat[0] = fmt.Sprintf("%.0f/8", float32(fwd.Data[0].Clouds.All)*0.08)
 			iconDat[0] = getIconString(fwd.Data[0].Weather[0].Icon)
 			humiDat[0] = fmt.Sprintf("%d", fwd.Data[0].Main.Humidity)
-			wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", fwd.Data[0].Wind.Speed*1.852, weather.MphToBf(fwd.Data[0].Wind.Speed))
+			wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.<span class=\"hidden\">%.2fm/s</span>", fwd.Data[0].Wind.Speed*3.6, weather.MphToBf(fwd.Data[0].Wind.Speed*2.236), fwd.Data[0].Wind.Speed)
 
 			// don't use the same data twice
 			fwd.Data = fwd.Data[1:]
@@ -199,7 +199,7 @@ func fillMeteo(out *ntag, offset uint) error {
 			clouDat[0] = fmt.Sprintf("%.0f/8", cwd.Clouds.All*0.08)
 			iconDat[0] = getIconString(cwd.Weather[0].Icon)
 			humiDat[0] = fmt.Sprintf("%.0f", cwd.Main.Humidity)
-			wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", cwd.Wind.Speed*1.852, weather.MphToBf(cwd.Wind.Speed))
+			wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.<span class=\"hidden\">%.2fm/s</span>", cwd.Wind.Speed*3.6, weather.MphToBf(cwd.Wind.Speed*2.236), cwd.Wind.Speed)
 		}
 	}
 	ioffset := int(offset)
@@ -213,7 +213,7 @@ func fillMeteo(out *ntag, offset uint) error {
 		clouDat[i+1+ioffset] = fmt.Sprintf("%.0f/8", float32(val.Clouds.All)*0.08)
 		iconDat[i+1+ioffset] = getIconString(val.Weather[0].Icon)
 		humiDat[i+1+ioffset] = fmt.Sprintf("%d", val.Main.Humidity)
-		wspeDat[i+1+ioffset] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.", val.Wind.Speed*1.852, weather.MphToBf(val.Wind.Speed))
+		wspeDat[i+1+ioffset] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.<span class=\"hidden\">%.2fm/s</span>", val.Wind.Speed*3.6, weather.MphToBf(val.Wind.Speed*2.236), val.Wind.Speed)
 	}
 	//addStr("Zeitstempel", tDat, "")
 	addStr("Temperatur", tempDat, htmlC)
@@ -235,7 +235,7 @@ func fillCurrent(out *ntag) error {
 	out.Theme = tc
 	cwd := weather.GetCurrent(out.Ort).ConvertToCelsius()
 	if len(cwd.Weather) == 0 {
-		return RowError("invalid request")
+		return RowError("invalid request current")
 	}
 	addStr := func(name string, data interface{}, unit string) {
 		switch data.(type) {
@@ -248,7 +248,7 @@ func fillCurrent(out *ntag) error {
 	addStr("Temperatur", fmt.Sprintf("%.1f", cwd.Main.Temp), htmlC) // TODO eine Nachkommastelle
 	addStr("Luftdruck", cwd.Main.Pressure, "hPa")
 	addStr("Luftfeuchtigkeit", cwd.Main.Humidity, "%")
-	addStr("Windgeschwindigkeit", fmt.Sprintf("%.0f km/h<br>%.0f Bf.", cwd.Wind.Speed*1.852, weather.MphToBf(cwd.Wind.Speed)), "")
+	addStr("Windgeschwindigkeit", fmt.Sprintf("%.0f km/h<br>%.0f Bf.<span class=\"hidden\">%.2fm/s</span>", cwd.Wind.Speed*3.6, weather.MphToBf(cwd.Wind.Speed*2.236), cwd.Wind.Speed), "")
 	addStr("Wetterzustand", getIconString(cwd.Weather[0].Icon), "")
 	addStr("Wolkenbedeckung", fmt.Sprintf("%.0f/8", cwd.Clouds.All*0.08), "")
 	return nil
