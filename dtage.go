@@ -144,6 +144,11 @@ func (s simpleTime) String() string {
 	return fmt.Sprintf("%02d:%02d %d.%02d.%d", t.Hour(), t.Minute(), t.Day(), t.Month(), t.Year())
 }
 
+func (s simpleTime) ReverseString() string {
+	t := strings.Split(s.String(), " ")
+	return fmt.Sprintf("%s %s", t[1], t[0])
+}
+
 func (s simpleTime) Error() string {
 	t := time.Unix(int64(s), 0)
 	return fmt.Sprintf("%X", t.Unix())
@@ -156,6 +161,10 @@ func getIconString(icon string) string {
 func fillMeteo(out *ntag, offset uint) error {
 	cwd := weather.GetCurrent(out.Ort).ConvertToCelsius()
 	fwd := weather.GetForecast(out.Ort).Filter(weather.MIDDAY)
+
+	specifyTime := func(i uint64, dt int64) {
+		out.Data[0].Data[i] = fmt.Sprintf("%s<hr class=\"exact\"><span class=\"exact\">%s</span>", out.Data[0].Data[i], simpleTime(dt).ReverseString())
+	}
 
 	if len(fwd.Data) == 0 || len(cwd.Weather) == 0 {
 		Continue("invalid request caught")
@@ -191,6 +200,8 @@ func fillMeteo(out *ntag, offset uint) error {
 
 			// don't use the same data twice
 			fwd.Data = fwd.Data[1:]
+
+			specifyTime(0, fwd.Data[0].Time)
 		} else {
 			// Use current data for "today"
 			//tDat[0] = simpleTime(cwd.Dt).String()
@@ -200,6 +211,8 @@ func fillMeteo(out *ntag, offset uint) error {
 			iconDat[0] = getIconString(cwd.Weather[0].Icon)
 			humiDat[0] = fmt.Sprintf("%.0f", cwd.Main.Humidity)
 			wspeDat[0] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.<span class=\"hidden\">%.2fm/s</span>", cwd.Wind.Speed*3.6, weather.MphToBf(cwd.Wind.Speed*2.236), cwd.Wind.Speed)
+
+			specifyTime(0, cwd.Dt)
 		}
 	}
 	ioffset := int(offset)
@@ -214,6 +227,8 @@ func fillMeteo(out *ntag, offset uint) error {
 		iconDat[i+1+ioffset] = getIconString(val.Weather[0].Icon)
 		humiDat[i+1+ioffset] = fmt.Sprintf("%d", val.Main.Humidity)
 		wspeDat[i+1+ioffset] = fmt.Sprintf("%.0f km/h<br>%.0f Bf.<span class=\"hidden\">%.2fm/s</span>", val.Wind.Speed*3.6, weather.MphToBf(val.Wind.Speed*2.236), val.Wind.Speed)
+
+		specifyTime(uint64(i+1+ioffset), val.Time)
 	}
 	//addStr("Zeitstempel", tDat, "")
 	addStr("Temperatur", tempDat, htmlC)
