@@ -232,9 +232,11 @@ func renderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func cacheHandler(w http.ResponseWriter, r *http.Request) {
+	globe.DefaultStyle.Background = color.RGBA{0xff, 0xff, 0xff, 0x00}
 	g := globe.New()
 	g.DrawGraticule(10.0)
 	g.DrawLandBoundaries()
+	g.DrawCountryBoundaries(globe.Color(color.RGBA{0x00, 0x00, 0x00, 0x0F}))
 	for _, v := range weather.GetCachedLocations() {
 		// TODO v[2] for color
 		// fmt.Println(v)
