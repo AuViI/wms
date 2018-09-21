@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-    "github.com/AuViI/wms/weather/redirect"
+	"github.com/AuViI/wms/weather/redirect"
 	"github.com/mtib/simplehttp"
 )
 
@@ -28,8 +28,8 @@ type (
 )
 
 var (
-	currenturl, _ = template.New("current").Parse("http://api.openweathermap.org/data/2.5/weather?q={{.City}}&appid={{.Key}}")
-	forcasturl, _ = template.New("forcast").Parse("http://api.openweathermap.org/data/2.5/forecast?q={{.City}}&appid={{.Key}}")
+	currenturl, _ = template.New("current").Parse("http://api.openweathermap.org/data/2.5/weather?q={{.City}}&appid={{.Key}}&lang=de")
+	forcasturl, _ = template.New("forcast").Parse("http://api.openweathermap.org/data/2.5/forecast?q={{.City}}&appid={{.Key}}&lang=de")
 	rpm           = 0
 	rpmMutex      sync.Mutex
 )
@@ -78,7 +78,7 @@ type (
 		Snow struct {
 			Volume float64 `json:"3h"`
 		}
-		Dt int64
+		Dt      int64
 		Cod     interface{} `json:"cod"`
 		Message interface{} `json:"message"`
 	}
@@ -134,14 +134,14 @@ type (
 
 // Valid if data was returned
 func (f ForecastData) Valid() bool {
-    switch f.Cod.(type) {
-        case float64:
-            return int(f.Cod.(float64)) == 200
-        case string:
-            return f.Cod.(string) == "200"
-        default:
-            return false
-    }
+	switch f.Cod.(type) {
+	case float64:
+		return int(f.Cod.(float64)) == 200
+	case string:
+		return f.Cod.(string) == "200"
+	default:
+		return false
+	}
 }
 
 func GetCacheRaw() *map[string]Cache {
@@ -221,16 +221,16 @@ func MphToBf(mph float64) float64 {
 func fillTemlp(t *template.Template, c string) string {
 	var b bytes.Buffer
 	//t.Execute(&b, &Query{strings.Replace(c, " ", "_", -1), *key})
-    t.Execute(&b, &Query{c, *key})
+	t.Execute(&b, &Query{c, *key})
 	return b.String()
 }
 
 // GetCurrent returns filled `Data` for `city`
 func GetCurrent(city string) *Data {
 
-    if redirect.IsRedirected(city) {
-        city = redirect.Redirect(city)
-    }
+	if redirect.IsRedirected(city) {
+		city = redirect.Redirect(city)
+	}
 
 	var wd *Data
 	wd = &Data{}
@@ -238,7 +238,7 @@ func GetCurrent(city string) *Data {
 	if err != nil {
 		panic(err)
 	}
-    //fmt.Println(string(answ))
+	//fmt.Println(string(answ))
 	json.Unmarshal(answ, wd)
 	return wd
 }
@@ -257,18 +257,18 @@ func GetCurrentByGeo(lat, lon float64) *Data {
 // GetForecast from OpenWeatherMap
 func GetForecast(city string) *ForecastData {
 
-    if redirect.IsRedirected(city) {
-        city = redirect.Redirect(city)
-    }
+	if redirect.IsRedirected(city) {
+		city = redirect.Redirect(city)
+	}
 
-    //fmt.Println(city)
+	//fmt.Println(city)
 
 	data := new(ForecastData)
-    link := fillTemlp(forcasturl, city)
+	link := fillTemlp(forcasturl, city)
 	jdata, err := getLink(link)
 
-    //fmt.Println(link)
-    //fmt.Println(string(jdata))
+	//fmt.Println(link)
+	//fmt.Println(string(jdata))
 
 	if err != nil {
 		panic(err)
@@ -276,7 +276,7 @@ func GetForecast(city string) *ForecastData {
 
 	json.Unmarshal(jdata, data)
 
-    //fmt.Printf("Data: %v\n", data)
+	//fmt.Printf("Data: %v\n", data)
 	return data
 }
 
