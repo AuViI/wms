@@ -1,6 +1,9 @@
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>WMS Link Generator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"></link>
 </head>
 <style>
     #all {
@@ -8,18 +11,8 @@
         margin: 0 auto;
         padding-bottom: 3em;
     }
-    .output {
-        padding: 1em;
-        margin-left: 2em;
-    }
-    form {
-        margin-left: 2em;
-    }
-    p {
-        padding-left: 2em;
-    }
     h2 {
-        padding-top: 3em;
+        margin-top: 2em;
     }
 </style>
 <body>
@@ -27,37 +20,82 @@
         <h1>Link Generator</h1>
         <p>Vorübergehende Lösung um Links für spezielle Ansichten zu generieren. Einfach die entsprechenden Formulare ausfüllen und ein Link sollte automatisch generiert werden.</p>
 
+        <div class="alert alert-warning">
+            <h4 class="alert-heading">Warnung</h4>
+            <p>Diese Seite ist unter aktiver Entwicklung, generierte Links unterliegen keiner Garantie der Gültigkeit.</p>
+            <hr>
+            <p>Allerdings wird diese Funktionalität stetig ausgebaut und soll Teil des Endproduktes werden.</p>
+        </div>
+
         <h2><u>dtage</u> Custom Link</h2>
         <p>Für die "dtage" Grafik hier den gewünschten Ort, einen Link(!) zum Firmenlogo und die Farben für den Farbverlauf auswählen. Aktuell gibt es keine Platzhalter um Standartwerte zu verwenden, also müssen alle Werte angegeben werden!</p>
 
         <h3><u>dtage</u> Formular</h3>
         <form id="dtage">
-            <input id="dtage_ort" type="text" placeholder="Ort">
-            <input id="dtage_icon" type="text" placeholder="Link zum Icon"><br>
+            <div class="form-group">
+                <label for="dtage_ort">Ortsname</label>
+                <input id="dtage_ort" class="form-control" type="text" placeholder="Ortsname">
+                <small class="form-text text-muted">Linkgeneratoren für Lat-Lon Koordinaten ist in Entwicklung</small>
+            </div>
+            <div class="form-group">
+                <label for="dtage_icon">Link zum Icon</label>
+                <input id="dtage_icon" class="form-control" type="text" placeholder="Iconlink">
+                <small class="form-text text-muted">Alle gängigen Webgrafikformate sollten funktionieren. <b>Wichtig:</b> Das Icon muss unter dem angegebenen Link 24/7 erreichbar sein.</small>
+            </div>
 
-            Farbverlauf 
-            Anfang: <input id="dtage_col1" type="color">
-            Ende: <input id="dtage_col2" type="color">
+            <div class="form-group">
+                <h3>Farbverlauf</h3>
+                <div class="form-row">
+                    <div class="col">
+                        <label for="dtage_col1">Anfang</label>
+                        <input id="dtage_col1" class="form-control" type="color">
+                    </div>
+                    <div class="col">
+                        <label for="dtage_col2">Ende</label>
+                        <input id="dtage_col2" class="form-control" type="color">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="dtage_out">Link</label>
+                <div id="dtage_out" class="form-control" type="text" disabled></div>
+            </div>
         </form>
 
-        <h3><u>dtage</u> Ausgabe</h3>
-        <code id="dtage_out" class="output"></code>
-
-        <h2><u>forecast</u> Formular</h2>
+        <h2><u>forecast</u> Custom Link</h2>
         <p>Für die Bodenwetterkarten</p>
 
         <h3><u>forecast</u> Formular</h3>
         <form id="forecast">
-            <input id="forecast_ort" type="text" placeholder="Ort">
-            <input id="forecast_icon" type="text" placeholder="Link zum Icon"><br>
+            <div class="form-group">
+                <label for="forecast_ort">Ortsname</label>
+                <input id="forecast_ort" class="form-control" type="text" placeholder="Ortsname">
+                <small class="form-text text-muted">Linkgeneratoren für Lat-Lon Koordinaten ist in Entwicklung</small>
+            </div>
+            <div class="form-group">
+                <label for="forecast_icon">Link zum Icon</label>
+                <input id="forecast_icon" class="form-control" type="text" placeholder="Iconlink">
+                <small class="form-text text-muted">Alle gängigen Webgrafikformate sollten funktionieren. <b>Wichtig:</b> Das Icon muss unter dem angegebenen Link 24/7 erreichbar sein.</small>
+            </div>
 
-            Farbverlauf 
-            Anfang: <input id="forecast_col1" type="color">
-            Ende: <input id="forecast_col2" type="color">
+            <div class="form-group">
+                <h3>Farbverlauf</h3>
+                <div class="form-row">
+                    <div class="col">
+                        <label for="forecast_col1">Anfang</label>
+                        <input id="forecast_col1" class="form-control" type="color">
+                    </div>
+                    <div class="col">
+                        <label for="forecast_col2">Ende</label>
+                        <input id="forecast_col2" class="form-control" type="color">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="forecast_out">Link</label>
+                <div id="forecast_out" class="form-control" type="text" disabled></div>
+            </div>
         </form>
-
-        <h3><u>forecast</u> Ausgabe</h3>
-        <code id="forecast_out" class="output"></code>
     </div>
     <script>
         function geti(id) {
@@ -91,8 +129,7 @@
             var col2 = geti("dtage_col2").value;
 
             var link = makeDtage(ort, icon, col1, col2);
-            dtage_out.innerHTML = "Link für " + dtage_form.elements[0].value
-                + ": <a target='_blank' href='" + link + "'>" + link + "</a>.";
+            dtage_out.innerHTML = "<a target='_blank' href='" + link + "'>" + link + "</a>";
         }
 
         function recalc_forecast() {
@@ -105,8 +142,7 @@
             var col2 = geti("forecast_col2").value;
 
             var link = makeForecast(ort, icon, col1, col2);
-            forecast_out.innerHTML = "Link für " + forecast_form.elements[0].value
-                + ": <a target='_blank' href='" + link + "'>" + link + "</a>.";
+            forecast_out.innerHTML = "<a target='_blank' href='" + link + "'>" + link + "</a>";
         }
 
         function makeTheme(target, o, i, c1, c2) {

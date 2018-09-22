@@ -20,14 +20,6 @@ var (
 
 	// text/css templates
 	editJsMinTmpl = simpleTemplate("list_edit.min.js")
-
-	// binary resources
-	// TODO change to map string to []byte
-	resources = map[string]string{
-		"logo.png":        load("logo.png"),
-		"logo_invert.png": load("logo_invert.png"),
-		"linkgen.html":    load("linkgen.html"),
-	}
 )
 
 const (
@@ -64,7 +56,10 @@ func webSetup(port *string) {
 	http.HandleFunc("/resources/", resourceHandler)
 	http.HandleFunc("/tools/sleep/", sleepHandler)
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(*port, nil)
+	err := http.ListenAndServe(*port, nil)
+	if err != nil {
+		Fail(err.Error())
+	}
 	end <- true
 }
 
@@ -126,6 +121,7 @@ func startUpdateLoop() chan bool {
 			 * way less annoying.
 			 */
 			go (func() {
+				// TODO incorporate config file
 				renderPictures() // render new pictures
 			})()
 			counter = 0
@@ -137,7 +133,10 @@ func startUpdateLoop() chan bool {
 	// chance to kill this looping goroutine
 	end := make(chan bool)
 
+	// execute once at start
 	calls()
+
+	// then once every 10 minutes
 	go func(e chan bool) {
 		for {
 			select {

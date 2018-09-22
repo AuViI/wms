@@ -73,12 +73,15 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 			Fail(fmt.Sprintf("list_edit.min.js %s", err))
 		}
 	default:
-		r, ok := resources[s]
-		if !ok || r == "" {
+		if resourceLocation.Has(s) {
+			s = resourceLocation.Get(s) // is redirected, use real location
+		}
+		if !resources.Has(s) {
 			fmt.Fprintf(w, "404 - not found %s", s)
 			return
 		}
-		io.WriteString(w, r)
+		res := resources.Get(s)
+		io.WriteString(w, res)
 	}
 }
 
