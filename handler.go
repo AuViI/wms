@@ -67,14 +67,18 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Fail(fmt.Sprintf("main.css: %s", err))
 		}
+		break
 	case "list_edit.min.js":
 		err := editJsMinTmpl.Execute(w, nil)
 		if err != nil {
 			Fail(fmt.Sprintf("list_edit.min.js %s", err))
 		}
+		break
 	default:
 		if resourceLocation.Has(s) {
+			Continue(fmt.Sprintf("found redirection from %s", s))
 			s = resourceLocation.Get(s) // is redirected, use real location
+			Continue(fmt.Sprintf("                  to %s", s))
 		}
 		if !resources.Has(s) {
 			fmt.Fprintf(w, "404 - not found %s", s)
@@ -82,6 +86,7 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		res := resources.Get(s)
 		io.WriteString(w, res)
+		break
 	}
 }
 

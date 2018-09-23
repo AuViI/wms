@@ -1,22 +1,43 @@
 package main
 
+var realResources = []string{
+	"logo.png",
+	"logo_invert.png",
+	"admin/index.html",
+	"admin/linkgen.html",
+	"admin/usercount.js",
+}
+
 var (
 	// binary resources
 	// TODO change to map string to []byte
-	resources = ResourceReloader{
-		"logo.png":        load("logo.png"),
-		"logo_invert.png": load("logo_invert.png"),
-		"linkgen.html":    load("linkgen.html"),
-	}
+	resources = (func() ResourceReloader {
+		var r ResourceReloader
+		r = make(ResourceReloader, len(realResources))
+		for _, v := range realResources {
+			r[v] = load(v)
+		}
+		return r
+	})()
+
 	// if resource not in here, then it's at: "resource/<name>"
-	resourceLocation = ResourceReloader{}
+	resourceLocation = ResourceReloader{
+		"linkgen.html": "admin/linkgen.html",
+		"admin":        "admin/index.html",
+		"admin/":       "admin/index.html",
+	}
 )
 
 type ResourceReloader map[string]string
 
 func (r *ResourceReloader) Get(name string) string {
 	if *nc {
-		(*r)[name] = load(name)
+		for _, v := range realResources {
+			if v == name {
+				(*r)[name] = load(name)
+				break
+			}
+		}
 	}
 	return (*r)[name]
 }
