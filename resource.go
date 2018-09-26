@@ -6,6 +6,7 @@ var realResources = []string{
 	"admin/index.html",
 	"admin/linkgen.html",
 	"admin/usercount.js",
+	"admin/navbar.js",
 }
 
 var (

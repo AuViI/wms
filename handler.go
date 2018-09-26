@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/AuViI/wms/config"
 	"github.com/AuViI/wms/forecast"
@@ -73,6 +74,39 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Fail(fmt.Sprintf("list_edit.min.js %s", err))
 		}
+		break
+	case "admin/nav":
+		var adminnav *template.Template
+		// if *nc, otherwise TODO cache
+		adminnav, _ = template.ParseFiles("./template/adminnav.gohtml")
+		var reqb struct {
+			Origin string `json:"origin"`
+		}
+		json.NewDecoder(r.Body).Decode(&reqb)
+		adminnav.Execute(w, struct {
+			Origin string
+			Pages  []struct {
+				Display string
+				Link    string
+				Active  bool
+			}
+		}{
+			Origin: reqb.Origin,
+			Pages: []struct {
+				Display string
+				Link    string
+				Active  bool
+			}{
+				{"Übersicht", "/resources/admin/index.html", true},
+				{"Linkgenerator", "/resources/admin/linkgen.html", true},
+				{
+					"Kunden<div id=\"usercount-nav\" class=\"float-right small\"></div>",
+					"#",
+					false,
+				},
+				{"Wetterbericht", "#", false},
+			},
+		})
 		break
 	default:
 		if resourceLocation.Has(s) {

@@ -13,6 +13,8 @@ function update_usercount_badges() {
         }
     }
 
+    console.log(containers);
+
     // TODO logic here
     let usercount = 0;
     
@@ -26,9 +28,3 @@ function update_usercount_badges() {
         c.appendChild(s);
     }
 }
-
-function ready() {
-    update_usercount_badges();
-}
-
-window.addEventListener("load", ready);
