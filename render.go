@@ -34,8 +34,8 @@ func renderPictures() {
 		return fmt.Sprintf("http://localhost%s/forecast/%s", *port, loc)
 	}
 
-	toDTage := func(loc string) string {
-		return fmt.Sprintf("http://localhost%s/dtage/%s", *port, loc)
+	toDTage := func(loc string, n uint64) string {
+		return fmt.Sprintf("http://localhost%s/dtage/%s/%d", *port, loc, n)
 	}
 
 	toFilename := func(loc, prefix string) string {
@@ -60,7 +60,7 @@ func renderPictures() {
 		cmd.Run()
 		cmd.Wait()
 
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 
 		if _, staterr := os.Stat(absFolder); os.IsNotExist(staterr) {
 			os.Mkdir(absFolder, os.ModePerm)
@@ -75,7 +75,7 @@ func renderPictures() {
 
 		// sleep so cache can recover and windows don't
 		// overlap in pictures [not tested]
-		time.Sleep(5 * time.Second)
+		time.Sleep(3 * time.Second)
 	}
 
 	// iteration over locations
@@ -83,7 +83,8 @@ func renderPictures() {
 		lt := strings.TrimSpace(l)
 		if lt != "" {
 			fullRender(toForecast(lt), toFilename("forecast", lt))
-			fullRender(toDTage(lt), toFilename("dtage", lt))
+			fullRender(toDTage(lt, 3), toFilename("dtage3", lt))
+			fullRender(toDTage(lt, 5), toFilename("dtage5", lt))
 		}
 	}
 	Ok("finish rendering pictures")

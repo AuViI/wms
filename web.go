@@ -121,7 +121,6 @@ func startUpdateLoop() chan bool {
 			 * way less annoying.
 			 */
 			go (func() {
-				// TODO incorporate config file
 				renderPictures() // render new pictures
 			})()
 			counter = 0

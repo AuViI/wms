@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/AuViI/wms/config"
 	"github.com/AuViI/wms/forecast"
+	"github.com/AuViI/wms/httpmod"
 	"github.com/AuViI/wms/txt"
 	"github.com/AuViI/wms/uid"
 	"github.com/AuViI/wms/weather"
@@ -30,6 +31,8 @@ var (
 func handler(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path[1:] {
 	case "":
+		httpmod.ContentTypeSet(w, "text/html")
+		httpmod.CacheMaxAge(w, 3600)
 		serveIndex(w)
 		break
 	default:
@@ -43,6 +46,8 @@ func txtHandler(w http.ResponseWriter, r *http.Request) {
 	if i := strings.Index(cut, "/"); i != -1 {
 		cut = cut[:i]
 	}
+	httpmod.ContentTypeSet(w, "text/plain")
+	httpmod.CacheMaxAge(w, 60)
 	fmt.Fprintf(w, "%s", txt.PrognoseTxt(cut, DaysForecastTxt))
 }
 
@@ -51,7 +56,8 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	if i := strings.Index(cut, "/"); i != -1 {
 		cut = cut[:i]
 	}
-	w.Header().Set("Cache-Control", "max-age=600")
+	httpmod.CacheMaxAge(w, 600)
+	httpmod.ContentTypeSet(w, "text/html")
 	SimpleHTML(cut, w)
 }
 
@@ -63,7 +69,10 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 			st, _ := template.ParseFiles("./template/main.css")
 			styleTemplate = st
 		}
-		w.Header().Set("Content-type", "text/css")
+
+		httpmod.ContentTypeAssume(w, s)
+		httpmod.CacheMaxAge(w, 1800)
+
 		err := styleTemplate.Execute(w, nil)
 		if err != nil {
 			Fail(fmt.Sprintf("main.css: %s", err))
@@ -119,6 +128,8 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		res := resources.Get(s)
+		httpmod.CacheMaxAge(w, 600)
+		httpmod.ContentTypeAssume(w, s)
 		io.WriteString(w, res)
 		break
 	}
@@ -209,7 +220,7 @@ func bspHandler(w http.ResponseWriter, r *http.Request) {
 	}{
 		Orte:  orte,
 		Modes: modi,
-		Dtage: []string{"1/aktuell", "3/meteo", "5/meteo", "3/astro", "5/astro"},
+		Dtage: conf.DTageLinks,
 		Rend:  renderFiles(),
 		Show: func(s string) string {
 			if strings.HasPrefix(s, "1/") {
@@ -218,6 +229,8 @@ func bspHandler(w http.ResponseWriter, r *http.Request) {
 			return strings.Replace(s, "/", " Tage ", 1)
 		},
 	}
+	httpmod.CacheMaxAge(w, 3600)
+	httpmod.ContentTypeSet(w, "text/html")
 	bspTmpl.Execute(w, data)
 }
 
@@ -295,7 +308,8 @@ func cacheHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "error reading globe.png")
 		return
 	}
-	w.Header().Set("Content-type", "image/png")
+	httpmod.ContentTypeSet(w, "image/png")
+	httpmod.CacheMaxAge(w, 120)
 	io.Copy(w, f)
 	f.Close()
 }
