@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/AuViI/wms/config"
+	"github.com/AuViI/wms/wp"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -43,6 +44,7 @@ func webSetup(port *string) {
 	http.HandleFunc("/csv/", csvHandler)
 	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/bsp/", bspHandler)
+	http.HandleFunc("/wp/", wp.Handler)
 	http.HandleFunc("/forecast/",
 		noCacheSwitch(forecastHandler, ncForecastHandler))
 	http.HandleFunc("/list/", listHandler)
