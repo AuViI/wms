@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"time"
 )
 
 const Driver = "sqlite3"
@@ -34,7 +35,13 @@ func getDB(db *sql.DB, r *Request) (*Response, error) {
 		WHERE location = ? AND year = ? AND month = ? AND day = ?`)
 	defer stmt.Close()
 	var content string
-	err := stmt.QueryRow(r.location, r.year, r.month, r.day).Scan(&content)
+	var err error
+	if r.isDate() {
+		err = stmt.QueryRow(r.location, r.year, r.month, r.day).Scan(&content)
+	} else {
+		t := time.Now().Local()
+		err = stmt.QueryRow(r.location, t.Year(), t.Month(), t.Day()).Scan(&content)
+	}
 	tx.Commit()
 	return &Response{content}, err
 }

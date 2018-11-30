@@ -1,19 +1,29 @@
+// wp is short for Weather Prediction.
+//
+// It contains the natural language
+// forecast to be used on other formats
+// explaining the weather.
+//
+// It is connected to a database saving the
+// manually entered forecasts, with those
+// being automated in future.
 package wp
 
 import (
+	"errors"
 	"fmt"
 	"github.com/AuViI/wms/weather/redirect"
+	"io"
 	"net/http"
 	"regexp"
 )
 
 /*
-
-Requests:
+Shape of Requests:
 	/<location>/[<year>/<month>/<day>][/<args>]
-
 */
 
+// Request contains all data needed to query wp data.
 type Request struct {
 	location string
 	year     string
@@ -21,32 +31,53 @@ type Request struct {
 	day      string
 }
 
+// Response reflects the current database content
+// for any given Request, it may also contain
+// automatically generated content.
 type Response struct {
 	content string
 }
 
+// Matches Request URLs, used in Handler
 var reqx, reqerr = regexp.Compile("/wp/([^/]*)(/([^/]*)/([^/]*)/([^/]*))?")
 
+// Hanlder responds to GET and POST requests for natural language forecasts
+//
+// GET /wp/<location>[/<year>/<month>/<day>]
+//		returns saved weather forecast from databank
+//		if it doesn't exists, generate one.
+//
+// POST /wp/<location>/<year>/<month>/<day>
+//		(over)writes database entry for given location
+//		and date.
 func Handler(w http.ResponseWriter, r *http.Request) {
 	if reqerr != nil {
+		// Regex doesn't compile
 		fmt.Fprintln(w, reqerr)
 	} else {
+		// Regex compiles
 		match := reqx.FindAllStringSubmatch(r.URL.Path, 1)
-		wpr := Request{redirect.Redirect(match[0][1]), match[0][3], match[0][4], match[0][5]}
+		wpr := &Request{redirect.Redirect(match[0][1]), match[0][3], match[0][4], match[0][5]}
 		if r.Method == "POST" {
+			// write to DB on POST
 			content := r.PostFormValue("content")
-			PostDatabaseEntry(&wpr, &Response{content})
-			return
-		}
-		fmt.Fprintf(w, "Request for: %s\n", wpr.String())
-		fmt.Fprintf(w, "isDate: %v\n", wpr.isDate())
-		wrs, err := wpr.GetDatabaseEntry()
-		if err != nil {
-			fmt.Fprintf(w, "Database: %s\n", err)
+			PostDatabaseEntry(wpr, &Response{content})
 		} else {
-			fmt.Fprintf(w, "Database: %v\n", wrs)
+			wrs, err := wpr.GetDatabaseEntry()
+			handlerPrint(w, wpr, wrs, err)
 		}
 	}
+}
+
+func handlerPrint(w io.Writer, req *Request, res *Response, err error) {
+	fmt.Fprintf(w, "request: %s\n", req.String())
+	fmt.Fprintf(w, "date: %v\n", req.isDate())
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err)
+	} else {
+		fmt.Fprintf(w, "content: %v\n", res.content)
+	}
+
 }
 
 func (wpr *Request) isDate() bool {
@@ -70,6 +101,9 @@ func (wpr *Request) GetDatabaseEntry() (*Response, error) {
 }
 
 func PostDatabaseEntry(r *Request, c *Response) error {
+	if !r.isDate() {
+		return errors.New("request needs to contain date")
+	}
 	db, oerr := createDB("wp.db")
 	if oerr != nil {
 		return oerr

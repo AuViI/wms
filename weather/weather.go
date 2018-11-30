@@ -236,7 +236,9 @@ func GetCurrent(city string) *Data {
 	wd = &Data{}
 	answ, err := getLink(fillTemlp(currenturl, city))
 	if err != nil {
-		panic(err)
+		// unable to connect to OWM
+		fmt.Println(err)
+		return wd
 	}
 	//fmt.Println(string(answ))
 	json.Unmarshal(answ, wd)
@@ -245,11 +247,13 @@ func GetCurrent(city string) *Data {
 
 func GetCurrentByGeo(lat, lon float64) *Data {
 	var wd *Data
-	wd = &Data{}
+
 	answ, err := getLink(fmt.Sprintf(currentGeoUrl, lat, lon, *key))
 	if err != nil {
 		panic(err)
 	}
+
+	wd = new(Data)
 	json.Unmarshal(answ, wd)
 	return wd
 }
@@ -271,7 +275,9 @@ func GetForecast(city string) *ForecastData {
 	//fmt.Println(string(jdata))
 
 	if err != nil {
-		panic(err)
+		// unable to connect to OWM
+		fmt.Println(err)
+		return data
 	}
 
 	json.Unmarshal(jdata, data)
