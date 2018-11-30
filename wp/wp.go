@@ -61,6 +61,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			// write to DB on POST
 			content := r.FormValue("content")
+			if len(content) == 0 {
+				fmt.Fprint(w, "Request with empty content denied\n")
+				return
+			}
 			perr := PostDatabaseEntry(wpr, &Response{content})
 			if perr != nil {
 				fmt.Fprintln(w, perr)
