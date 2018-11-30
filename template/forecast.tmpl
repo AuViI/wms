@@ -310,10 +310,9 @@ Wolken: {{ .Cwd.Clouds.All }}%
     {{ end }}
     <div class="bottom oms">
       <div class="heute">
-        <h2>Wussten Sie schon?</h2>
+		  <h2>{{ .Ort }}</h2>
         <p>
-            Die englische Bezeichnung für die 
-            Heutige Wetterlage ist "{{ html .Wetterlage }}".
+			{{ .WpText }}
         </p>
       </div>
     </div>

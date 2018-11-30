@@ -113,7 +113,7 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 					"#",
 					false,
 				},
-				{"Wetterbericht", "#", false},
+				{"Wetterbericht", "/resources/admin/wpinput.html", true},
 			},
 		})
 		break

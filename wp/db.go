@@ -30,6 +30,7 @@ func closeDB(db *sql.DB) {
 }
 
 func getDB(db *sql.DB, r *Request) (*Response, error) {
+	fmt.Printf("Get: '%s'\n", r.String())
 	tx, _ := db.Begin()
 	stmt, _ := tx.Prepare(`SELECT content FROM wp
 		WHERE location = ? AND year = ? AND month = ? AND day = ?`)
@@ -51,10 +52,11 @@ func setDB(db *sql.DB, r *Request, c *Response) error {
 	var stmt *sql.Stmt
 	var err error
 
-	co, gerr := getDB(db, r)
+	fmt.Printf("INSERT '%s' for '%s'\n", c.String(), r.String())
+
+	_, gerr := getDB(db, r)
 	tx, _ := db.Begin()
 	if gerr == nil {
-		fmt.Printf("change '%s' to '%s' at '%s'\n", co.content, c.content, r.String())
 		stmt, err = tx.Prepare(`UPDATE wp
 			SET content = ?
 			WHERE location = ? AND year = ? AND month = ? AND day = ?`)

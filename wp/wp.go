@@ -60,8 +60,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		wpr := &Request{redirect.Redirect(match[0][1]), match[0][3], match[0][4], match[0][5]}
 		if r.Method == "POST" {
 			// write to DB on POST
-			content := r.PostFormValue("content")
-			PostDatabaseEntry(wpr, &Response{content})
+			content := r.FormValue("content")
+			perr := PostDatabaseEntry(wpr, &Response{content})
+			if perr != nil {
+				fmt.Fprintln(w, perr)
+			} else {
+				fmt.Fprintln(w, "Ok")
+			}
 		} else {
 			wrs, err := wpr.GetDatabaseEntry()
 			handlerPrint(w, wpr, wrs, err)
@@ -78,6 +83,12 @@ func handlerPrint(w io.Writer, req *Request, res *Response, err error) {
 		fmt.Fprintf(w, "content: %v\n", res.content)
 	}
 
+}
+
+func Now(location string) *Request {
+	r := new(Request)
+	r.location = redirect.Redirect(location)
+	return r
 }
 
 func (wpr *Request) isDate() bool {
@@ -98,6 +109,10 @@ func (wpr *Request) GetDatabaseEntry() (*Response, error) {
 	}
 	defer closeDB(db)
 	return getDB(db, wpr)
+}
+
+func (r *Response) String() string {
+	return r.content
 }
 
 func PostDatabaseEntry(r *Request, c *Response) error {

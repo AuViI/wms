@@ -13,6 +13,7 @@ import (
 
 	"github.com/AuViI/wms/model"
 	"github.com/AuViI/wms/weather"
+	"github.com/AuViI/wms/wp"
 )
 
 const (
@@ -39,6 +40,7 @@ type data struct {
 	Theme        model.TemplateTheme
 	MapsKey      string
 	WetterArea   []mapIcon
+	WpText       string
 }
 
 type mapIcon struct {
@@ -188,6 +190,13 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		},
 		Theme:      theme,
 		WetterArea: make([]mapIcon, 8),
+		WpText: (func() string {
+			res, err := wp.Now(query).GetDatabaseEntry()
+			if err != nil {
+				return "WIP: automated weather information"
+			}
+			return res.String()
+		})(),
 	}
 	cc := func(n int) float64 {
 		if n == 0 || n == 4 {
