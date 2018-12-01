@@ -51,11 +51,17 @@
 		<div id="wp_log"></div>
     </div>
 	<script>
+		// setup date input
+		{
+			var now = new Date(Date.now());
+			var val = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+(now.getDate()>9?now.getDate():"0"+now.getDate());
+			document.getElementById("wp_date").value=val;
+			document.getElementById("save_btn").onclick=send_data;
+		}
+
+		// update wp log
 		build_wp_list("wp_log");
-		var now = new Date(Date.now());
-		var val = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+(now.getDate()>9?now.getDate():"0"+now.getDate());
-		document.getElementById("wp_date").value=val;
-		document.getElementById("save_btn").onclick=send_data;
+		window.setInterval(()=>{build_wp_list("wp_log")}, 1000 * 30);
 	</script>
 </body>
 </html>

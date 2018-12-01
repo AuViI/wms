@@ -61,7 +61,14 @@ function build_wp_list(par) {
 			}
 
 			var c1, c2, c3;
-			c1 = document.createElement("div");
+			if (dtc == 0) {
+				c1 = document.createElement("a");
+				c1.href = "/forecast/"+data[i].loc;
+				c1.classList.add("text-light");
+				c1.target = "_blank";
+			} else {
+				c1 = document.createElement("div");
+			}
 			c2 = document.createElement("div");
 			c3 = document.createElement("div");
 
