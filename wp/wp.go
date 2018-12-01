@@ -51,31 +51,44 @@ var reqx, reqerr = regexp.Compile("/wp/([^/]*)(/([^/]*)/([^/]*)/([^/]*))?")
 //		(over)writes database entry for given location
 //		and date.
 func Handler(w http.ResponseWriter, r *http.Request) {
+
+	// Sanity-Check Regex
 	if reqerr != nil {
 		// Regex doesn't compile
 		fmt.Fprintln(w, reqerr)
-	} else {
-		// Regex compiles
-		match := reqx.FindAllStringSubmatch(r.URL.Path, 1)
-		wpr := &Request{redirect.Redirect(match[0][1]), match[0][3], match[0][4], match[0][5]}
-		if r.Method == "POST" {
-			// write to DB on POST
-			content := r.FormValue("content")
-			if len(content) == 0 {
-				fmt.Fprint(w, "Request with empty content denied\n")
-				return
-			}
-			perr := PostDatabaseEntry(wpr, &Response{content})
-			if perr != nil {
-				fmt.Fprintln(w, perr)
-			} else {
-				fmt.Fprintln(w, "Ok")
-			}
-		} else {
-			wrs, err := wpr.GetDatabaseEntry()
-			handlerPrint(w, wpr, wrs, err)
-		}
+		return
 	}
+
+	if r.URL.Path == "/wp/" {
+		if err := listJson(w); err != nil {
+			fmt.Println(err)
+		}
+		return
+	}
+
+	// Determine Request
+	match := reqx.FindAllStringSubmatch(r.URL.Path, 1)
+	wpr := &Request{redirect.Redirect(match[0][1]), match[0][3], match[0][4], match[0][5]}
+
+	if r.Method == "POST" {
+		// write to DB on POST
+		content := r.FormValue("content")
+		if len(content) == 0 {
+			fmt.Fprint(w, "Request with empty content denied")
+			return
+		}
+		perr := PostDatabaseEntry(wpr, &Response{content})
+		if perr != nil {
+			fmt.Fprint(w, perr)
+		} else {
+			fmt.Fprint(w, "Ok")
+		}
+		return
+	}
+
+	// Respond with data
+	wrs, err := wpr.GetDatabaseEntry()
+	handlerPrint(w, wpr, wrs, err)
 }
 
 func handlerPrint(w io.Writer, req *Request, res *Response, err error) {

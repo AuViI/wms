@@ -13,8 +13,6 @@ function update_usercount_badges() {
         }
     }
 
-    console.log(containers);
-
     // TODO logic here
     let usercount = 0;
     
