@@ -110,7 +110,7 @@ var (
 
 // Show writes the forecast
 func Show(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.RequestURI()[10:]
+	query := r.URL.RequestURI()[len("/forecast/"):]
 	if query == "" {
 		w.Header().Set("Location", "/forecast/Kühlungsborn")
 		w.WriteHeader(301)
