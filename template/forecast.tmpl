@@ -211,8 +211,8 @@ Struct {
       #themeicon {
         position:absolute;
         right: 0.5em;
-        top: 2em;
-        width: 3em;
+        top: 2.3em;
+        width: 6em;
       }
 
       #gmap {
@@ -340,7 +340,7 @@ Wolken: {{ .Cwd.Clouds.All }}%
       var mapCanvas = document.getElementById("gmap");
       var mapOptions = {
         center: new google.maps.LatLng({{ .Geo.Lat }},{{ .Geo.Lon }}),
-        zoom: 11,
+        zoom: 10,
         disableDefaultUI: true,
         streetViewControl: false,
         /*
@@ -351,7 +351,11 @@ Wolken: {{ .Cwd.Clouds.All }}%
         */
         mapTypeId: google.maps.MapTypeId.TERRAIN,
       };
-      var map = new google.maps.Map(mapCanvas, mapOptions)
+      var map = new google.maps.Map(mapCanvas, mapOptions);
+			var center_marker = new google.maps.Marker({
+				position: mapOptions.center,
+				map: map
+			});
     }
     </script>
 
