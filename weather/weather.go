@@ -49,16 +49,18 @@ type (
 		Content   []byte
 	}
 
+	WeatherStruct struct {
+		ID          int    `json:"id"`
+		Main        string `json:"main"`
+		Description string `json:"description"`
+		Icon        string `json:"icon"`
+	}
+
 	// Data is the god-object
 	Data struct {
 		Coord   map[string]float64
-		Weather []struct {
-			ID          int    `json:"id"`
-			Main        string `json:"main"`
-			Description string `json:"description"`
-			Icon        string `json:"icon"`
-		} `json:"weather"`
-		Main struct {
+		Weather []WeatherStruct `json:"weather"`
+		Main    struct {
 			Temp     float64
 			Pressure float64
 			Humidity float64
@@ -112,13 +114,8 @@ type (
 			Humidity    int     `json:"humidity"`
 			TempKfK     float64 `json:"temp_kf"`
 		} `json:"main"`
-		Weather []struct {
-			ID          int    `json:"id"`
-			Main        string `json:"main"`
-			Description string `json:"description"`
-			Icon        string `json:"icon"`
-		} `json:"weather"`
-		Clouds struct {
+		Weather []WeatherStruct `json:"weather"`
+		Clouds  struct {
 			All int `json:"all"`
 		} `json:"clouds"`
 		Wind struct {
@@ -128,7 +125,39 @@ type (
 		Rain struct {
 			Amount float64 `json:"3h"`
 		} `json:"rain"`
+		Snow struct {
+			Amount float64 `json:"3h"`
+		} `json:"snow"`
 		TimeString string `json:"dt_txt"`
+	}
+
+	RangeFloat64 struct {
+		Min float64
+		Max float64
+	}
+
+	RangeInt64 struct {
+		Min int64
+		Max int64
+	}
+
+	AvgFloat64 struct {
+		Average float64
+		Num     int64
+	}
+
+	DataSummary struct {
+		Time     RangeInt64
+		TempK    RangeFloat64
+		Pressure RangeFloat64
+		Humidity RangeFloat64
+		Clouds   RangeInt64
+		Wind     struct {
+			Speed  RangeFloat64
+			Degree AvgFloat64
+		}
+		Rain RangeFloat64
+		Snow RangeFloat64
 	}
 )
 
@@ -142,6 +171,36 @@ func (f ForecastData) Valid() bool {
 	default:
 		return false
 	}
+}
+
+func (f ForecastData) ToData(dp DataPoint) Data {
+	var d Data
+
+	d.Coord = make(map[string]float64)
+	d.Coord["lat"] = f.City.Coord.Lat
+	d.Coord["lon"] = f.City.Coord.Lon
+
+	d.Weather = make([]WeatherStruct, 1)
+
+	d.Weather[0] = dp.Weather[0]
+
+	d.Main.Temp = dp.Main.TempK
+	d.Main.TempMin = dp.Main.TempMinK
+	d.Main.TempMax = dp.Main.TempMaxK
+	d.Main.Pressure = dp.Main.Pressure
+	d.Main.Humidity = float64(dp.Main.Humidity)
+
+	d.Wind.Speed = dp.Wind.Speed
+	d.Wind.Deg = dp.Wind.Degree
+
+	d.Clouds.All = float64(dp.Clouds.All)
+	d.Rain.Volume = dp.Rain.Amount
+	d.Snow.Volume = dp.Snow.Amount
+	d.Dt = dp.Time
+	d.Cod = f.Cod
+	d.Message = f.Message
+
+	return d
 }
 
 func GetCacheRaw() *map[string]Cache {
