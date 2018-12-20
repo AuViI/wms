@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -111,7 +112,12 @@ var (
 
 // Show writes the forecast
 func Show(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.RequestURI()[len("/forecast/"):]
+	request_parts := strings.Split(r.URL.RequestURI()[len("/forecast/"):], "/")
+	if len(request_parts) == 0 {
+		w.Header().Set("Location", "/forecast/Kühlungsborn")
+		w.WriteHeader(301)
+	}
+	query := request_parts[0]
 	if query == "" {
 		w.Header().Set("Location", "/forecast/Kühlungsborn")
 		w.WriteHeader(301)
@@ -138,7 +144,19 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		}.Prepare()
 	}
 	cwd := weather.GetCurrent(query).ConvertToCelsius()
-	daily := weather.GetDailyForecast(query, weather.NowDate(time.Local), 3) // TODO change Day through request
+	base_date := weather.NowDate(time.Local)
+	if len(request_parts) > 1 {
+		prefix := "d="
+		for _, s := range request_parts[1:] {
+			if strings.HasPrefix(s, prefix) && len(s) == len(prefix)+4+2+2 {
+				year, _ := strconv.Atoi(s[len(prefix) : len(prefix)+4])
+				month, _ := strconv.Atoi(s[len(prefix)+4 : len(prefix)+6])
+				day, _ := strconv.Atoi(s[len(prefix)+6 : len(prefix)+8])
+				base_date = weather.Date{Year: year, Month: month, Day: day}
+			}
+		}
+	}
+	daily := weather.GetDailyForecast(query, base_date, 3) // TODO change Day through request
 	forecastAll := &daily.Description
 	if len(cwd.Weather) == 0 || len(forecastAll.Data) == 0 {
 		fmt.Fprintln(w, "An Error occurred")
