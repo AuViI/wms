@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	fcTmpl = "./template/forecast.tmpl"
+	fcTmpl = "./template/forecast_daily.gohtml"
 )
 
 // data contains all Data needed for filling the Template
@@ -25,6 +25,7 @@ type data struct {
 	Ort          string
 	Datum        string
 	DatumStrip   func(string) string
+	Daily        weather.DailyForecast
 	Uhrzeit      string
 	Wetterlage   string
 	WetterDesc   string
@@ -137,7 +138,8 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		}.Prepare()
 	}
 	cwd := weather.GetCurrent(query).ConvertToCelsius()
-	forecastAll := weather.GetForecast(query)
+	daily := weather.GetDailyForecast(query, weather.NowDate(time.Local), 3) // TODO change Day through request
+	forecastAll := &daily.Description
 	if len(cwd.Weather) == 0 || len(forecastAll.Data) == 0 {
 		fmt.Fprintln(w, "An Error occurred")
 		return
@@ -148,6 +150,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		DatumStrip: func(s string) string {
 			return strings.Split(s, " ")[0]
 		},
+		Daily:        daily,
 		Uhrzeit:      "12:00",
 		Wetterlage:   cwd.Weather[0].Main,
 		WetterDesc:   "Beschreibung per Hand Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
