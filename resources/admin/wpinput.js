@@ -68,7 +68,19 @@ function build_wp_list(par) {
 				c1.target = "_blank";
 			} else {
 				c1 = document.createElement("a");
-				c1.href = "/forecast/"+data[i].loc+"/d="+dt.getFullYear()+(dt.getMonth()+1)+dt.getDate();
+
+				var year = dt.getFullYear();
+				var month = dt.getMonth() + 1;
+				var day = dt.getDate();
+
+				if (month < 10) {
+					month = "0" + month;
+				}
+				if (day < 10) {
+					day = "0" + day;
+				}
+
+				c1.href = "/forecast/"+data[i].loc+"/d="year+month+day;
 				c1.target = "_blank";
 			}
 			c2 = document.createElement("div");
