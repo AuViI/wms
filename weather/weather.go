@@ -150,6 +150,8 @@ type (
 
 	DataSummary struct {
 		Time     RangeInt64
+		Stats    []WeatherStruct
+		Median   WeatherStruct
 		TempK    RangeFloat64
 		Pressure RangeFloat64
 		Humidity RangeFloat64
@@ -347,6 +349,10 @@ func GetForecast(city string) *ForecastData {
 	return data
 }
 
+func (w WeatherStruct) String() string {
+	return fmt.Sprintf("%d('%s' - '%s' - icon: '%s'}", w.ID, w.Main, w.Description, w.Icon)
+}
+
 func ktoc(k interface{}) float64 {
 	return k.(float64) - 272.15
 }
@@ -366,6 +372,11 @@ func (d Date) String() string {
 
 func DateFromTime(t time.Time) Date {
 	return Date{t.Day(), int(t.Month()), t.Year()}
+}
+
+func DateFromUnix(unix int64, in *time.Location) Date {
+	t := time.Unix(unix, 0).In(in)
+	return DateFromTime(t)
 }
 
 func NowDate(in *time.Location) Date {
@@ -410,8 +421,7 @@ func (fc ForecastData) SplitByDay(in *time.Location) DayDataPointMap {
 	m := make(DayDataPointMap)
 
 	for _, v := range fc.Data {
-		t := time.Unix(v.Time, 0).In(in)
-		d := DateFromTime(t)
+		d := DateFromUnix(v.Time, in)
 		if _, ok := m[d]; ok {
 			m[d] = append(m[d], v)
 		} else {

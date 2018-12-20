@@ -27,8 +27,8 @@ func (af64 AvgFloat64) String() string {
 
 func (ds DataSummary) String() string {
 	return fmt.Sprintf(
-		"{\n\tTime: %s,\n\tTemp: %s,\n\tPressure: %s,\n\tHumidity: %s,\n\tClouds: %s,\n\tWind.Speed: %s,\n\tWind.Degree: %s,\n\tRain: %s\n}",
-		ds.Time, ds.TempK, ds.Pressure, ds.Humidity, ds.Clouds, ds.Wind.Speed, ds.Wind.Degree, ds.Rain)
+		"{\n\tTime: %s,\n\tTemp: %s,\n\tPressure: %s,\n\tHumidity: %s,\n\tClouds: %s,\n\tWind.Speed: %s,\n\tWind.Degree: %s,\n\tRain: %s\n\tMedian: %s\n}",
+		ds.Time, ds.TempK, ds.Pressure, ds.Humidity, ds.Clouds, ds.Wind.Speed, ds.Wind.Degree, ds.Rain, ds.Median)
 }
 
 func (ds DataSummary) Celsius() RangeFloat64 {
