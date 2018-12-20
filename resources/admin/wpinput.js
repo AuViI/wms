@@ -80,7 +80,7 @@ function build_wp_list(par) {
 					day = "0" + day;
 				}
 
-				c1.href = "/forecast/"+data[i].loc+"/d="year+month+day;
+				c1.href = "/forecast/"+data[i].loc+"/d="+year+month+day;
 				c1.target = "_blank";
 			}
 			c2 = document.createElement("div");
