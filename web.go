@@ -57,6 +57,7 @@ func webSetup(port *string) {
 	http.HandleFunc("/cached/", cacheHandler)
 	http.HandleFunc("/resources/", resourceHandler)
 	http.HandleFunc("/tools/sleep/", sleepHandler)
+	http.HandleFunc("/debug", debug)
 	http.HandleFunc("/", handler)
 	err := http.ListenAndServe(*port, nil)
 	if err != nil {

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"strings"
+
 	//"strings"
 	"sync"
 	"time"
@@ -352,6 +354,73 @@ func ktoc(k interface{}) float64 {
 // Ktoc converts Kelvin to Celsius
 func Ktoc(k interface{}) float64 {
 	return k.(float64) - 272.15
+}
+
+type Date struct {
+	Day, Month, Year int
+}
+
+func (d Date) String() string {
+	return fmt.Sprintf("%2d.%02d.%d", d.Day, d.Month, d.Year)
+}
+
+func DateFromTime(t time.Time) Date {
+	return Date{t.Day(), int(t.Month()), t.Year()}
+}
+
+func NowDate(in *time.Location) Date {
+	return DateFromTime(time.Now().In(in))
+}
+
+func (d Date) Tomorrow(in *time.Location) Date {
+	return d.Add(1, in)
+}
+
+func (d Date) Add(days int, in *time.Location) Date {
+	return DateFromTime(d.Time(in).AddDate(0, 0, days))
+}
+
+func (d Date) Time(in *time.Location) time.Time {
+	return time.Date(d.Year, time.Month(d.Month), d.Day, 0, 0, 0, 0, in)
+}
+
+type DayDataPointMap map[Date][]DataPoint
+
+func (d DayDataPointMap) String() string {
+	var days []string
+
+	for k, v := range d {
+		days = append(days, fmt.Sprintf("%s: %d elements", k, len(v)))
+	}
+
+	return strings.Join(days, "\n")
+}
+
+type DayDataSummaryMap map[Date]DataSummary
+
+func (d DayDataPointMap) Summarize() DayDataSummaryMap {
+	m := make(DayDataSummaryMap)
+	for k, v := range d {
+		m[k] = Summary(v)
+	}
+	return m
+}
+
+func (fc ForecastData) SplitByDay(in *time.Location) DayDataPointMap {
+	m := make(DayDataPointMap)
+
+	for _, v := range fc.Data {
+		t := time.Unix(v.Time, 0).In(in)
+		d := DateFromTime(t)
+		if _, ok := m[d]; ok {
+			m[d] = append(m[d], v)
+		} else {
+			m[d] = make([]DataPoint, 1, 12)
+			m[d][0] = v
+		}
+	}
+
+	return m
 }
 
 func rpmBuildDown() {
