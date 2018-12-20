@@ -212,7 +212,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		Theme:      theme,
 		WetterArea: make([]mapIcon, 8),
 		WpText: (func() string {
-			res, err := wp.Now(query).GetDatabaseEntry()
+			res, err := wp.For(query, base_date).GetDatabaseEntry()
 			if err != nil {
 				return "WIP: automated weather information"
 			}

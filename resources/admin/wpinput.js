@@ -67,7 +67,9 @@ function build_wp_list(par) {
 				c1.classList.add("text-light");
 				c1.target = "_blank";
 			} else {
-				c1 = document.createElement("div");
+				c1 = document.createElement("a");
+				c1.href = "/forecast/"+data[i].loc+"/d="+dt.getFullYear()+(dt.getMonth()+1)+dt.getDate();
+				c1.target = "_blank";
 			}
 			c2 = document.createElement("div");
 			c3 = document.createElement("div");

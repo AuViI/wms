@@ -12,6 +12,7 @@ package wp
 import (
 	"errors"
 	"fmt"
+	"github.com/AuViI/wms/weather"
 	"github.com/AuViI/wms/weather/redirect"
 	"io"
 	"net/http"
@@ -105,6 +106,14 @@ func handlerPrint(w io.Writer, req *Request, res *Response, err error) {
 func Now(location string) *Request {
 	r := new(Request)
 	r.location = redirect.Redirect(location)
+	return r
+}
+
+func For(location string, date weather.Date) *Request {
+	r := Now(location)
+	r.year = fmt.Sprintf("%d", date.Year)
+	r.month = fmt.Sprintf("%d", date.Month)
+	r.day = fmt.Sprintf("%d", date.Day)
 	return r
 }
 
