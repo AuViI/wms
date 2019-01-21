@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/AuViI/wms/config"
+	"github.com/AuViI/wms/simpleuser"
 	"github.com/AuViI/wms/wp"
 	"io"
 	"io/ioutil"
@@ -54,6 +55,7 @@ func webSetup(port *string) {
 		noCacheSwitch(normlistHandler, ncNormlistHandler))
 	http.HandleFunc("/gewusst/", gewusstHandler)
 	http.HandleFunc("/render/", renderHandler)
+	http.HandleFunc("/suser/", simpleuser.HandleJS)
 	http.HandleFunc("/cached/", cacheHandler)
 	http.HandleFunc("/resources/", resourceHandler)
 	http.HandleFunc("/tools/sleep/", sleepHandler)

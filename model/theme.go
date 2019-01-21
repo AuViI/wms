@@ -8,12 +8,12 @@ import (
 )
 
 type Theme struct {
-	StartColor ThemeColor
-	EndColor   ThemeColor
-	IconLink   string
+	StartColor ThemeColor `json:"start" yaml:"start,flow"`
+	EndColor   ThemeColor `json:"end" yaml:"end,flow"`
+	IconLink   string     `json:"ilink" yaml:"ilink"`
 
-	ToHTMLColor func(ThemeColor) string
-	ToHTMLIcon  func(string) template.HTML
+	ToHTMLColor func(ThemeColor) string    `json:"-" yaml:"-"`
+	ToHTMLIcon  func(string) template.HTML `json:"-" yaml:"-"`
 }
 
 type TemplateTheme struct {
@@ -23,9 +23,9 @@ type TemplateTheme struct {
 }
 
 type ThemeColor struct {
-	R int64
-	G int64
-	B int64
+	R int64 `json:"r" yaml:"r"`
+	G int64 `json:"g" yaml:"g"`
+	B int64 `json:"b" yaml:"b"`
 }
 
 var reHexColor = regexp.MustCompile("#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})")

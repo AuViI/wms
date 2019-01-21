@@ -9,6 +9,8 @@ var realResources = []string{
 	"admin/navbar.js",
 	"admin/wpinput.html",
 	"admin/wpinput.js",
+	"admin/users.html",
+	"admin/userapi.js",
 }
 
 var (

@@ -92,13 +92,15 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 			Origin string `json:"origin"`
 		}
 		json.NewDecoder(r.Body).Decode(&reqb)
-		adminnav.Execute(w, struct {
+
+		aderr := adminnav.Execute(w, struct {
 			Origin string
 			Pages  []struct {
 				Display string
 				Link    string
 				Active  bool
 			}
+			HasPrefix func(s, suffix string) bool
 		}{
 			Origin: reqb.Origin,
 			Pages: []struct {
@@ -110,12 +112,16 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 				{"Linkgenerator", "/resources/admin/linkgen.html", true},
 				{
 					"Kunden<div id=\"usercount-nav\" class=\"float-right small\"></div>",
-					"#",
-					false,
+					"/resources/admin/users.html",
+					true,
 				},
 				{"Wetterbericht", "/resources/admin/wpinput.html", true},
 			},
+			HasPrefix: strings.HasPrefix,
 		})
+		if aderr != nil {
+			panic(aderr)
+		}
 		break
 	default:
 		if resourceLocation.Has(s) {

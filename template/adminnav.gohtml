@@ -1,10 +1,11 @@
 {{- $orig := .Origin -}}
+{{- $pref := .HasPrefix -}}
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <span class="navbar-brand"><img src="/resources/logo_invert.png" class="align-top" width=30></img> WMS Admin Panel</span>
     <ul class="navbar-nav">
 {{- range .Pages }}
         <li class="nav-item">
-            <a class="nav-link{{ if not .Active }} disabled{{ end }}{{ if (eq $orig .Display) }} active{{ end }}" href="{{- .Link -}}">
+            <a class="nav-link{{ if not .Active }} disabled{{ end }}{{ if (call $pref .Display $orig) }} active{{ end }}" href="{{- .Link -}}">
                 {{- .Display -}}
             </a>
         </li>
