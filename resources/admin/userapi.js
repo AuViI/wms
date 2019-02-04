@@ -312,7 +312,7 @@ function build_add_user(elem) {
 	name.classList.add("form-control");
 	let addbtn = document.createElement("button");
 	addbtn.appendChild(document.createTextNode("Neuen Nutzer hinzufügen"));
-	addbtn.classList.add("btn", "btn-primary", "form-control");
+	addbtn.classList.add("btn", "btn-outline-primary", "form-control");
 	addbtn.onclick = () => {
 		addbtn.disabled = true;
 		window.setTimeout(()=>{addbtn.disabled = false;}, 9000);
