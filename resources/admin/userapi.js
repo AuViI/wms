@@ -305,14 +305,14 @@ function build_user_list(elem) {
 
 function build_add_user(elem) {
 	let row = document.createElement("div");
-	row.classList.add("row", "mx-3");
+	row.classList.add("input-group", "px-3");
 	let name = document.createElement("input");
 	name.type = "text";
 	name.placeholder = "Name";
-	name.classList.add("col-8");
+	name.classList.add("form-control");
 	let addbtn = document.createElement("button");
 	addbtn.appendChild(document.createTextNode("Neuen Nutzer hinzufügen"));
-	addbtn.classList.add("btn", "btn-primary", "col-4");
+	addbtn.classList.add("btn", "btn-primary", "form-control");
 	addbtn.onclick = () => {
 		addbtn.disabled = true;
 		window.setTimeout(()=>{addbtn.disabled = false;}, 9000);
