@@ -67,6 +67,19 @@ func HandleJS(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Theme(id uint64) model.Theme {
+	u, err := load(userFile)
+	if err != nil {
+		return model.GetDefaultTheme()
+	}
+	for k := range u {
+		if u[k].ID == id {
+			return u[k].Theme
+		}
+	}
+	return model.GetDefaultTheme()
+}
+
 func errorResponse(err error) Response {
 	return Response{Error: true, Message: err.Error()}
 }

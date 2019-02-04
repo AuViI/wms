@@ -49,8 +49,8 @@ func (t Theme) Prepare() TemplateTheme {
 }
 
 var defaultTheme = Theme{
-	StartColor: ThemeColorFromHex("#82a0d5"),
-	EndColor:   ThemeColorFromHex("#4b6ca6"),
+	StartColor: ThemeColorFromHex("#42aac9"),
+	EndColor:   ThemeColorFromHex("#12657e"),
 	IconLink:   "/resources/logo.png",
 
 	ToHTMLIcon:  ToHTMLIcon,

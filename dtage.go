@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/AuViI/wms/model"
+	"github.com/AuViI/wms/simpleuser"
 	"github.com/AuViI/wms/weather"
 )
 
@@ -302,8 +303,9 @@ func handleDTage(w http.ResponseWriter, r *http.Request) {
 
 	var result *ntag
 	locparam := model.ThemeRegex.FindStringSubmatch(req[2])
+	useparam := model.UserRegex.FindStringSubmatch(req[2])
 
-	if len(locparam) == 0 || locparam[0] == "" {
+	if (len(locparam) == 0 || locparam[0] == "") && len(useparam) == 0 {
 		result = newNTage(num, req[2])
 		result.Theme = model.Theme{
 			StartColor: model.ThemeColor{66, 170, 201},
@@ -317,6 +319,10 @@ func handleDTage(w http.ResponseWriter, r *http.Request) {
 			EndColor:   model.ThemeColorFromHex(fmt.Sprintf("#%s", locparam[3])),
 			IconLink:   strings.Replace(locparam[4], "|", "/", -1),
 		}.Prepare()
+	} else if len(useparam) == 3 {
+		result = newNTage(num, useparam[1])
+		ui, _ := strconv.ParseUint(useparam[2], 10, 64)
+		result.Theme = simpleuser.Theme(ui).Prepare()
 	} else {
 		fmt.Printf("len(locparam) = %d\n", len(locparam))
 		fmt.Println("Something went wrong")

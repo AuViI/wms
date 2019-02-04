@@ -173,6 +173,7 @@ function Users() {
 					u.users[index].theme.end = hexToRgb(cend.value);
 					set_users_object(u, console.log);
 				});
+				empty_c();
 			};
 
 			let sbtn = document.createElement("div");
@@ -201,7 +202,11 @@ function Users() {
 		c2.classList.add("col-2");
 		c3.classList.add("col-7");
 		c4.classList.add("col-2");
-		c1.appendChild(document.createTextNode(t.id));
+		let c1_dtage = document.createElement("a");
+		c1.appendChild(c1_dtage);
+		c1_dtage.appendChild(document.createTextNode(t.id));
+		c1_dtage.href = "/dtage/Kühlungsborn&u=" + t.id;
+		c1_dtage.target = "_blank";
 		c2.appendChild(document.createTextNode(t.name));
 		{ // c3 gradient
 			let grad = document.createElement("div");
