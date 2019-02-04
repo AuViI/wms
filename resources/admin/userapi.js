@@ -293,8 +293,11 @@ function set_users_object(users, callback) {
 function build_user_list(elem) {
 	if (!elem.hasChildNodes()) {
 		elem.classList.add("list-group");
-		load_default_object((df)=>_append_user_list(elem, df));
-		load_users_object((df)=>_append_user_list(elem, df, true));
+		load_default_object(
+			(df)=>{
+				_append_user_list(elem, df);
+				load_users_object((df)=>_append_user_list(elem, df, true));
+			});
 	} else {
 		load_users_object((df)=>_append_user_list(elem, df, true));
 	}
