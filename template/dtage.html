@@ -10,6 +10,7 @@
         <style media="screen">
             :root {
                 --time-color: #efefef;
+				--icon-height: 11em;
             }
             * {
                 padding: 0;
@@ -108,7 +109,14 @@
                 position: absolute;
                 top: 1em;
                 right: 1em;
-				max-height: 10em;
+				max-height: var(--icon-height);
+                max-width: 27em;
+            }
+            #themeicon-sym {
+                position: absolute;
+                top: 1em;
+                left: 1em;
+				max-height: var(--icon-height);
                 max-width: 27em;
             }
         </style>
@@ -116,6 +124,7 @@
     <body>
         <div id="background">
             <div class="header">
+				{{.Theme.IconSymLink}}
                 {{ if eq .N 1 }}
                 <h1><span id="ort">{{.Ort}}</span><br>Wetterlage Heute - {{.Now}}</h1>
                 {{ else }}
@@ -151,7 +160,7 @@
             <div class="footer">
                 Email: <a href="mailto:info@meteosky.de">info@meteosky.de</a> |{{ if eq .N 1 }} Wetter Aktuell {{ else }} Wetter f&uuml;r {{.N}} Tag(e){{ end }}<br>
                 <span id="dt"></span>{{/* {{.Now}} */}}
-                <img id="icon" src="/resources/logo_invert.png">
+				{{.Theme.IconVanityLink}}
             </div>
             <script type="text/javascript">
                 let dt = document.getElementById("dt");

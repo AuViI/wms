@@ -111,32 +111,39 @@ function Users() {
 			csmall[1].appendChild(document.createTextNode("Endfarbe"));
 
 
-			let icon_label = document.createElement("label");
-			let icon_row = document.createElement("div");
-			icon_div.appendChild(icon_label);
-			icon_div.appendChild(icon_row);
-			icon_row.id="form-icon-input";
-			icon_label.for = icon_row.id;
-			icon_label.appendChild(document.createTextNode("Icon"));
+			let iadd_input = (src, description) => {
+				let icon_label = document.createElement("label");
+				let icon_row = document.createElement("div");
+				icon_div.appendChild(icon_label);
+				icon_div.appendChild(icon_row);
+				icon_row.id="form-icon-input-" + description;
+				icon_label.for = icon_row.id;
+				icon_label.appendChild(document.createTextNode("Icon: " + description));
 
-			icon_row.classList.add("row")
-			let icon_cols = [document.createElement("div"), document.createElement("div")];
-			icon_row.appendChild(icon_cols[0]);
-			icon_row.appendChild(icon_cols[1]);
-			icon_cols[0].classList.add("col-9");
-			icon_cols[1].classList.add("col-3");
-			let icon_input = document.createElement("input");
-			icon_input.value = t.theme.ilink;
-			icon_input.type = "text";
-			icon_input.classList.add("form-control");
-			icon_input.placeholder = "Icon Link";
-			icon_cols[0].appendChild(icon_input);
-			let img = document.createElement("img");
-			img.src = t.theme.ilink;
-			img.style.maxHeight = "8rem";
-			img.style.maxWidth = "8rem";
-			icon_input.onkeyup = () => {img.src=icon_input.value;};
-			icon_cols[1].appendChild(img);
+				icon_row.classList.add("row")
+				let icon_cols = [document.createElement("div"), document.createElement("div")];
+				icon_row.appendChild(icon_cols[0]);
+				icon_row.appendChild(icon_cols[1]);
+				icon_cols[0].classList.add("col-9");
+				icon_cols[1].classList.add("col-3");
+				let icon_input = document.createElement("input");
+				icon_input.value = src;
+				icon_input.type = "text";
+				icon_input.classList.add("form-control");
+				icon_input.placeholder = "Icon Link (" + description + ")";
+				icon_cols[0].appendChild(icon_input);
+				let img = document.createElement("img");
+				img.src = src;
+				img.style.maxHeight = "8rem";
+				img.style.maxWidth = "8rem";
+				icon_input.onkeyup = () => {img.src=icon_input.value;};
+				icon_cols[1].appendChild(img);
+				return icon_input;
+			}
+
+			let ilink_input = iadd_input(t.theme.ilink, "Rechts");
+			let slink_input = iadd_input(t.theme.slink, "Links");
+			let vlink_input = iadd_input(t.theme.vlink, "Unten");
 			
 
 			form.appendChild(name_div);
@@ -168,7 +175,9 @@ function Users() {
 						return;
 					}
 					u.users[index].name = name_div.childNodes[1].value;
-					u.users[index].theme.ilink = icon_input.value;
+					u.users[index].theme.ilink = ilink_input.value;
+					u.users[index].theme.slink = slink_input.value;
+					u.users[index].theme.vlink = vlink_input.value;
 					u.users[index].theme.start = hexToRgb(cstart.value);
 					u.users[index].theme.end = hexToRgb(cend.value);
 					set_users_object(u, console.log);
@@ -216,13 +225,19 @@ function Users() {
 			grad.classList.add("border");
 			grad.classList.add("border-secondary");
 			grad.classList.add("rounded");
-			let img = document.createElement("img");
-			img.src = t.theme.ilink;
-			img.classList.add("mw-100");
-			img.classList.add("mh-100");
-			img.classList.add("mx-auto");
-			img.classList.add("d-block");
-			grad.appendChild(img);
+			grad.classList.add("d-flex", "justify-content-center");
+			let iadd = (themelink) => {
+				let img = document.createElement("img");
+				img.src = themelink;
+				img.classList.add("mw-100");
+				img.classList.add("mh-100");
+				img.classList.add("mx-auto");
+				img.classList.add("d-block");
+				grad.appendChild(img);
+			}
+			iadd(t.theme.slink);
+			iadd(t.theme.vlink);
+			iadd(t.theme.ilink);
 			c3.appendChild(grad);
 		}
 		{ // c4 edit button

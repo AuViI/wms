@@ -8,18 +8,23 @@ import (
 )
 
 type Theme struct {
-	StartColor ThemeColor `json:"start" yaml:"start,flow"`
-	EndColor   ThemeColor `json:"end" yaml:"end,flow"`
-	IconLink   string     `json:"ilink" yaml:"ilink"`
+	StartColor     ThemeColor `json:"start" yaml:"start,flow"`
+	EndColor       ThemeColor `json:"end" yaml:"end,flow"`
+	IconLink       string     `json:"ilink" yaml:"ilink"`
+	IconSymLink    string     `json:"slink" yaml:"slink"`
+	IconVanityLink string     `json:"vlink" yaml:"vlink"`
 
-	ToHTMLColor func(ThemeColor) string    `json:"-" yaml:"-"`
-	ToHTMLIcon  func(string) template.HTML `json:"-" yaml:"-"`
+	ToHTMLColor     func(ThemeColor) string            `json:"-" yaml:"-"`
+	ToHTMLIcon      func(string) template.HTML         `json:"-" yaml:"-"`
+	ToHTMLSmartIcon func(string, string) template.HTML `json:"-" yaml:"-"`
 }
 
 type TemplateTheme struct {
-	StartColor string
-	EndColor   string
-	IconLink   template.HTML
+	StartColor     string
+	EndColor       string
+	IconLink       template.HTML
+	IconSymLink    template.HTML
+	IconVanityLink template.HTML
 }
 
 type ThemeColor struct {
@@ -42,19 +47,23 @@ func ThemeColorFromHex(hexdesc string) ThemeColor {
 
 func (t Theme) Prepare() TemplateTheme {
 	return TemplateTheme{
-		StartColor: ToHTMLColor(t.StartColor),
-		EndColor:   ToHTMLColor(t.EndColor),
-		IconLink:   ToHTMLIcon(t.IconLink),
+		StartColor:     ToHTMLColor(t.StartColor),
+		EndColor:       ToHTMLColor(t.EndColor),
+		IconLink:       ToHTMLSmartIcon(t.IconLink, "themeicon"),
+		IconSymLink:    ToHTMLSmartIcon(t.IconSymLink, "themeicon-sym"),
+		IconVanityLink: ToHTMLSmartIcon(t.IconVanityLink, "icon"),
 	}
 }
 
 var defaultTheme = Theme{
-	StartColor: ThemeColorFromHex("#42aac9"),
-	EndColor:   ThemeColorFromHex("#12657e"),
-	IconLink:   "/resources/logo.png",
+	StartColor:     ThemeColorFromHex("#42aac9"),
+	EndColor:       ThemeColorFromHex("#12657e"),
+	IconLink:       "/resources/logo.png",
+	IconVanityLink: "/resources/logo_invert.png",
 
-	ToHTMLIcon:  ToHTMLIcon,
-	ToHTMLColor: ToHTMLColor,
+	ToHTMLIcon:      ToHTMLIcon,
+	ToHTMLSmartIcon: ToHTMLSmartIcon,
+	ToHTMLColor:     ToHTMLColor,
 }
 
 func ToHTMLColor(c ThemeColor) string {
@@ -64,6 +73,12 @@ func ToHTMLColor(c ThemeColor) string {
 func ToHTMLIcon(iconLink string) template.HTML {
 	return template.HTML(
 		fmt.Sprintf("<img id='themeicon' src='%s'></img>", iconLink),
+	)
+}
+
+func ToHTMLSmartIcon(iconLink, id string) template.HTML {
+	return template.HTML(
+		fmt.Sprintf("<img id='%s' src='%s'></img>", id, iconLink),
 	)
 }
 
