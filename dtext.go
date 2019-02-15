@@ -12,6 +12,7 @@ import (
 	"github.com/AuViI/wms/model"
 	"github.com/AuViI/wms/simpleuser"
 	"github.com/AuViI/wms/weather"
+	"github.com/AuViI/wms/weather/redirect"
 	"github.com/icrowley/fake"
 )
 
@@ -59,6 +60,9 @@ func handleDText(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Something went wrong")
 	}
 
+	loc = redirect.Redirect(loc)
+	dt := weather.NowDate(time.Local)
+
 	dtexttmpl.Execute(w, struct {
 		Location string
 		Theme    model.TemplateTheme
@@ -68,13 +72,15 @@ func handleDText(w http.ResponseWriter, r *http.Request) {
 		Location: loc,
 		Theme:    nt,
 		Text: struct {
-			Title string
-			Main  string
+			Title    string
+			Subtitle string
+			Main     string
 		}{
-			Title: fake.Title(),
-			Main:  fake.SentencesN(rand.Intn(5) + 12),
+			Title:    fake.Title(),
+			Subtitle: fmt.Sprintf("%s: %s", dt, fake.Sentence()),
+			Main:     fake.SentencesN(rand.Intn(5) + 12),
 		},
-		Date: weather.NowDate(time.Local),
+		Date: dt,
 	})
 }
 
