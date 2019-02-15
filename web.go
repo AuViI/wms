@@ -53,6 +53,8 @@ func webSetup(port *string) {
 		noCacheSwitch(handleDTage, ncHandleDTage))
 	http.HandleFunc("/normlist/",
 		noCacheSwitch(normlistHandler, ncNormlistHandler))
+	http.HandleFunc("/dtext/",
+		noCacheSwitch(handleDText, ncHandleDText))
 	http.HandleFunc("/gewusst/", gewusstHandler)
 	http.HandleFunc("/render/", renderHandler)
 	http.HandleFunc("/suser/", simpleuser.HandleJS)

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+{{ $refresh := 1800 }}{{/* seconds to wait before refresh */}}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="refresh" content="{{ $refresh }}">
+        <link rel="shortcut icon" href="resources/logo.png">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <title>{{.Location}}</title>
+        <style media="screen">
+            :root {
+                --time-color: #efefef;
+				--icon-height: 9em;
+            }
+            * {
+                padding: 0;
+                margin: 0;
+                font-family: sans-serif;
+                text-shadow: 0 0 10px rgba(0,0,0,0.2);
+            }
+            body {
+                color: white;
+            }
+            table {
+                margin: auto auto;
+                font-size: 2.5em;
+            }
+            th, td {
+                padding: .2em 1em;
+                text-align: center;
+            }
+            td {
+                height: 6.2vh;
+            }
+            h1 {
+                font-size: 2.6em;
+            }
+
+            a {
+                color: #FFF;
+                text-decoration: none;
+            }
+            .exact {
+                color: var(--time-color);
+                font-weight: 500;
+                font-size: 0.5em;
+                text-align: center;
+                display: block;
+            }
+            span.exact {
+                margin-top: 0.5em;
+            }
+            hr.exact {
+                border: 0;
+                height: 1px;
+                background-image: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,255), rgba(255,255,255,0));
+                margin: 0;
+            }
+            #background {
+                background-image: linear-gradient(180deg, {{.Theme.StartColor}}, {{.Theme.EndColor}});
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 0;
+            }
+            #tblblock {
+                padding-top: 5em;
+                padding-bottom: 1em;
+            }
+            #ort {
+                font-size: 180%;
+            }
+            #icon {
+                position: absolute;
+                bottom: 6%;
+                left: 0.2em;
+                height: calc(88% * 3);
+                opacity: 0.8;
+            }
+
+            .header {
+                background-color: rgba(255, 255, 255, 0.2);
+                text-shadow: 0 0 10px rgba(0,0,0,0.3);
+                padding: 1.5em;
+                margin: 0;
+                text-align: center;
+				min-height: calc(var(--icon-height) + 2em);
+            }
+            .footer {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                background-color: rgba(36, 36, 36, 0.8);
+                color: #AAA;
+                text-align: right;
+                padding: 1em;
+            }
+            .param {
+                text-align: right;
+            }
+            .icon {
+                height:2em;
+                background-color: rgba(214, 214, 214, 0.5);
+                border-radius: .5em;
+            }
+            #themeicon {
+                position: absolute;
+                top: 1em;
+                right: 1em;
+				max-height: var(--icon-height);
+                max-width: 27em;
+            }
+            #themeicon-sym {
+                position: absolute;
+                top: 1em;
+                left: 1em;
+				max-height: var(--icon-height);
+                max-width: 27em;
+            }
+			.dtext {
+				padding: 3em;
+				max-width: 60%;
+				margin: auto;
+			}
+			.capitalise {
+				text-transform: uppercase;
+			}
+        </style>
+    </head>
+    <body>
+        <div id="background">
+            <div class="header">
+				{{.Theme.IconSymLink}}
+                <h1><span id="ort">{{.Location}}</span></h1>
+                {{.Theme.IconLink}}
+            </div>
+			<div class="dtext">
+				<span class="h2 capitalise">{{.Text.Title}}</span>
+				<span class="d-block h2 mt-3">{{.Text.Main}}</span>
+				<span class="dtext-date float-right">{{.Date}}</span>
+			</div>
+            <div class="footer">
+                Email: <a href="mailto:info@meteosky.de">info@meteosky.de</a>
+				{{.Theme.IconVanityLink}}
+            </div>
+        </div>
+    </body>
+</html>
